@@ -5,6 +5,15 @@ final class AssertionFailed extends RuntimeException
 {
 }
 
+final class TestSkipped extends RuntimeException
+{
+}
+
+function skip(string $reason): never
+{
+    throw new TestSkipped($reason);
+}
+
 function assert_same(mixed $expected, mixed $actual, string $message = ''): void
 {
     if ($expected !== $actual) {

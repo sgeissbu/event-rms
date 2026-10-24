@@ -11,7 +11,7 @@ Options -Indexes
 # Interne Verzeichnisse sperren
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteRule ^(src|database|tests|lang|templates|vendor)(/|$) - [F,L]
+    RewriteRule ^(src|database|tests|tools|lang|templates|vendor)(/|$) - [F,L]
     RewriteRule (^|/)\. - [F,L]
 </IfModule>
 

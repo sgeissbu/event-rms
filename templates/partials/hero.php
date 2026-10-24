@@ -1,6 +1,6 @@
 <?php
 /**
- * @var array $event  @var string $phase  @var ?string $heroImage
+ * @var array $event  @var string $phase  @var ?string $heroImage  @var array $eventQuery
  */
 use App\Domain\EventPhase;
 
@@ -36,7 +36,7 @@ $start = new DateTimeImmutable((string) $event['starts_at']);
         <?php else: ?>
             <p class="mt-4 mb-3 fw-semibold"><?= e(t($phase === EventPhase::LIVE ? 'event.live' : 'event.past')) ?></p>
             <?php if (EventPhase::rankingPublic($event)): ?>
-                <a class="btn btn-accent btn-lg" href="<?= e(url('rangliste.php')) ?>">
+                <a class="btn btn-accent btn-lg" href="<?= e(url('rangliste.php', $eventQuery)) ?>">
                     <?= e(t($phase === EventPhase::LIVE ? 'event.to_live_ranking' : 'event.to_ranking')) ?>
                 </a>
             <?php endif; ?>

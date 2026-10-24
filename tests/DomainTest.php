@@ -43,6 +43,15 @@ return [
         assert_same('#FFFFFF', $vars['--brand-contrast']);
         assert_same('#111827', $vars['--accent-contrast']);
     },
+    'Theme: dunkle Vereinsfarbe bleibt im Dunkelmodus sichtbar (≥ 3:1)' => function (): void {
+        $dark = Color::fromHex('#111827');
+        foreach (['#1D284C', '#000000', '#0B3D2E', '#FEC028'] as $hex) {
+            $vars = Theme::variables($hex, $hex)['dark'];
+            assert_true(Color::fromHex($vars['--brand'])->contrast($dark) >= 3.0, "{$hex} → {$vars['--brand']}");
+            assert_true(Color::fromHex($vars['--brand-contrast'])->contrast(Color::fromHex($vars['--brand'])) >= 4.5, "Text auf {$vars['--brand']}");
+        }
+        assert_same('#FEC028', Theme::variables('#FEC028', '#FEC028')['dark']['--brand'], 'helle Farben bleiben unverändert');
+    },
     'Theme: ungültige Farben fallen auf Standard zurück' => function (): void {
         $vars = Theme::variables('quatsch', '');
         assert_same(Theme::FALLBACK_PRIMARY, $vars['light']['--brand']);

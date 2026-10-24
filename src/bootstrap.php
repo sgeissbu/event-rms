@@ -18,12 +18,18 @@ if (PHP_VERSION_ID < 80100) {
 }
 
 spl_autoload_register(static function (string $class): void {
-    if (strncmp($class, 'App\\', 4) !== 0) {
-        return;
-    }
-    $file = APP_ROOT . '/src/' . str_replace('\\', '/', substr($class, 4)) . '.php';
-    if (is_file($file)) {
-        require $file;
+    $prefixes = [
+        'App\\' => APP_ROOT . '/src/',
+        'PHPMailer\\PHPMailer\\' => APP_ROOT . '/vendor/phpmailer/',
+    ];
+    foreach ($prefixes as $prefix => $dir) {
+        if (strncmp($class, $prefix, strlen($prefix)) === 0) {
+            $file = $dir . str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
+            if (is_file($file)) {
+                require $file;
+            }
+            return;
+        }
     }
 });
 

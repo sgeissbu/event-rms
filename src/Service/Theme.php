@@ -48,7 +48,22 @@ final class Theme
             '--accent-subtle' => $secondary->mix($white, 0.85)->hex(),
         ];
 
+        // Im Dunkelmodus verschwinden sehr dunkle Vereinsfarben auf dem Hintergrund (Buttons,
+        // aktive Reiter). Dann wird die Farbe aufgehellt, bis sie sich mit 3:1 abhebt (WCAG für UI-Elemente).
+        $visibleOnDark = static fn (Color $c): Color => $c->contrast($dark) < 3.0 ? $c->readableOn($dark, 3.0) : $c;
+        $darkHover = static fn (Color $c): Color => $c->mix($white, 0.12);
+        $primaryDark = $visibleOnDark($primary);
+        $secondaryDark = $visibleOnDark($secondary);
+
         $darkVars = [
+            '--brand' => $primaryDark->hex(),
+            '--brand-rgb' => $primaryDark->rgbList(),
+            '--brand-hover' => $darkHover($primaryDark)->hex(),
+            '--brand-contrast' => $primaryDark->bestTextColor($ink, $white)->hex(),
+            '--accent' => $secondaryDark->hex(),
+            '--accent-rgb' => $secondaryDark->rgbList(),
+            '--accent-hover' => $darkHover($secondaryDark)->hex(),
+            '--accent-contrast' => $secondaryDark->bestTextColor($ink, $white)->hex(),
             '--brand-text' => $primary->readableOn($dark)->hex(),
             '--brand-subtle' => $primary->mix($dark, 0.80)->hex(),
             '--brand-muted' => $primary->mix($dark, 0.60)->hex(),

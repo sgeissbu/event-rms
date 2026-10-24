@@ -4,12 +4,8 @@
  * @var string $content  @var string $clubName  @var string $clubUrl  @var ?string $logoUrl
  * @var string $logoInitials  @var string $themeCss  @var string $activeNav  @var array $flashes
  * @var ?string $pageTitle  @var ?string $hero  (optional: fertiges Hero-HTML über dem Inhalt)
+ * @var array<string, array{0:string,1:string}> $navItems  key => [URL, Label]
  */
-$navItems = [
-    'home' => ['index.php', t('nav.home')],
-    'startlist' => ['startliste.php', t('nav.startlist')],
-    'ranking' => ['rangliste.php', t('nav.ranking')],
-];
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -41,7 +37,7 @@ $navItems = [
                         <li class="nav-item">
                             <a class="nav-link<?= $activeNav === $key ? ' active' : '' ?>"
                                <?= $activeNav === $key ? 'aria-current="page"' : '' ?>
-                               href="<?= e(url($href)) ?>"><?= e($label) ?></a>
+                               href="<?= e($href) ?>"><?= e($label) ?></a>
                         </li>
                     <?php endforeach; ?>
                 </ul>
@@ -64,10 +60,14 @@ $navItems = [
         <span>&copy; <?= date('Y') ?>
             <?php if ($clubUrl !== ''): ?><a href="<?= e($clubUrl) ?>" rel="noopener"><?= e($clubName) ?></a><?php else: ?><?= e($clubName) ?><?php endif; ?>
         </span>
-        <span><?= t('footer.powered', ['link' => '<a href="https://github.com/sgeissbu/event-rms" rel="noopener">event-rms</a>']) ?></span>
+        <span>
+            <a href="<?= e(url('judge/index.php')) ?>">Kampfrichter</a> ·
+            <?= t('footer.powered', ['link' => '<a href="https://github.com/sgeissbu/event-rms" rel="noopener">event-rms</a>']) ?>
+        </span>
     </div>
 </footer>
 <script src="<?= e(asset('assets/vendor/bootstrap/bootstrap.bundle.min.js')) ?>" defer></script>
+<script src="<?= e(asset('assets/js/forms.js')) ?>" defer></script>
 <?php foreach ($scripts ?? [] as $script): ?>
     <script src="<?= e(asset($script)) ?>" defer></script>
 <?php endforeach; ?>

@@ -10,6 +10,7 @@ require __DIR__ . '/assert.php';
 
 $filter = $argv[1] ?? '';
 $passed = 0;
+$skipped = [];
 $failures = [];
 
 foreach (glob(__DIR__ . '/*Test.php') ?: [] as $file) {
@@ -23,6 +24,9 @@ foreach (glob(__DIR__ . '/*Test.php') ?: [] as $file) {
             $test();
             $passed++;
             echo '.';
+        } catch (TestSkipped $e) {
+            $skipped[] = $label . ': ' . $e->getMessage();
+            echo 'S';
         } catch (Throwable $e) {
             $failures[] = [$label, $e];
             echo 'F';
@@ -31,8 +35,11 @@ foreach (glob(__DIR__ . '/*Test.php') ?: [] as $file) {
 }
 
 echo "\n\n";
+foreach ($skipped as $line) {
+    echo "– übersprungen: {$line}\n";
+}
 foreach ($failures as [$label, $e]) {
     echo "✕ {$label}\n   " . $e->getMessage() . "\n   " . basename($e->getFile()) . ':' . $e->getLine() . "\n\n";
 }
-echo sprintf("%d bestanden, %d fehlgeschlagen\n", $passed, count($failures));
+echo sprintf("%d bestanden, %d übersprungen, %d fehlgeschlagen\n", $passed, count($skipped), count($failures));
 exit($failures === [] ? 0 : 1);

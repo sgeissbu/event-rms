@@ -4,6 +4,7 @@
  */
 return [
     'nav.home' => 'Start',
+    'nav.register' => 'Anmeldung',
     'nav.startlist' => 'Startliste',
     'nav.ranking' => 'Rangliste',
     'nav.judge' => 'Kampfrichter',
