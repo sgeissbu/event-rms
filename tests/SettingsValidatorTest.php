@@ -21,6 +21,10 @@ return [
             'mail_from' => 'kein-mail', 'timezone' => 'Mars/Olympus'] + $valid);
         assert_same(['club_name', 'club_url', 'color_primary', 'mail_from', 'timezone'], array_keys($r['errors']));
     },
+    'Vereinsname ausblenden: Checkbox wird zu 1/0' => function () use ($valid): void {
+        assert_same('1', SettingsValidator::validate($valid + ['hide_club_name' => '1'])['values']['hide_club_name']);
+        assert_same('0', SettingsValidator::validate($valid)['values']['hide_club_name']);
+    },
     'Leere optionale Felder sind erlaubt' => function () use ($valid): void {
         $r = SettingsValidator::validate(['club_url' => '', 'mail_from' => '', 'privacy_contact' => '', 'timezone' => ''] + $valid);
         assert_same([], $r['errors']);

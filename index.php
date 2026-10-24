@@ -9,6 +9,7 @@ use App\Core\View;
 use App\Domain\EventPhase;
 use App\Http\App;
 use App\Repository\DisciplineRepository;
+use App\Repository\EventRepository;
 
 App::boot();
 
@@ -18,6 +19,7 @@ if ($event === null && isset($_GET['event'])) {
 }
 
 $vars = App::layoutVars('home', $event) + ['pageTitle' => $event['title'] ?? ''];
+$vars['pastEvents'] = EventPhase::pastWithRanking((new EventRepository(Database::pdo()))->all(), isset($event['id']) ? (int) $event['id'] : null);
 
 if ($event !== null) {
     $images = App::heroImages();

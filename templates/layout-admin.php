@@ -25,7 +25,9 @@
     <div class="container-fluid admin-topbar">
         <a class="app-brand" href="<?= e(url('admin/index.php')) ?>">
             <?php require __DIR__ . '/partials/logo.php'; ?>
-            <span class="d-none d-sm-inline"><?= e($clubName) ?></span>
+            <?php if (empty($hideClubName)): ?>
+                <span class="d-none d-sm-inline"><?= e($clubName) ?></span>
+            <?php endif; ?>
             <span class="admin-tag">Admin</span>
         </a>
         <?php if ($allEvents): ?>

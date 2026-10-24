@@ -30,6 +30,14 @@ $v = static fn (string $key): string => e($old[$key] ?? '');
                 <input class="form-control<?= $invalid('club_url') ?>" id="club_url" name="club_url" type="url" placeholder="https://" value="<?= $v('club_url') ?>">
                 <?= $feedback('club_url') ?>
             </div>
+            <div class="col-12">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="hide_club_name" name="hide_club_name" value="1"
+                           aria-describedby="hide_club_name_help"<?= ($old['hide_club_name'] ?? '') === '1' ? ' checked' : '' ?>>
+                    <label class="form-check-label" for="hide_club_name">Vereinsname neben dem Logo ausblenden</label>
+                </div>
+                <div class="form-text" id="hide_club_name_help">Wenn der Name schon im Logo steht. Wirkt nur, solange ein Logo hochgeladen ist.</div>
+            </div>
         </div>
 
         <h2 class="h5 mb-3">Farben</h2>

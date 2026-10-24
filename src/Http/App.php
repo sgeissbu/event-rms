@@ -77,12 +77,25 @@ final class App
         $brandVars = Theme::variables($primary, $secondary)['light'];
         $initials = Text::initials($clubName);
         $shareImage = self::heroImages()[0] ?? (($logo !== '' && $logoUrl !== null) ? $logo : null);
+        // Anderer als der aktive Anlass (z.B. aus «Frühere Anlässe»): Weg zurück anbieten.
+        $otherEvent = null;
+        if ($query !== []) {
+            $activeId = (int) Settings::get('active_event_id', '0');
+            $active = $activeId > 0 ? (new EventRepository(Database::pdo()))->find($activeId) : null;
+            $otherEvent = [
+                'archived' => !empty($event['archived_at']),
+                'title' => (string) $event['title'],
+                'activeTitle' => $active['title'] ?? null,
+            ];
+        }
         return [
             'navItems' => $nav,
+            'otherEvent' => $otherEvent,
             'event' => $event,
             'clubName' => $clubName,
             'clubUrl' => (string) Settings::get('club_url'),
             'logoUrl' => $logoUrl,
+            'hideClubName' => $logoUrl !== null && Settings::get('hide_club_name') === '1',
             'logoInitials' => $initials,
             'themeCss' => Theme::css($primary, $secondary),
             'brandHex' => $brandVars['--brand'],

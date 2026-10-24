@@ -40,6 +40,19 @@ final class EventPhase
         return $now < new DateTimeImmutable($closes);
     }
 
+    /**
+     * Abgeschlossene Anlässe mit öffentlicher Rangliste (für «Frühere Anlässe»), Reihenfolge bleibt.
+     * @param list<array<string, mixed>> $events
+     * @return list<array<string, mixed>>
+     */
+    public static function pastWithRanking(array $events, ?int $exceptId = null, ?DateTimeImmutable $now = null): array
+    {
+        return array_values(array_filter(
+            $events,
+            static fn (array $e): bool => !empty($e['archived_at']) && (int) $e['id'] !== $exceptId && self::rankingPublic($e, $now)
+        ));
+    }
+
     /** @param array<string, mixed> $event */
     public static function rankingPublic(array $event, ?DateTimeImmutable $now = null): bool
     {

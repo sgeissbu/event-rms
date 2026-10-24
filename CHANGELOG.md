@@ -2,6 +2,13 @@
 
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen an [Semantic Versioning](https://semver.org/lang/de/).
 
+## [Unveröffentlicht] – 0.9.1
+
+### Neu
+- Startseite: Liste «Frühere Anlässe» mit Link zur Rangliste (archivierte Anlässe mit öffentlicher Rangliste)
+- «Verein & Design»: Option «Vereinsname neben dem Logo ausblenden» (für Logos, die den Namen schon enthalten)
+- Hinweisbalken beim Ansehen eines früheren (nicht aktiven) Anlasses mit Link zurück zum aktuellen Anlass
+
 ## [0.9.0] – 2026-10-24
 
 Erste öffentliche Beta-Version.

@@ -31,6 +31,9 @@ final class SettingsValidator
             $errors['club_url'] = 'Bitte eine vollständige Adresse angeben, z.B. https://www.meinverein.ch';
         }
 
+        // Nur sinnvoll, wenn das Logo den Namen schon enthält; ohne Logo wird der Name immer gezeigt.
+        $values['hide_club_name'] = empty($input['hide_club_name']) ? '0' : '1';
+
         foreach (['color_primary', 'color_secondary'] as $key) {
             $hex = Theme::normalizeHex($str($key));
             if ($hex === null) {

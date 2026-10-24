@@ -142,6 +142,18 @@ return [
         assert_true(EventPhase::rankingPublic($event(['archived_at' => '2027-03-01 10:00:00']), $at('2027-03-02')), 'archiviert = öffentlich');
         assert_true(!EventPhase::rankingPublic($event(['archived_at' => '2027-03-01 10:00:00', 'ranking_visibility' => 'judges_only']), $at('2027-03-02')));
     },
+    'EventPhase: frühere Anlässe nur archiviert, mit öffentlicher Rangliste, ohne aktuellen' => function () use ($event, $at): void {
+        $events = [
+            $event(['id' => 4, 'archived_at' => '2027-03-21 10:00:00']),
+            $event(['id' => 3]),
+            $event(['id' => 2, 'archived_at' => '2026-03-29 10:00:00', 'ranking_visibility' => 'judges_only']),
+            $event(['id' => 1, 'archived_at' => '2025-03-29 10:00:00']),
+        ];
+        $ids = static fn (array $list): array => array_map(static fn (array $e): int => $e['id'], $list);
+        assert_same([4, 1], $ids(EventPhase::pastWithRanking($events, 3, $at('2027-04-01'))));
+        assert_same([1], $ids(EventPhase::pastWithRanking($events, 4, $at('2027-04-01'))));
+        assert_same([4, 1], $ids(EventPhase::pastWithRanking($events, null, $at('2027-04-01'))));
+    },
     'EventRepository: Standard-Mitglieder und Kampfrichter-Code' => function (): void {
         assert_same(1, count(EventRepository::defaultMemberConfig(1)));
         assert_same('Mitglied 3', EventRepository::defaultMemberConfig(4)[2]['label']);

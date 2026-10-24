@@ -37,8 +37,12 @@
     <nav class="navbar navbar-expand-md">
         <div class="container">
             <a class="app-brand" href="<?= e(url('index.php')) ?>">
-                <?php $logoAlt = ''; /* Vereinsname steht gleich daneben */ require __DIR__ . '/partials/logo.php'; ?>
-                <span><?= e($clubName) ?></span>
+                <?php if (!empty($hideClubName)): /* Name steht im Logo – dann ist das Logo der Linktext */ ?>
+                    <?php $logoAlt = $clubName; require __DIR__ . '/partials/logo.php'; ?>
+                <?php else: ?>
+                    <?php $logoAlt = ''; /* Vereinsname steht gleich daneben */ require __DIR__ . '/partials/logo.php'; ?>
+                    <span><?= e($clubName) ?></span>
+                <?php endif; ?>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
                     aria-controls="mainNav" aria-expanded="false" aria-label="Navigation">
@@ -58,6 +62,17 @@
         </div>
     </nav>
 </header>
+
+<?php if (!empty($otherEvent)): ?>
+    <div class="event-switch">
+        <div class="container">
+            <span><?= e(t($otherEvent['archived'] ? 'event.other.archived' : 'event.other.viewing')) ?>: <strong><?= e($otherEvent['title']) ?></strong></span>
+            <a href="<?= e(url('index.php')) ?>"><?= $otherEvent['activeTitle'] !== null
+                ? e(t('event.other.to_current')) . ': ' . e($otherEvent['activeTitle'])
+                : e(t('event.other.to_home')) ?> <span aria-hidden="true">→</span></a>
+        </div>
+    </div>
+<?php endif; ?>
 
 <?= $hero ?? '' ?>
 

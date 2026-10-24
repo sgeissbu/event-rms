@@ -1,7 +1,7 @@
 <?php
 /**
  * Startseite.
- * @var ?array $event  @var list<array> $disciplines
+ * @var ?array $event  @var list<array> $disciplines  @var list<array> $pastEvents
  */
 ?>
 <?php if ($event === null): ?>
@@ -53,4 +53,19 @@
             </div>
         <?php endif; ?>
     </div>
+<?php endif; ?>
+<?php if (!empty($pastEvents)): ?>
+    <section class="card mt-4" aria-labelledby="past-events-title">
+        <div class="card-body">
+            <h2 class="section-title" id="past-events-title">Frühere Anlässe</h2>
+            <ul class="past-events">
+                <?php foreach ($pastEvents as $past): ?>
+                    <li>
+                        <a href="<?= e(url('rangliste.php', ['event' => $past['slug']])) ?>"><?= e($past['title']) ?></a>
+                        <span class="text-muted small"><?= e(format_event_date(new DateTimeImmutable((string) $past['starts_at']), false)) ?></span>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    </section>
 <?php endif; ?>
