@@ -2,7 +2,7 @@
 
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen an [Semantic Versioning](https://semver.org/lang/de/).
 
-## [Unveröffentlicht] – 0.9.1
+## [0.9.1] – 2026-10-24
 
 ### Neu
 - Startseite: Liste «Frühere Anlässe» mit Link zur Rangliste (archivierte Anlässe mit öffentlicher Rangliste)
