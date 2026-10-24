@@ -167,18 +167,28 @@ Disziplinen global statt pro Event, leere Eingabe wurde als 0 gespeichert.
 (`admin/einstellungen.php`, `src/Service/ImageUpload.php`), Abschliessen/Anonymisieren (`admin/abschliessen.php`,
 `src/Service/EventLifecycle.php`, Migration 002 `ranking_snapshot`), Kategorien als **Vorlage** (`admin/kategorien.php`).
 
-**Offen (Sonnet, nach Muster `admin/kategorien.php`):**
-1. `admin/anlaesse.php` – Anlass anlegen/bearbeiten/kopieren (inkl. Disziplinen + Kategorien kopieren): Stammdaten, Texte,
-   Zeiten, Anmeldung, Sichtbarkeit, Namensanzeige, Teamgrösse + `member_config`, `category_member`, Handicap.
-   Teamgrösse nur änderbar, solange keine Anmeldungen existieren. Nach dem Speichern `MemberConfig::conflicts()` anzeigen.
-2. `admin/disziplinen.php` – CRUD inkl. Teilmessungen, Zeitformat, Dezimalstellen, Faktoren (≥ 1, mit Beispielrechnung
-   via `RankingCalculator::factor()/adjust()`); Löschen nur ohne Resultate, sonst «inaktiv».
-3. `admin/teilnehmer.php` – Liste mit Suche, bearbeiten (Mitglieder, Kategorie), löschen (mit Resultaten), CSV-Export.
-4. `admin/resultate.php` – Liste mit Filter (Disziplin/Kampfrichter/annulliert), annullieren (`ResultRepository::void` ohne
-   Kampfrichter-Einschränkung), Resultat nachtragen.
-5. `admin/benutzer.php` – Admins anlegen/entfernen (nicht sich selbst/letzten), eigenes Passwort ändern.
-6. Fotos vor dem Upload im Browser verkleinern (Canvas → JPEG, max. 1920 px), damit Handyfotos auch bei tiefem
-   `upload_max_filesize` (oft 2 MB) funktionieren. Serverseitige Prüfung bleibt.
+**Fertig (Sonnet, nach Muster `admin/kategorien.php`):**
+1. `admin/anlaesse.php` – Anlässe anlegen, bearbeiten, als Vorlage kopieren (`EventValidator`,
+   `EventRepository::update()/duplicate()`); Teamgrösse gesperrt, sobald es Anmeldungen gibt; Konflikte zwischen Mitglieder-Feldern
+   und Handicap/Kategorien werden nach dem Speichern angezeigt.
+2. `admin/disziplinen.php` – CRUD mit Teilmessungen, Zeitformat, Faktoren ≥ 1 und Beispielrechnung (`DisciplineValidator`,
+   `DisciplinePreview`); Messart, Richtung und Teilmessungen sind gesperrt, sobald Resultate existieren; Löschen nur ohne Resultate.
+3. `admin/teilnehmer.php` – Liste mit Suche, Nachmelden vor Ort (ohne Online-Einwilligung vermerkt), Bearbeiten, Löschen mit
+   Bestätigungsseite, CSV-Export (`Csv`, UTF-8-BOM, Semikolon, Schutz vor Formel-Injektion).
+4. `admin/resultate.php` – Filter (Disziplin, Kampfrichter, Status, Name/Nr.), Seitenaufteilung, Annullieren/Wiederherstellen,
+   Nachtragen durch den Admin (Eintrag «Name (Admin)»).
+5. `admin/benutzer.php` – Admins anlegen/entfernen (nie der letzte), eigenes Passwort ändern, Passwort anderer setzen
+   (`PasswordPolicy` mit bcrypt-Grenze 72 Bytes); Passwortwechsel beendet die übrigen Sitzungen der Person.
+6. `assets/js/image-resize.js` – Fotos und Logo werden im Browser vor dem Upload verkleinert (11,6 MB → 1,1 MB; PNG-Transparenz bleibt);
+   getestet im Browser inkl. Absenden vor Ende der Verkleinerung.
+
+**Gefunden beim Testen (Lehren):**
+- PHP: `'0'` ist falsy – Auswahlwerte, die `0` sein dürfen (z.B. `higher_is_better`), nie mit `?:` normalisieren.
+- Integrationstests gegen die Test-DB (`test_pdo()`) finden Fehler, die Rauchtests nicht sehen (Rollback, Fremdschlüssel, Rang nach Löschen).
+- Rauchtests per curl verändern Demo-Daten (z.B. Minimal-POST auf ein Event überschreibt dessen Konfiguration) – danach Demo zurücksetzen.
+
+**Noch offen / Ideen:** Teilnehmende per CSV importieren, Rangliste als CSV exportieren, Urkunden/PDF (nicht v1),
+Reihenfolge der Disziplinen per Drag & Drop, Mehrfachauswahl beim Annullieren.
 
 **Regeln fürs Muster:** Jede Seite startet mit `Admin::boot()`, POST immer `Session::requireCsrf()` + PRG-Redirect mit
 `Session::flash()`, Validierung als reine Klasse in `src/Domain/*Validator.php` mit Tests in `tests/`, Templates nutzen

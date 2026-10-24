@@ -5,6 +5,8 @@ namespace App\Http;
 
 use App\Core\Database;
 use App\Core\Session;
+use App\Domain\PasswordPolicy;
+use App\Repository\UserRepository;
 use App\Service\RateLimiter;
 use PDO;
 
@@ -14,7 +16,6 @@ use PDO;
  */
 final class AdminAuth
 {
-    public const MIN_PASSWORD = 10;
     private const IDLE_SECONDS = 8 * 3600;
     private const RESET_SECONDS = 3600;
     /** Gültiger bcrypt-Hash eines Zufallswerts, nur für den Zeitausgleich bei unbekannter E-Mail. */
@@ -147,6 +148,35 @@ final class AdminAuth
         $stmt->execute([hash('sha256', $token), now_db()]);
         $id = $stmt->fetchColumn();
         return $id === false ? null : (int) $id;
+    }
+
+    /**
+     * Ändert das eigene Passwort nach Prüfung des aktuellen. Andere Sitzungen dieses Kontos werden damit
+     * ungültig (Fingerprint), die eigene bleibt angemeldet.
+     * @return string|null Fehlermeldung oder null bei Erfolg
+     */
+    public static function changeOwnPassword(int $userId, string $current, string $new, string $confirmation): ?string
+    {
+        $pdo = Database::pdo();
+        $key = 'admin-pw-change:' . $userId;
+        $limiter = new RateLimiter($pdo);
+        if (!$limiter->hit($key, 5, 900)) {
+            return 'Zu viele Versuche. Bitte in 15 Minuten nochmals probieren.';
+        }
+        $users = new UserRepository($pdo);
+        $hash = $users->passwordHash($userId);
+        if ($hash === null || !password_verify($current, $hash)) {
+            return 'Das aktuelle Passwort stimmt nicht.';
+        }
+        $policy = PasswordPolicy::check($new, $confirmation);
+        if ($policy !== null) {
+            return $policy;
+        }
+        $users->setPassword($userId, $new);
+        $limiter->reset($key);
+        Session::regenerate();
+        $_SESSION['admin']['pw'] = self::fingerprint((string) $users->passwordHash($userId));
+        return null;
     }
 
     /** Ändert sich mit jedem neuen Passwort-Hash → alte Sitzungen werden ungültig. */

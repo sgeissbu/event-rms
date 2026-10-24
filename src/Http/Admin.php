@@ -16,8 +16,13 @@ final class Admin
     /** Navigation: Schlüssel => [Datei, Beschriftung]. Neue Admin-Seiten hier eintragen. */
     public const NAV = [
         'dashboard' => ['admin/index.php', 'Übersicht'],
+        'events' => ['admin/anlaesse.php', 'Anlässe'],
         'categories' => ['admin/kategorien.php', 'Kategorien'],
+        'disciplines' => ['admin/disziplinen.php', 'Disziplinen'],
+        'entries' => ['admin/teilnehmer.php', 'Teilnehmende'],
+        'results' => ['admin/resultate.php', 'Resultate'],
         'settings' => ['admin/einstellungen.php', 'Verein & Design'],
+        'users' => ['admin/benutzer.php', 'Admins'],
         'close' => ['admin/abschliessen.php', 'Abschliessen'],
     ];
 

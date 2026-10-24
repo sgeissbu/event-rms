@@ -88,9 +88,11 @@ final class EntryRepository
     /**
      * Legt Eintrag + Mitglieder an; vergibt die nächste Startnummer.
      * @param array{name:string, category_id:?int, email:?string, members: array<int, array{name:?string, gender:?string, birth_year:?int}>} $data
+     * @param bool $consented  false bei Erfassung durch den Admin (z.B. vor Ort auf Papier): dann wird
+     *                         bewusst keine Online-Einwilligung vermerkt
      * @throws DomainException wenn der Name im Event schon existiert
      */
-    public function register(int $eventId, array $data): array
+    public function register(int $eventId, array $data, bool $consented = true): array
     {
         $this->pdo->beginTransaction();
         try {
@@ -103,7 +105,7 @@ final class EntryRepository
             $now = now_db();
             $this->pdo->prepare(
                 'INSERT INTO entries (event_id, start_no, name, category_id, email, consent_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)'
-            )->execute([$eventId, $startNo, $data['name'], $data['category_id'], $data['email'], $now, $now]);
+            )->execute([$eventId, $startNo, $data['name'], $data['category_id'], $data['email'], $consented ? $now : null, $now]);
             $entryId = (int) $this->pdo->lastInsertId();
 
             $insert = $this->pdo->prepare('INSERT INTO members (entry_id, position, name, gender, birth_year) VALUES (?, ?, ?, ?, ?)');
@@ -119,6 +121,50 @@ final class EntryRepository
             }
             throw $e;
         }
+    }
+
+    /**
+     * Ändert Name, Kategorie, E-Mail und Mitglieder eines Eintrags (Startnummer bleibt).
+     * @param array{name:string, category_id:?int, email:?string, members: array<int, array{name:?string, gender:?string, birth_year:?int}>} $data
+     * @throws DomainException wenn der Name im Event schon existiert
+     */
+    public function update(int $entryId, int $eventId, array $data): void
+    {
+        $this->pdo->beginTransaction();
+        try {
+            $this->pdo->prepare('UPDATE entries SET name = ?, category_id = ?, email = ? WHERE id = ? AND event_id = ?')
+                ->execute([$data['name'], $data['category_id'], $data['email'], $entryId, $eventId]);
+            $upsert = $this->pdo->prepare(
+                'INSERT INTO members (entry_id, position, name, gender, birth_year) VALUES (?, ?, ?, ?, ?)
+                 ON DUPLICATE KEY UPDATE name = VALUES(name), gender = VALUES(gender), birth_year = VALUES(birth_year)'
+            );
+            foreach ($data['members'] as $position => $m) {
+                $upsert->execute([$entryId, $position, $m['name'], $m['gender'], $m['birth_year']]);
+            }
+            $this->pdo->commit();
+        } catch (PDOException $e) {
+            $this->pdo->rollBack();
+            if ((int) ($e->errorInfo[1] ?? 0) === 1062) {
+                throw new DomainException('Dieser Name ist für diesen Anlass bereits vergeben. Bitte einen anderen wählen.');
+            }
+            throw $e;
+        }
+    }
+
+    /** Löscht einen Eintrag samt Mitgliedern und Resultaten (Fremdschlüssel: ON DELETE CASCADE). */
+    public function delete(int $entryId, int $eventId): bool
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM entries WHERE id = ? AND event_id = ?');
+        $stmt->execute([$entryId, $eventId]);
+        return $stmt->rowCount() === 1;
+    }
+
+    /** @return array<int, int> entry_id => Anzahl Resultate (auch annullierte) */
+    public function resultCounts(int $eventId): array
+    {
+        $stmt = $this->pdo->prepare('SELECT entry_id, COUNT(*) FROM results WHERE event_id = ? GROUP BY entry_id');
+        $stmt->execute([$eventId]);
+        return array_map('intval', $stmt->fetchAll(PDO::FETCH_KEY_PAIR));
     }
 
     public function setCategory(int $entryId, int $eventId, ?int $categoryId): void

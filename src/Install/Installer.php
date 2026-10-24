@@ -7,6 +7,7 @@ use App\Core\Database;
 use App\Core\Env;
 use App\Core\Migrator;
 use App\Core\Settings;
+use App\Domain\PasswordPolicy;
 use App\Repository\EventRepository;
 use App\Service\Theme;
 use PDO;
@@ -166,10 +167,9 @@ final class Installer
         if (!filter_var($in['admin_email'] ?? '', FILTER_VALIDATE_EMAIL)) {
             $errors['admin_email'] = 'Bitte eine gültige E-Mail-Adresse angeben.';
         }
-        if (mb_strlen($in['admin_password'] ?? '') < 10) {
-            $errors['admin_password'] = 'Das Passwort muss mindestens 10 Zeichen lang sein.';
-        } elseif (($in['admin_password'] ?? '') !== ($in['admin_password2'] ?? '')) {
-            $errors['admin_password2'] = 'Die Passwörter stimmen nicht überein.';
+        $passwordError = PasswordPolicy::check($in['admin_password'] ?? '', $in['admin_password2'] ?? '');
+        if ($passwordError !== null) {
+            $errors[str_contains($passwordError, 'stimmen nicht') ? 'admin_password2' : 'admin_password'] = $passwordError;
         }
         if (trim($in['event_title'] ?? '') === '') {
             $errors['event_title'] = 'Bitte einen Namen für den Anlass angeben.';

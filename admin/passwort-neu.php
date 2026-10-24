@@ -5,6 +5,7 @@ require dirname(__DIR__) . '/src/bootstrap.php';
 
 use App\Core\Session;
 use App\Core\View;
+use App\Domain\PasswordPolicy;
 use App\Http\AdminAuth;
 use App\Http\App;
 
@@ -18,10 +19,9 @@ $error = null;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     Session::requireCsrf();
     $password = (string) ($_POST['password'] ?? '');
-    if (mb_strlen($password) < AdminAuth::MIN_PASSWORD) {
-        $error = 'Das Passwort muss mindestens ' . AdminAuth::MIN_PASSWORD . ' Zeichen lang sein.';
-    } elseif ($password !== (string) ($_POST['password2'] ?? '')) {
-        $error = 'Die Passwörter stimmen nicht überein.';
+    $policyError = PasswordPolicy::check($password, (string) ($_POST['password2'] ?? ''));
+    if ($policyError !== null) {
+        $error = $policyError;
     } elseif (AdminAuth::resetPassword($token, $password)) {
         Session::flash('success', 'Passwort geändert. Du kannst dich jetzt anmelden.');
         redirect('admin/login.php');

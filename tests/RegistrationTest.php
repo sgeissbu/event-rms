@@ -86,4 +86,25 @@ return [
         $input['members'][1]['name'] = "Lea\x00\x07 Muster";
         assert_same('Lea Muster', RegistrationValidator::validate($singleEvent, [], $input)['data']['name']);
     },
+    'Admin-Modus: ohne Einwilligung, Kategorie frei wählbar oder leer' => function () use ($okcEvent, $okcCategories, $okcInput): void {
+        $input = $okcInput;
+        unset($input['consent']);
+        assert_same(['consent'], array_keys(RegistrationValidator::validate($okcEvent, $okcCategories, $input)['errors']), 'öffentlich: Einwilligung nötig');
+
+        $r = RegistrationValidator::validate($okcEvent, $okcCategories, $input + ['category_id' => '2'], true);
+        assert_same([], $r['errors']);
+        assert_same(2, $r['data']['category_id'], 'Admin darf gegen die Regel einteilen (Mädchen → Buben)');
+
+        $r = RegistrationValidator::validate($okcEvent, $okcCategories, $input + ['category_id' => ''], true);
+        assert_same([], $r['errors']);
+        assert_same(null, $r['data']['category_id']);
+
+        $r = RegistrationValidator::validate($okcEvent, $okcCategories, $input + ['category_id' => '99'], true);
+        assert_same(['category_id'], array_keys($r['errors']));
+    },
+    'Admin-Modus: Pflichtangaben der Mitglieder gelten weiterhin' => function () use ($okcEvent, $okcCategories): void {
+        $r = RegistrationValidator::validate($okcEvent, $okcCategories, ['name' => 'X'], true);
+        assert_true(isset($r['errors']['members.1.name']) && isset($r['errors']['members.2.gender']));
+        assert_true(!isset($r['errors']['consent']));
+    },
 ];

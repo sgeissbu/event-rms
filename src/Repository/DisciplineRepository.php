@@ -54,6 +54,42 @@ final class DisciplineRepository
         return (int) $this->pdo->lastInsertId();
     }
 
+    /**
+     * @param array<string, mixed> $data  wie von DisciplineValidator::validate()
+     */
+    public function update(int $id, int $eventId, array $data): void
+    {
+        $this->pdo->prepare(
+            'UPDATE disciplines SET sort = ?, name = ?, description = ?, unit = ?, input_format = ?, decimals = ?,
+                    higher_is_better = ?, attempt_mode = ?, parts = ?, allow_negative = ?, factor_female = ?, factor_age = ?, active = ?
+             WHERE id = ? AND event_id = ?'
+        )->execute([
+            (int) $data['sort'], (string) $data['name'], $data['description'], (string) $data['unit'], (string) $data['input_format'],
+            (int) $data['decimals'], (int) $data['higher_is_better'], (string) $data['attempt_mode'],
+            $data['parts'] ? json_encode(array_values($data['parts']), JSON_UNESCAPED_UNICODE) : null,
+            (int) $data['allow_negative'], (float) $data['factor_female'], (float) $data['factor_age'], (int) $data['active'],
+            $id, $eventId,
+        ]);
+    }
+
+    /** Löscht nur, wenn es noch keine Resultate gibt (auch keine annullierten). */
+    public function deleteIfUnused(int $id, int $eventId): bool
+    {
+        $stmt = $this->pdo->prepare(
+            'DELETE FROM disciplines WHERE id = ? AND event_id = ? AND NOT EXISTS (SELECT 1 FROM results WHERE discipline_id = ?)'
+        );
+        $stmt->execute([$id, $eventId, $id]);
+        return $stmt->rowCount() === 1;
+    }
+
+    /** @return array<int, int> discipline_id => Anzahl nicht annullierter Resultate */
+    public function resultCounts(int $eventId): array
+    {
+        $stmt = $this->pdo->prepare('SELECT discipline_id, COUNT(*) FROM results WHERE event_id = ? GROUP BY discipline_id');
+        $stmt->execute([$eventId]);
+        return array_map('intval', $stmt->fetchAll(PDO::FETCH_KEY_PAIR));
+    }
+
     /** @param array<string, mixed> $row */
     private static function hydrate(array $row): array
     {

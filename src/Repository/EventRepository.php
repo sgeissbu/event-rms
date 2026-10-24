@@ -45,6 +45,81 @@ final class EventRepository
         return array_map([$this, 'hydrate'], $rows);
     }
 
+    private const UPDATABLE = [
+        'title', 'tagline', 'location', 'description', 'schedule_text', 'bring_text', 'starts_at', 'ends_at',
+        'registration_enabled', 'registration_closes_at', 'ranking_visibility', 'name_display', 'team_size',
+        'member_config', 'category_member', 'handicap_enabled', 'handicap_gender_member', 'handicap_age_member',
+        'handicap_reference_age',
+    ];
+
+    /**
+     * Speichert Stammdaten eines Events (nur bekannte Spalten; slug, judge_code und Status bleiben).
+     * @param array<string, mixed> $values  wie von EventValidator::validate()
+     */
+    public function update(int $id, array $values): void
+    {
+        $values['member_config'] = json_encode($values['member_config'], JSON_UNESCAPED_UNICODE);
+        $set = [];
+        $params = [];
+        foreach (self::UPDATABLE as $column) {
+            if (array_key_exists($column, $values)) {
+                $set[] = "{$column} = ?";
+                $params[] = $values[$column];
+            }
+        }
+        $params[] = $id;
+        $this->pdo->prepare('UPDATE events SET ' . implode(', ', $set) . ' WHERE id = ?')->execute($params);
+    }
+
+    /**
+     * Kopiert einen Anlass als Vorlage: Einstellungen, Kategorien und Disziplinen – ohne Anmeldungen und Resultate.
+     * Neuer Kampfrichter-Code, nicht archiviert. Zeiten werden gesetzt, Dauer bleibt erhalten.
+     */
+    public function duplicate(int $sourceId, string $title, \DateTimeImmutable $start): int
+    {
+        $source = $this->find($sourceId) ?? throw new \RuntimeException('Quell-Anlass nicht gefunden.');
+        $duration = (new \DateTimeImmutable((string) $source['starts_at']))->diff(new \DateTimeImmutable((string) $source['ends_at']));
+
+        $this->pdo->beginTransaction();
+        try {
+            $newId = $this->create([
+                'title' => $title,
+                'tagline' => $source['tagline'],
+                'location' => $source['location'],
+                'description' => $source['description'],
+                'schedule_text' => $source['schedule_text'],
+                'bring_text' => $source['bring_text'],
+                'starts_at' => $start->format('Y-m-d H:i:s'),
+                'ends_at' => $start->add($duration)->format('Y-m-d H:i:s'),
+                'registration_enabled' => $source['registration_enabled'],
+                'ranking_visibility' => $source['ranking_visibility'],
+                'name_display' => $source['name_display'],
+                'team_size' => $source['team_size'],
+                'member_config' => $source['member_config'],
+                'category_member' => $source['category_member'],
+                'handicap_enabled' => $source['handicap_enabled'],
+                'handicap_gender_member' => $source['handicap_gender_member'],
+                'handicap_age_member' => $source['handicap_age_member'],
+                'handicap_reference_age' => $source['handicap_reference_age'],
+            ]);
+            $this->pdo->prepare(
+                'INSERT INTO categories (event_id, sort, name, gender, birth_year_from, birth_year_to)
+                 SELECT ?, sort, name, gender, birth_year_from, birth_year_to FROM categories WHERE event_id = ?'
+            )->execute([$newId, $sourceId]);
+            $this->pdo->prepare(
+                'INSERT INTO disciplines (event_id, sort, name, description, unit, input_format, decimals, higher_is_better,
+                        attempt_mode, parts, allow_negative, factor_female, factor_age, active)
+                 SELECT ?, sort, name, description, unit, input_format, decimals, higher_is_better,
+                        attempt_mode, parts, allow_negative, factor_female, factor_age, active FROM disciplines WHERE event_id = ?'
+            )->execute([$newId, $sourceId]);
+            $this->pdo->commit();
+            return $newId;
+        } catch (\Throwable $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
+    }
+
     /** Neuer Kampfrichter-Code; bestehende Kampfrichter-Sitzungen werden damit ungültig. */
     public function regenerateJudgeCode(int $id): string
     {

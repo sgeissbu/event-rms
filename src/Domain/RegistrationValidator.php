@@ -17,9 +17,10 @@ final class RegistrationValidator
      * @param array<string, mixed> $event
      * @param list<array<string, mixed>> $categories
      * @param array<string, mixed> $input
+     * @param bool $admin  Admin-Erfassung: keine Einwilligung nötig, Kategorie frei wählbar (auch «ohne»)
      * @return array{data: ?array, errors: array<string, string>}
      */
-    public static function validate(array $event, array $categories, array $input): array
+    public static function validate(array $event, array $categories, array $input, bool $admin = false): array
     {
         $teamSize = (int) $event['team_size'];
         $config = MemberConfig::normalize($event['member_config'], $teamSize);
@@ -74,7 +75,16 @@ final class RegistrationValidator
         }
 
         $categoryId = null;
-        if ($categories !== []) {
+        if ($admin && $categories !== []) {
+            $chosen = (int) ($input['category_id'] ?? 0);
+            if ($chosen === 0) {
+                $categoryId = null;
+            } elseif (in_array($chosen, array_map('intval', array_column($categories, 'id')), true)) {
+                $categoryId = $chosen;
+            } else {
+                $errors['category_id'] = 'Bitte eine gültige Kategorie wählen.';
+            }
+        } elseif ($categories !== []) {
             if (CategoryMatcher::isManual($categories)) {
                 $chosen = (int) ($input['category_id'] ?? 0);
                 if (!in_array($chosen, array_map('intval', array_column($categories, 'id')), true)) {
@@ -95,7 +105,7 @@ final class RegistrationValidator
             $errors['email'] = 'Bitte eine gültige E-Mail-Adresse angeben (oder leer lassen).';
         }
 
-        if (empty($input['consent'])) {
+        if (!$admin && empty($input['consent'])) {
             $errors['consent'] = 'Bitte die Datenschutzhinweise bestätigen.';
         }
 

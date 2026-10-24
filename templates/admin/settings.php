@@ -91,8 +91,9 @@ $v = static fn (string $key): string => e($old[$key] ?? '');
             <form method="post" enctype="multipart/form-data" class="d-flex flex-wrap gap-2 align-items-center">
                 <?= csrf_field() ?>
                 <input type="hidden" name="action" value="upload_logo">
-                <input class="form-control" type="file" name="logo" accept="image/png,image/jpeg,image/webp" required aria-label="Logo-Datei">
+                <input class="form-control" type="file" name="logo" accept="image/png,image/jpeg,image/webp" required aria-label="Logo-Datei" data-resize="600" data-resize-keep="png">
                 <button class="btn btn-primary" type="submit" data-once>Hochladen</button>
+                <div class="form-text w-100" data-resize-status></div>
             </form>
             <?php if ($logoUrl): ?>
                 <form method="post">
@@ -133,10 +134,11 @@ $v = static fn (string $key): string => e($old[$key] ?? '');
             <form method="post" enctype="multipart/form-data" class="d-flex flex-wrap gap-2 align-items-center">
                 <?= csrf_field() ?>
                 <input type="hidden" name="action" value="upload_hero">
-                <input class="form-control" type="file" name="hero[]" accept="image/png,image/jpeg,image/webp" multiple required aria-label="Foto-Dateien">
+                <input class="form-control" type="file" name="hero[]" accept="image/png,image/jpeg,image/webp" multiple required aria-label="Foto-Dateien" data-resize="1920">
                 <button class="btn btn-primary" type="submit" data-once>Hochladen</button>
+                <div class="form-text w-100" data-resize-status></div>
             </form>
-            <p class="form-text mb-0">Noch <?= $maxHero - count($heroImages) ?> von <?= $maxHero ?> möglich. Max. Dateigrösse laut Server: <?= e($uploadLimit) ?> pro Datei.</p>
+            <p class="form-text mb-0">Noch <?= $maxHero - count($heroImages) ?> von <?= $maxHero ?> möglich. Grosse Fotos werden vor dem Hochladen automatisch verkleinert (Server-Limit pro Datei: <?= e($uploadLimit) ?>).</p>
         <?php else: ?>
             <p class="form-text mb-0">Maximum von <?= $maxHero ?> Fotos erreicht.</p>
         <?php endif; ?>
