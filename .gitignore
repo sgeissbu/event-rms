@@ -1,0 +1,12 @@
+# Installationsspezifisch – nie committen
+.env
+uploads/*
+!uploads/.htaccess
+!uploads/.gitkeep
+
+# Lokal
+.DS_Store
+.claude/
+backups/
+__pycache__/
+tests/fixtures/private/
