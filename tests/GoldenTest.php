@@ -4,7 +4,7 @@
  * Die Daten (tests/fixtures/private/okc2026.json) sind nicht im Repository;
  * ohne sie wird der Test übersprungen.
  *
- * Abbildung OKC → event-rms (wie in der Migration, CONCEPT.md Abschnitt 8):
+ * Abbildung OKC → event-rms:
  *   Kategorie = Geschlecht Kind, Mitglied 1 = Kind, Mitglied 2 = erwachsene Person,
  *   Handicap: Geschlecht Mitglied 2, Alter Mitglied 1, Referenzalter = Jahr − 2010,
  *   Faktoren < 1 bei «tiefer ist besser» werden zu 1/f.

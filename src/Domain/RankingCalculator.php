@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Domain;
 
 /**
- * Berechnet Ranglisten nach Rangpunkten (siehe CONCEPT.md, Abschnitt «Wertung»).
+ * Berechnet Ranglisten nach Rangpunkten (siehe docs/ARCHITEKTUR.md, Abschnitt «Wertung»).
  * Reine Funktion ohne DB-Zugriff – Eingaben kommen aus dem Repository bzw. aus Tests.
  *
  * Eingaben:

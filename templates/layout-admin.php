@@ -55,6 +55,7 @@
         <?php foreach ($adminNav as $key => [$href, $label]): ?>
             <a class="<?= $activeNav === $key ? 'active' : '' ?>" <?= $activeNav === $key ? 'aria-current="page"' : '' ?> href="<?= e($href) ?>"><?= e($label) ?></a>
         <?php endforeach; ?>
+        <div class="admin-version">event-rms <?= e(APP_VERSION) ?></div>
     </nav>
     <main class="admin-main">
         <?php require __DIR__ . '/partials/flashes.php'; ?>

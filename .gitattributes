@@ -1,0 +1,16 @@
+# Beim «Download ZIP»/git archive weglassen – Anwender brauchen nur die lauffähige Anwendung.
+/tests            export-ignore
+/tools            export-ignore
+/docs             export-ignore
+/.github          export-ignore
+/.gitattributes   export-ignore
+/.editorconfig    export-ignore
+
+# Einheitliche Zeilenenden im Repository (mitgelieferte Fremd-Bibliotheken bleiben unangetastet)
+* text=auto eol=lf
+/vendor/**           -text
+/assets/vendor/**   -text
+*.png binary
+*.jpg binary
+*.min.css -diff
+*.min.js -diff

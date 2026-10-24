@@ -1,0 +1,22 @@
+name: Release-ZIP
+
+# Baut beim Veröffentlichen eines Releases ein sauberes ZIP für FTP-Nutzer
+# (ohne Tests, Entwicklungswerkzeuge und Dokumentation – siehe .gitattributes).
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  zip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: ZIP erstellen
+        run: git archive --format=zip --prefix=event-rms/ -o "event-rms-${{ github.event.release.tag_name }}.zip" "${{ github.event.release.tag_name }}"
+      - name: ZIP an das Release anhängen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.release.tag_name }}" "event-rms-${{ github.event.release.tag_name }}.zip" --clobber

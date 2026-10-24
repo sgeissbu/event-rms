@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Sicherheitsproblem melden
+    url: https://github.com/sgeissbu/event-rms/security/advisories/new
+    about: Sicherheitslücken bitte vertraulich über «Report a vulnerability» melden, nicht als öffentliches Issue.
