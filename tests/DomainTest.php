@@ -38,6 +38,24 @@ return [
             assert_true($c->readableOn($dark)->contrast($dark) >= 4.5, "{$hex} auf Dunkel");
         }
     },
+    'Color: HSL-Umrechnung ist umkehrbar' => function (): void {
+        foreach (['#1D284C', '#FEC028', '#FF0000', '#00FF00', '#808080', '#000000', '#FFFFFF', '#3F58A6'] as $hex) {
+            [$h, $s, $l] = Color::fromHex($hex)->toHsl();
+            $back = Color::fromHsl($h, $s, $l);
+            $orig = Color::fromHex($hex);
+            assert_true(abs($back->r - $orig->r) <= 1 && abs($back->g - $orig->g) <= 1 && abs($back->b - $orig->b) <= 1, "{$hex} → " . $back->hex());
+        }
+    },
+    'Color: Aufhellen behält den Farbton (dunkles Blau bleibt blau, nicht grau)' => function (): void {
+        $dark = Color::fromHex('#111827');
+        $lifted = Color::fromHex('#1D284C')->readableOn($dark, 3.0);
+        assert_true($lifted->contrast($dark) >= 3.0, $lifted->hex());
+        [$h0, $s0] = Color::fromHex('#1D284C')->toHsl();
+        [$h1, $s1, $l1] = $lifted->toHsl();
+        assert_true(abs($h1 - $h0) < 6, "Farbton {$h0} → {$h1}");
+        assert_true($s1 > 0.3, 'Sättigung bleibt kräftig: ' . round($s1, 2));
+        assert_true($l1 < 0.6, 'nur so weit aufgehellt wie nötig');
+    },
     'Theme: Textfarbe auf Gelb ist dunkel, auf Dunkelblau hell' => function (): void {
         $vars = Theme::variables('#1D284C', '#FEC028')['light'];
         assert_same('#FFFFFF', $vars['--brand-contrast']);
@@ -51,6 +69,43 @@ return [
             assert_true(Color::fromHex($vars['--brand-contrast'])->contrast(Color::fromHex($vars['--brand'])) >= 4.5, "Text auf {$vars['--brand']}");
         }
         assert_same('#FEC028', Theme::variables('#FEC028', '#FEC028')['dark']['--brand'], 'helle Farben bleiben unverändert');
+    },
+    'Theme: Hero behält die Vereinsfarbe; helle Farben bekommen dunkle Schrift statt Braun' => function (): void {
+        // Dunkle Farbe: unverändert, weisse Schrift, Dunkelmodus erbt den Hero
+        $v = Theme::variables('#1D284C', '#FEC028');
+        assert_same(['#1D284C', '#FFFFFF'], [$v['light']['--hero-a'], $v['light']['--hero-text']]);
+        assert_true(!isset($v['dark']['--hero-a']), 'Dunkelmodus erbt den Hero unverändert');
+        assert_same('254, 192, 40', $v['light']['--hero-glow-rgb']);
+        // Gelb: bleibt Gelb (nicht Schlamm-Braun), dafür dunkle Schrift
+        $yellow = Theme::variables('#FEC028', '#1D284C')['light'];
+        assert_same(['#FEC028', '#111827'], [$yellow['--hero-a'], $yellow['--hero-text']]);
+        // Rot: bleibt rötlich und bekommt weisse Schrift
+        $red = Theme::variables('#E30613', '#FEC028')['light'];
+        assert_same('#FFFFFF', $red['--hero-text']);
+    },
+    'Theme: Warnung bei Mitteltönen, keine bei klaren Farben' => function (): void {
+        assert_same([], Theme::warnings('#1D284C', '#FEC028'));
+        assert_same([], Theme::warnings('#000000', '#FFFFFF'));
+        $w = Theme::warnings('#808080', '#FEC028');
+        assert_same(1, count($w));
+        assert_true(str_contains($w[0], 'Hauptfarbe') && str_contains($w[0], 'Mittelton'), $w[0]);
+        assert_true(!str_contains($w[0], 'Kontrast 4.5:1'), 'abgerundet, damit die Meldung nicht widersprüchlich wirkt: ' . $w[0]);
+        $both = Theme::warnings('#777777', '#7A7A7A');
+        assert_same(2, count(array_filter($both, fn ($m) => str_contains($m, 'Mittelton'))), 'beide Mitteltöne');
+        assert_true(count($both) === 3, 'dazu: Haupt- und Akzentfarbe fast gleich');
+        assert_same([], Theme::warnings('#888888', '#EEEEEE'), 'hell genug für dunkle Schrift, gut unterscheidbar');
+        assert_same([], Theme::warnings('keine Farbe', ''), 'ungültige Werte werden ignoriert');
+    },
+    'Theme: Vorschau enthält beide Modi vollständig' => function (): void {
+        $p = Theme::preview('#1D284C', '#FEC028');
+        $lightKeys = array_keys($p['light']);
+        sort($lightKeys);
+        $darkKeys = array_keys($p['dark']);
+        sort($darkKeys);
+        assert_same($lightKeys, $darkKeys, 'dark enthält genau die Schlüssel von light');
+        assert_true($p['dark']['--brand'] !== $p['light']['--brand'], 'Dunkelmodus hellt die dunkle Hauptfarbe auf');
+        assert_same($p['light']['--hero-a'], $p['dark']['--hero-a']);
+        assert_same([], $p['warnings']);
     },
     'Theme: ungültige Farben fallen auf Standard zurück' => function (): void {
         $vars = Theme::variables('quatsch', '');

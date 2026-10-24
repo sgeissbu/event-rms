@@ -14,6 +14,7 @@
     const disciplines = JSON.parse(form.dataset.disciplines || '[]');
     const searchUrl = form.dataset.searchUrl;
 
+    const errorBox = document.getElementById('entry-error');
     let items = [];
     let active = -1;
     let timer = null;
@@ -31,6 +32,7 @@
         list.replaceChildren();
         items.forEach((item, i) => {
             const li = el('li', i === active ? 'active' : '');
+            li.id = 'entry-option-' + i;
             li.setAttribute('role', 'option');
             li.setAttribute('aria-selected', i === active ? 'true' : 'false');
             li.append(el('span', 'start-no', String(item.start_no)));
@@ -47,6 +49,9 @@
             list.append(el('li', 'empty', 'Nichts gefunden'));
         }
         list.hidden = search.value.trim() === '';
+        search.setAttribute('aria-expanded', String(!list.hidden));
+        if (active >= 0 && !list.hidden) search.setAttribute('aria-activedescendant', 'entry-option-' + active);
+        else search.removeAttribute('aria-activedescendant');
     }
 
     function choose(i) {
@@ -56,6 +61,9 @@
         entryLabel.value = item.start_no + ' – ' + item.name;
         search.value = entryLabel.value;
         list.hidden = true;
+        clearError();
+        search.setAttribute('aria-expanded', 'false');
+        search.removeAttribute('aria-activedescendant');
         const first = valueFields.querySelector('.value-input');
         if (first) first.focus();
     }
@@ -79,7 +87,22 @@
         }
     }
 
+    function showError() {
+        errorBox.hidden = false;
+        search.classList.add('is-invalid');
+        search.setAttribute('aria-invalid', 'true');
+        search.setAttribute('aria-describedby', 'entry-hint entry-error');
+    }
+
+    function clearError() {
+        errorBox.hidden = true;
+        search.classList.remove('is-invalid');
+        search.removeAttribute('aria-invalid');
+        search.setAttribute('aria-describedby', 'entry-hint');
+    }
+
     search.addEventListener('input', () => {
+        clearError();
         entryId.value = '';
         entryLabel.value = '';
         clearTimeout(timer);
@@ -92,7 +115,7 @@
         if (e.key === 'Enter') { choose(Math.max(active, 0)); e.preventDefault(); }
         if (e.key === 'Escape') { list.hidden = true; }
     });
-    search.addEventListener('blur', () => setTimeout(() => { list.hidden = true; }, 150));
+    search.addEventListener('blur', () => setTimeout(() => { list.hidden = true; search.setAttribute('aria-expanded', 'false'); }, 150));
 
     // Ohne Auswahl aus der Liste nicht absenden (verhindert Resultat beim falschen Team).
     form.addEventListener('submit', (e) => {
@@ -100,8 +123,7 @@
             e.preventDefault();
             e.stopImmediatePropagation();
             search.focus();
-            search.classList.add('is-invalid');
-            setTimeout(() => search.classList.remove('is-invalid'), 1500);
+            showError();
         }
     }, true);
 
@@ -119,7 +141,7 @@
             input.name = 'value[]';
             input.required = true;
             input.inputMode = d.format === 'time' ? 'text' : 'decimal';
-            input.placeholder = d.format === 'time' ? '1:23.45 oder 83.45' : '0.00';
+            input.placeholder = d.format === 'time' ? '1:23.45 oder 83.45' : 'Wert eingeben';
             group.append(input);
             if (d.unit) group.append(el('span', 'input-group-text', d.unit));
             wrap.append(lab, group);

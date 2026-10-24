@@ -6,10 +6,12 @@ use App\Http\App;
 
 $partialUrl = url('rangliste.php', App::eventQuery($event) + ['partial' => 1]);
 ?>
+<div class="print-landscape">
 <div class="d-flex flex-wrap align-items-end justify-content-between gap-2 mb-4">
     <div>
         <span class="eyebrow"><?= e($event['title']) ?></span>
         <h1 class="h2 mb-0">Rangliste</h1>
+        <p class="print-only small mb-0">Stand: <?= e(date('d.m.Y H:i')) ?> Uhr</p>
     </div>
     <?php if ($live): ?>
         <span class="live-badge" aria-live="polite"><span class="live-dot"></span>Live · aktualisiert sich automatisch</span>
@@ -37,3 +39,4 @@ $partialUrl = url('rangliste.php', App::eventQuery($event) + ['partial' => 1]);
 <?php else: ?>
     <p class="small text-muted mt-4">Pro Disziplin gibt es Rangpunkte (1. Rang = 1 Punkt; ohne Resultat: Anzahl mit Resultat + 1). Es gewinnt, wer am wenigsten Punkte hat.</p>
 <?php endif; ?>
+</div>

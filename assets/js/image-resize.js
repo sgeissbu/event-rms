@@ -59,6 +59,7 @@
         const keepPng = input.dataset.resizeKeep === 'png';
         const status = input.form.querySelector('[data-resize-status]');
         let pending = null;
+        let waitingToSubmit = false;
 
         input.addEventListener('change', () => {
             const files = Array.from(input.files || []);
@@ -83,8 +84,10 @@
             if (!pending) return;
             event.preventDefault();
             event.stopPropagation();
+            if (waitingToSubmit) return; // Doppeltippen während der Verkleinerung: nur einmal absenden
+            waitingToSubmit = true;
             const submitter = event.submitter || undefined;
-            pending.then(() => input.form.requestSubmit(submitter));
+            pending.then(() => { waitingToSubmit = false; input.form.requestSubmit(submitter); });
         }, true);
     });
 })();

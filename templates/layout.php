@@ -13,18 +13,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <title><?= e(isset($pageTitle) && $pageTitle !== '' ? $pageTitle . ' · ' . $clubName : $clubName) ?></title>
+    <?php $fullTitle = isset($pageTitle) && $pageTitle !== '' ? $pageTitle . ' · ' . $clubName : $clubName; ?>
+    <title><?= e($fullTitle) ?></title>
+    <meta name="description" content="<?= e($metaDescription ?? '') ?>">
+    <meta name="theme-color" content="<?= e($brandHex ?? '#1D4ED8') ?>">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="de_CH">
+    <meta property="og:site_name" content="<?= e($clubName) ?>">
+    <meta property="og:title" content="<?= e($fullTitle) ?>">
+    <meta property="og:description" content="<?= e($metaDescription ?? '') ?>">
+    <meta property="og:url" content="<?= e(base_url() . ($_SERVER['REQUEST_URI'] ?? '')) ?>">
+    <?php if (!empty($shareImage)): ?><meta property="og:image" content="<?= e($shareImage) ?>"><?php endif; ?>
+    <meta name="twitter:card" content="<?= !empty($shareImage) ? 'summary_large_image' : 'summary' ?>">
+    <link rel="icon" href="<?= e($faviconHref ?? '') ?>">
     <link rel="stylesheet" href="<?= e(asset('assets/vendor/bootstrap/bootstrap.min.css')) ?>">
     <link rel="stylesheet" href="<?= e(asset('assets/css/app.css')) ?>">
     <style><?= $themeCss ?></style>
-    <?php if ($logoUrl): ?><link rel="icon" href="<?= e($logoUrl) ?>"><?php endif; ?>
+    <noscript><style>.navbar-collapse.collapse { display: block; } .navbar-toggler { display: none; }</style></noscript>
 </head>
 <body>
+<a class="skip-link" href="#main"><?= e(t('a11y.skip')) ?></a>
 <header class="app-header">
     <nav class="navbar navbar-expand-md">
         <div class="container">
             <a class="app-brand" href="<?= e(url('index.php')) ?>">
-                <?php require __DIR__ . '/partials/logo.php'; ?>
+                <?php $logoAlt = ''; /* Vereinsname steht gleich daneben */ require __DIR__ . '/partials/logo.php'; ?>
                 <span><?= e($clubName) ?></span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
@@ -48,7 +61,7 @@
 
 <?= $hero ?? '' ?>
 
-<main class="app-main">
+<main class="app-main" id="main" tabindex="-1">
     <div class="container">
         <?php require __DIR__ . '/partials/flashes.php'; ?>
         <?= $content ?>

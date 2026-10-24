@@ -1,17 +1,20 @@
 <?php
 /**
- * @var array $event  @var string $phase  @var ?string $heroImage  @var array $eventQuery
+ * @var array $event  @var string $phase  @var ?string $heroImage  @var array $eventQuery  @var string $clubName
+ * @var bool $registrationOpen  @var DateTimeImmutable $registrationCloses
  */
 use App\Domain\EventPhase;
 
 $start = new DateTimeImmutable((string) $event['starts_at']);
+$rankingPublic = EventPhase::rankingPublic($event);
 ?>
-<section class="hero text-center">
+<section class="hero text-center<?= !empty($heroImage) ? ' hero--photo' : '' ?>">
     <?php if (!empty($heroImage)): ?>
         <div class="hero-photo" style="background-image:url('<?= e($heroImage) ?>')"></div>
         <div class="hero-scrim"></div>
     <?php endif; ?>
     <div class="container">
+        <span class="hero-eyebrow"><?= e($clubName) ?></span>
         <h1><?= e($event['title']) ?></h1>
         <?php if (!empty($event['tagline'])): ?>
             <p class="lead"><?= e($event['tagline']) ?></p>
@@ -25,7 +28,7 @@ $start = new DateTimeImmutable((string) $event['starts_at']);
         </div>
 
         <?php if ($phase === EventPhase::UPCOMING): ?>
-            <div class="countdown" data-countdown="<?= e($start->format(DATE_ATOM)) ?>" aria-label="Countdown bis zum Start">
+            <div class="countdown" data-countdown="<?= e($start->format(DATE_ATOM)) ?>" role="timer" aria-label="Countdown bis zum Start">
                 <?php foreach (['days', 'hours', 'minutes', 'seconds'] as $unit): ?>
                     <div class="countdown-item">
                         <span class="countdown-value" data-unit="<?= $unit ?>">–</span>
@@ -34,12 +37,21 @@ $start = new DateTimeImmutable((string) $event['starts_at']);
                 <?php endforeach; ?>
             </div>
         <?php else: ?>
-            <p class="mt-4 mb-3 fw-semibold"><?= e(t($phase === EventPhase::LIVE ? 'event.live' : 'event.past')) ?></p>
-            <?php if (EventPhase::rankingPublic($event)): ?>
+            <p class="hero-status"><?= e(t($phase === EventPhase::LIVE ? 'event.live' : 'event.past')) ?></p>
+        <?php endif; ?>
+
+        <div class="hero-actions">
+            <?php if ($phase === EventPhase::UPCOMING && $registrationOpen): ?>
+                <a class="btn btn-accent btn-lg" href="<?= e(url('anmeldung.php', $eventQuery)) ?>"><?= e(t('event.register')) ?></a>
+            <?php elseif ($phase !== EventPhase::UPCOMING && $rankingPublic): ?>
                 <a class="btn btn-accent btn-lg" href="<?= e(url('rangliste.php', $eventQuery)) ?>">
                     <?= e(t($phase === EventPhase::LIVE ? 'event.to_live_ranking' : 'event.to_ranking')) ?>
                 </a>
             <?php endif; ?>
+            <a class="btn btn-hero-ghost btn-lg" href="<?= e(url('startliste.php', $eventQuery)) ?>"><?= e(t('nav.startlist')) ?></a>
+        </div>
+        <?php if ($phase === EventPhase::UPCOMING && $registrationOpen): ?>
+            <p class="hero-note"><?= e(t('event.registration_until', ['date' => format_event_date($registrationCloses)])) ?></p>
         <?php endif; ?>
     </div>
 </section>

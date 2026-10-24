@@ -11,6 +11,7 @@ $mode = (string) $event['name_display'];
     <div>
         <span class="eyebrow"><?= e($event['title']) ?></span>
         <h1 class="h2 mb-0">Startliste</h1>
+        <p class="print-only small mb-0">Stand: <?= e(date('d.m.Y H:i')) ?> Uhr</p>
     </div>
     <span class="badge-soft"><?= $total ?> <?= $teamSize > 1 ? ($total === 1 ? 'Team' : 'Teams') : ($total === 1 ? 'Person' : 'Personen') ?></span>
 </div>

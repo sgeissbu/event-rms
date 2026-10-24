@@ -12,6 +12,8 @@
     <meta name="color-scheme" content="light dark">
     <meta name="robots" content="noindex">
     <title><?= e(isset($pageTitle) && $pageTitle !== '' ? $pageTitle . ' · ' . $clubName : $clubName) ?></title>
+    <meta name="theme-color" content="<?= e($brandHex ?? '#1D4ED8') ?>">
+    <?php if (!empty($faviconHref)): ?><link rel="icon" href="<?= e($faviconHref) ?>"><?php endif; ?>
     <link rel="stylesheet" href="<?= e(asset('assets/vendor/bootstrap/bootstrap.min.css')) ?>">
     <link rel="stylesheet" href="<?= e(asset('assets/css/app.css')) ?>">
     <style><?= $themeCss ?></style>

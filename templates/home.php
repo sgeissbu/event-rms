@@ -1,11 +1,8 @@
 <?php
 /**
  * Startseite.
- * @var ?array $event  @var list<array> $disciplines  @var bool $registrationOpen
+ * @var ?array $event  @var list<array> $disciplines
  */
-use App\Http\App;
-
-$closes = $event !== null ? new DateTimeImmutable((string) ($event['registration_closes_at'] ?: $event['starts_at'])) : null;
 ?>
 <?php if ($event === null): ?>
     <div class="empty-state">
@@ -13,16 +10,6 @@ $closes = $event !== null ? new DateTimeImmutable((string) ($event['registration
         <p><?= e(t('event.none.text')) ?></p>
     </div>
 <?php else: ?>
-    <?php if ($registrationOpen): ?>
-        <div class="cta-banner mb-4">
-            <div>
-                <strong>Anmeldung offen</strong>
-                <span class="text-muted d-block">bis <?= e(format_event_date($closes)) ?></span>
-            </div>
-            <a class="btn btn-primary" href="<?= e(url('anmeldung.php', App::eventQuery($event))) ?>">Jetzt anmelden</a>
-        </div>
-    <?php endif; ?>
-
     <div class="row g-4">
         <?php if (!empty($event['description'])): ?>
             <div class="col-12">

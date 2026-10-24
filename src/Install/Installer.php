@@ -117,11 +117,12 @@ final class Installer
     }
 
     /** @param array{host:string,port:string,name:string,user:string,pass:string} $cfg */
-    public static function envContents(array $cfg): string
+    public static function envContents(array $cfg, string $appUrl = ''): string
     {
         return Env::render([
             'APP_ENV' => 'production',
             'APP_DEBUG' => 'false',
+            'APP_URL' => $appUrl,
             'DB_HOST' => $cfg['host'],
             'DB_PORT' => $cfg['port'],
             'DB_NAME' => $cfg['name'],

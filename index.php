@@ -20,19 +20,20 @@ if ($event === null && isset($_GET['event'])) {
 $vars = App::layoutVars('home', $event) + ['pageTitle' => $event['title'] ?? ''];
 
 if ($event !== null) {
-    $images = array_values(array_filter(
-        json_decode((string) Settings::get('hero_images', '[]'), true) ?: [],
-        static fn ($file): bool => is_string($file) && is_file(APP_ROOT . '/uploads/' . $file)
-    ));
+    $images = App::heroImages();
     $phase = EventPhase::of($event);
+    $closes = (string) ($event['registration_closes_at'] ?: $event['starts_at']);
+    $registrationOpen = EventPhase::registrationOpen($event);
     $vars['hero'] = View::capture('partials/hero', [
         'event' => $event,
         'phase' => $phase,
         'eventQuery' => App::eventQuery($event),
+        'clubName' => (string) Settings::get('club_name'),
         'heroImage' => $images ? url('uploads/' . $images[array_rand($images)]) : null,
+        'registrationOpen' => $registrationOpen,
+        'registrationCloses' => new DateTimeImmutable($closes),
     ]);
     $vars['disciplines'] = (new DisciplineRepository(Database::pdo()))->forEvent((int) $event['id'], true);
-    $vars['registrationOpen'] = EventPhase::registrationOpen($event);
     $vars['scripts'] = ['assets/js/countdown.js'];
 }
 

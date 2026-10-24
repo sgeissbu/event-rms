@@ -13,6 +13,8 @@
     <meta name="color-scheme" content="light dark">
     <meta name="robots" content="noindex">
     <title><?= e(($pageTitle ?? 'Kampfrichter') . ' · ' . $clubName) ?></title>
+    <meta name="theme-color" content="<?= e($brandHex ?? '#1D4ED8') ?>">
+    <?php if (!empty($faviconHref)): ?><link rel="icon" href="<?= e($faviconHref) ?>"><?php endif; ?>
     <link rel="stylesheet" href="<?= e(asset('assets/vendor/bootstrap/bootstrap.min.css')) ?>">
     <link rel="stylesheet" href="<?= e(asset('assets/css/app.css')) ?>">
     <style><?= $themeCss ?></style>
@@ -35,8 +37,8 @@
     </div>
     <?php if (!empty($judge)): ?>
         <nav class="container container-narrow judge-tabs">
-            <a class="<?= $activeNav === 'capture' ? 'active' : '' ?>" href="<?= e(url('judge/erfassen.php')) ?>">Erfassen</a>
-            <a class="<?= $activeNav === 'ranking' ? 'active' : '' ?>" href="<?= e(url('rangliste.php', \App\Http\App::eventQuery($judge['event']))) ?>">Rangliste</a>
+            <a class="<?= $activeNav === 'capture' ? 'active' : '' ?>" <?= $activeNav === 'capture' ? 'aria-current="page"' : '' ?> href="<?= e(url('judge/erfassen.php')) ?>">Erfassen</a>
+            <a class="<?= $activeNav === 'ranking' ? 'active' : '' ?>" <?= $activeNav === 'ranking' ? 'aria-current="page"' : '' ?> href="<?= e(url('rangliste.php', \App\Http\App::eventQuery($judge['event']))) ?>">Rangliste</a>
         </nav>
     <?php endif; ?>
 </header>

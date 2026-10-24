@@ -46,11 +46,13 @@ $voidLimit = time() - ResultRepository::JUDGE_VOID_MINUTES * 60;
             <div class="mb-3 position-relative">
                 <label class="form-label" for="entry-search"><?= $isTeam ? 'Team' : 'Teilnehmer/in' ?></label>
                 <input class="form-control form-control-lg" id="entry-search" type="search" inputmode="search"
-                       placeholder="Startnummer oder Name" aria-autocomplete="list" aria-controls="entry-results"
+                       placeholder="Startnummer oder Name" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="entry-results" aria-describedby="entry-hint"
                        value="<?= e(is_string($old['entry_label'] ?? null) ? $old['entry_label'] : '') ?>" autofocus>
                 <input type="hidden" name="entry_id" id="entry-id" value="<?= e(is_string($old['entry_id'] ?? null) ? $old['entry_id'] : '') ?>">
                 <input type="hidden" name="entry_label" id="entry-label" value="<?= e(is_string($old['entry_label'] ?? null) ? $old['entry_label'] : '') ?>">
-                <ul class="search-results" id="entry-results" role="listbox" hidden></ul>
+                <ul class="search-results" id="entry-results" role="listbox" aria-label="Treffer" hidden></ul>
+                <div class="form-text" id="entry-hint">Startnummer oder Name eintippen und einen Treffer wählen.</div>
+                <div class="invalid-feedback" id="entry-error" role="alert" hidden>Bitte zuerst einen Treffer aus der Liste wählen.</div>
             </div>
 
             <div id="value-fields">
@@ -61,7 +63,7 @@ $voidLimit = time() - ResultRepository::JUDGE_VOID_MINUTES * 60;
                         <div class="input-group input-group-lg">
                             <input class="form-control value-input" id="value-<?= $i ?>" name="value[]" required
                                    inputmode="<?= $current['input_format'] === 'time' ? 'text' : 'decimal' ?>"
-                                   placeholder="<?= $current['input_format'] === 'time' ? '1:23.45 oder 83.45' : '0.00' ?>"
+                                   placeholder="<?= $current['input_format'] === 'time' ? '1:23.45 oder 83.45' : 'Wert eingeben' ?>"
                                    value="<?= e(is_string($oldValues[$i] ?? null) ? $oldValues[$i] : '') ?>">
                             <?php if ($current['unit'] !== ''): ?><span class="input-group-text"><?= e($current['unit']) ?></span><?php endif; ?>
                         </div>
@@ -72,7 +74,9 @@ $voidLimit = time() - ResultRepository::JUDGE_VOID_MINUTES * 60;
                 <?php endif; ?>
             </div>
 
-            <button class="btn btn-primary btn-lg w-100" type="submit" data-once>Resultat speichern</button>
+            <div class="capture-actions">
+                <button class="btn btn-primary btn-lg w-100" type="submit" data-once>Resultat speichern</button>
+            </div>
         </div>
     </form>
 <?php endif; ?>

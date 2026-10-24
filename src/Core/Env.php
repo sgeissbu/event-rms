@@ -18,6 +18,16 @@ final class Env
         self::$loaded = is_file($path);
     }
 
+    /** Setzt Werte zur Laufzeit (für Tests). */
+    public static function set(string $key, ?string $value): void
+    {
+        if ($value === null) {
+            unset(self::$values[$key]);
+        } else {
+            self::$values[$key] = $value;
+        }
+    }
+
     public static function isLoaded(): bool
     {
         return self::$loaded;

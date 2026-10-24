@@ -7,6 +7,7 @@ declare(strict_types=1);
 require dirname(__DIR__) . '/src/bootstrap.php';
 
 use App\Core\Database;
+use App\Core\Env;
 use App\Core\Session;
 use App\Core\Settings;
 use App\Core\View;
@@ -61,6 +62,10 @@ if ($event !== null) {
     $warnings = MemberConfig::conflicts(MemberConfig::normalize($event['member_config'], (int) $event['team_size']), $event, $categories);
     if ($disciplines === []) {
         $warnings[] = 'Es sind noch keine Disziplinen erfasst – Kampfrichter können noch nichts eintragen.';
+    }
+    if (trim((string) Env::get('APP_URL', '')) === '') {
+        $warnings[] = 'In der Datei .env fehlt APP_URL (die öffentliche Adresse dieser Installation, z.B. https://anlass.meinverein.ch). '
+            . 'Ohne sie nutzen Links in E-Mails (Passwort zurücksetzen) die Adresse aus der jeweiligen Anfrage, was fälschbar ist.';
     }
     if (!Mailer::isConfigured()) {
         $warnings[] = 'Der Mailversand ist nicht eingerichtet (Absender unter «Verein & Design»). Anmeldebestätigungen und Passwort-Reset funktionieren erst danach.';

@@ -11,6 +11,7 @@ use App\Core\View;
 use App\Domain\EventPhase;
 use App\Domain\Text;
 use App\Repository\EventRepository;
+use App\Service\PageMeta;
 use App\Service\Theme;
 use RuntimeException;
 use Throwable;
@@ -70,17 +71,41 @@ final class App
                 $nav['ranking'] = [url('rangliste.php', $query), t('nav.ranking')];
             }
         }
+        $logoUrl = ($logo !== '' && is_file(APP_ROOT . '/uploads/' . $logo)) ? asset('uploads/' . $logo) : null;
+        $primary = (string) Settings::get('color_primary');
+        $secondary = (string) Settings::get('color_secondary');
+        $brandVars = Theme::variables($primary, $secondary)['light'];
+        $initials = Text::initials($clubName);
+        $shareImage = self::heroImages()[0] ?? (($logo !== '' && $logoUrl !== null) ? $logo : null);
         return [
             'navItems' => $nav,
             'event' => $event,
             'clubName' => $clubName,
             'clubUrl' => (string) Settings::get('club_url'),
-            'logoUrl' => ($logo !== '' && is_file(APP_ROOT . '/uploads/' . $logo)) ? asset('uploads/' . $logo) : null,
-            'logoInitials' => Text::initials($clubName),
-            'themeCss' => Theme::css((string) Settings::get('color_primary'), (string) Settings::get('color_secondary')),
+            'logoUrl' => $logoUrl,
+            'logoInitials' => $initials,
+            'themeCss' => Theme::css($primary, $secondary),
+            'brandHex' => $brandVars['--brand'],
+            'faviconHref' => $logoUrl ?? PageMeta::favicon($initials, $brandVars['--brand'], $brandVars['--brand-contrast']),
+            'metaDescription' => PageMeta::description($event, $clubName),
+            'shareImage' => $shareImage !== null ? base_url() . '/uploads/' . $shareImage : null,
             'activeNav' => $activeNav,
             'flashes' => Session::takeFlashes(),
         ];
+    }
+
+    /**
+     * Hero-Fotos, die tatsächlich noch auf der Platte liegen (Dateinamen relativ zu uploads/).
+     * @return list<string>
+     */
+    public static function heroImages(): array
+    {
+        $files = json_decode((string) Settings::get('hero_images', '[]'), true);
+        return array_values(array_filter(
+            is_array($files) ? $files : [],
+            static fn ($file): bool => is_string($file) && preg_match('#^branding/hero-[0-9a-f]{16}\.jpg$#', $file) === 1
+                && is_file(APP_ROOT . '/uploads/' . $file)
+        ));
     }
 
     /**

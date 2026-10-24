@@ -25,6 +25,9 @@ return [
     'event.past' => 'Der Wettkampf ist vorbei – danke fürs Mitmachen!',
     'event.to_ranking' => 'Zur Rangliste',
     'event.to_live_ranking' => 'Zur Live-Rangliste',
+    'event.register' => 'Jetzt anmelden',
+    'event.registration_until' => 'Anmeldeschluss: {date}',
+    'a11y.skip' => 'Zum Inhalt springen',
 
     'error.db' => 'Die Datenbank ist im Moment nicht erreichbar. Bitte versuche es später nochmals.',
     'error.not_installed' => 'event-rms ist noch nicht eingerichtet.',

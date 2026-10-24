@@ -72,7 +72,7 @@ if ($action === 'database') {
         $render('database', ['checks' => $checks, 'error' => $error, 'old' => $cfg]);
     }
 
-    $contents = Installer::envContents($cfg);
+    $contents = Installer::envContents($cfg, base_url()); // feste Adresse für Links in E-Mails
     Session::regenerate();
     $_SESSION['setup_verified'] = true;
     if (!Installer::writeEnv($contents)) {

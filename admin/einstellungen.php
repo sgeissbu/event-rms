@@ -104,5 +104,5 @@ View::render('admin/settings', Admin::layoutVars($ctx, 'settings', 'Verein & Des
     'heroImages' => $heroImages,
     'maxHero' => MAX_HERO_IMAGES,
     'uploadLimit' => (string) ini_get('upload_max_filesize'),
-    'scripts' => ['assets/js/image-resize.js'],
+    'scripts' => ['assets/js/image-resize.js', 'assets/js/theme-preview.js'],
 ], 'layout-admin');

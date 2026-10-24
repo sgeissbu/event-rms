@@ -195,3 +195,40 @@ Reihenfolge der Disziplinen per Drag & Drop, Mehrfachauswahl beim Annullieren.
 `App\Http\Form`, neue Seite in `Admin::NAV` eintragen, anonymisierte Anlässe sind schreibgeschützt (`$readOnly`),
 Buttons mit `data-once`, keine JS-Dialoge (`confirm()`), Löschen mit Bestätigung nur bei unwiderruflichen Massendaten.
 Nach jeder Seite: `php tests/run.php`, HTTP-Rauchtest, Browser-Check (hell/dunkel, Handy-Breite).
+
+## 11. Phase 4 – Design-Feinschliff (2026-10-24, zur Abnahme durch Stefan)
+
+**Umgesetzt**
+- **Hero:** behält in beiden Modi die Vereinsfarbe (`--hero-a/-b`, nur so weit abgedunkelt, dass weisse Schrift ≥ 4.5:1 hat),
+  Glanzlicht in der Akzentfarbe, Vereinsname als Eyebrow, Hauptknopf «Jetzt anmelden» mit Anmeldeschluss; bei Foto: Farbschleier für Lesbarkeit.
+- **Dunkelmodus:** dunkle Vereinsfarben werden für Knöpfe/Links im **HSL-Raum** aufgehellt (Farbton und Sättigung bleiben; vorher: Mischen mit Weiss → Grau).
+- **Kopfbereich:** «Zum Inhalt springen», `theme-color`, Favicon aus Vereinsfarbe + Initialen (oder Logo), Link-Vorschau (Open Graph: Titel, Datum/Ort, erstes Hero-Foto).
+- **Rangliste:** Rang und Team bleiben beim seitlichen Scrollen stehen; **Druckstil** für Start-/Rangliste (immer hell, ohne Menü, mit «Stand»).
+- **Kampfrichter:** Speichern-Leiste klebt unten; Erfolgsmeldungen blenden sich nach 8 s aus (Fehler bleiben).
+- **Farb-Vorschau** in «Verein & Design»: Live, Hell/Dunkel umschaltbar, Warnung bei Mitteltönen (`admin/theme-vorschau.php`, gleiche Logik wie die echte Seite).
+- **Formulare:** Eingabefelder mit Rahmen ≥ 3:1 (`--border-input`), Schalter/Häkchen in beiden Modi sichtbar.
+
+**Gefunden beim Prüfen:** Die Druckregel der Admin-Übersicht (`body * { visibility: hidden }`) machte beim Drucken **alle** Seiten leer –
+jetzt auf `.admin-body` beschränkt. Hell-/Dunkel-Test ohne Geräteumstellung: `@media (prefers-color-scheme: dark)`-Regeln im Browser per
+`CSSMediaRule.media.mediaText = 'not all'` abschalten; Druck-Ansicht entsprechend `print` → `all`.
+
+**Bewusst nicht gemacht:** manueller Hell/Dunkel-Schalter für Besucher (folgt dem Gerät), Schriftart-Wahl (Systemschrift), mehrere Layouts.
+
+**Zweitprüfung durch Opus (unabhängig, mit nachgerechneten Kontrasten) und Folgen**
+Umgesetzt:
+- *Kontrast bei beliebigen Vereinsfarben:* Schrift in Vereinsfarbe wird gegen **alle** Flächen geprüft, auf denen sie vorkommen kann
+  (Seite, Karte, getönte Fläche; `Color::readableOnAll`). Häkchen/Schalterknopf in der Knopf-Schriftfarbe (`--check-image`, `--switch-image`).
+  Fokusring in Textfarbe statt Vereinsfarbe (≥ 3:1 auf jeder Fläche). Link-Hover behält die Textfarbe.
+- *Hero:* helle Vereinsfarben (Gelb, Hellgrün) bekommen **dunkle Schrift** statt schlammiger Abdunklung; Grund ≥ 7:1, Chips/Countdown mit
+  eigenem Hintergrund statt Deckkraft-Abstufung, Glanzlicht-Stärke so begrenzt, dass die Schrift überall ≥ 4.5:1 hat; Foto-Schleier
+  für den schlimmsten Fall (weisser Himmel) auf ≥ 4.5:1 ausgelegt.
+- *Warnungen* in der Farb-Vorschau: Mittelton, sehr helle Hauptfarbe, Haupt-≈-Akzentfarbe.
+- *Tests:* `tests/ThemeContrastTest.php` prüft **12 sehr verschiedene Vereinsfarben** in Hell und Dunkel (Schrift, Knöpfe, Hero, Foto-Schleier, Häkchen).
+- *Barrierefreiheit:* Meldungen werden fokussiert/vorgelesen und pausieren beim Lesen; Fehlerfelder mit Text verknüpft (`aria-invalid`/`aria-describedby`,
+  Fokus aufs erste Fehlerfeld); Kampfrichter-Suchfeld als Combobox mit Fehlertext; Live-Rangliste ersetzt nichts unter dem Fokus und übernimmt
+  nur markierte Teilantworten; `aria-current` bei den Reitern; Logo-`alt` leer, wo der Name daneben steht; `scroll-padding`; Menü ohne JavaScript.
+- *Druck:* Rangliste im Querformat (`@page` benannt), Zeilen brechen nicht mitten durch, Kopfzeile wiederholt sich; ein einziger Druckblock.
+- *Sicherheit:* `base_url()` nutzt `APP_URL` aus der `.env` (Host-Header ist fälschbar → Reset-Link); ohne `APP_URL` nur ein hostname-förmiger Host.
+  Installer trägt `APP_URL` ein, Admin-Übersicht warnt, wenn sie fehlt.
+Bewusst später: Logo-Variante für den Dunkelmodus, `createImageBitmap`-Verkleinerung für 48-MP-Fotos, `apple-touch-icon`, Countdown ohne JavaScript,
+`theme-color` je Modus, PDF-Export der Rangliste (löst auch den Druck im Hochformat sauber).

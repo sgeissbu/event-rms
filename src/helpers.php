@@ -63,10 +63,22 @@ function base_path(): string
     return $base = rtrim($dir, '/.');
 }
 
-/** Absolute URL (inkl. Schema/Host) des Installationsverzeichnisses. */
+/**
+ * Absolute URL (inkl. Schema/Host) des Installationsverzeichnisses.
+ * Bevorzugt APP_URL aus der .env: Der Host-Header der Anfrage ist vom Absender frei wählbar – ein Angreifer
+ * könnte sonst z.B. den Link in einer «Passwort zurücksetzen»-Mail auf seine eigene Adresse lenken.
+ * Ohne APP_URL wird der Host aus der Anfrage verwendet, aber nur, wenn er wie ein Hostname aussieht.
+ */
 function base_url(): string
 {
-    $host = (string) ($_SERVER['HTTP_HOST'] ?? 'localhost');
+    $configured = trim((string) App\Core\Env::get('APP_URL', ''));
+    if ($configured !== '' && preg_match('#^https?://[A-Za-z0-9.-]+(:\d{1,5})?(/[^\s?\#]*)?$#', $configured) === 1) {
+        return rtrim($configured, '/');
+    }
+    $host = (string) ($_SERVER['HTTP_HOST'] ?? '');
+    if (preg_match('/^[A-Za-z0-9.-]+(:\d{1,5})?$/', $host) !== 1) {
+        $host = 'localhost';
+    }
     return (is_https() ? 'https' : 'http') . '://' . $host . base_path();
 }
 

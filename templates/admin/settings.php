@@ -43,7 +43,32 @@ $v = static fn (string $key): string => e($old[$key] ?? '');
                 <input class="form-control form-control-color<?= $invalid('color_secondary') ?>" type="color" id="color_secondary" name="color_secondary" value="<?= $v('color_secondary') ?>">
             </div>
         </div>
-        <p class="form-text mb-4">Hauptfarbe für Kopfbereich und Buttons, Akzentfarbe für Hervorhebungen. Schriftfarben und Abstufungen werden automatisch gut lesbar berechnet – auch im Dunkelmodus.</p>
+        <p class="form-text mb-3">Hauptfarbe für Kopfbereich und Buttons, Akzentfarbe für Hervorhebungen. Schriftfarben und Abstufungen werden automatisch gut lesbar berechnet – auch im Dunkelmodus.</p>
+
+        <div class="theme-preview mb-4" id="theme-preview" data-url="<?= e(url('admin/theme-vorschau.php')) ?>" data-mode="light" aria-label="Vorschau der Vereinsfarben">
+            <div class="theme-preview-bar">
+                <span class="small fw-semibold">Vorschau</span>
+                <div class="btn-group btn-group-sm" role="group" aria-label="Darstellung">
+                    <button type="button" class="btn btn-outline-primary" data-mode-button="light" aria-pressed="true">Hell</button>
+                    <button type="button" class="btn btn-outline-primary" data-mode-button="dark" aria-pressed="false">Dunkel</button>
+                </div>
+            </div>
+            <div class="theme-preview-surface">
+                <div class="tp-hero">
+                    <span class="hero-eyebrow"><?= e($old['club_name'] ?? '') ?></span>
+                    <strong class="tp-title">Dein Anlass</strong>
+                    <div class="hero-actions"><span class="btn btn-accent btn-sm">Jetzt anmelden</span><span class="btn btn-hero-ghost btn-sm">Startliste</span></div>
+                </div>
+                <div class="tp-body">
+                    <span class="btn btn-primary btn-sm">Hauptknopf</span>
+                    <span class="btn btn-outline-primary btn-sm">Zweitknopf</span>
+                    <span class="badge-soft">Hervorhebung</span>
+                    <span class="tp-link">Link-Text</span>
+                    <span class="rank-badge rank-1">1</span>
+                </div>
+            </div>
+            <div data-theme-warnings aria-live="polite"></div>
+        </div>
 
         <h2 class="h5 mb-3">E-Mail &amp; Datenschutz</h2>
         <div class="row g-3 mb-3">

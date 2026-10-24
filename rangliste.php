@@ -31,6 +31,7 @@ $vars = [
 
 header('Cache-Control: no-store');
 if (isset($_GET['partial'])) {
+    header('X-Partial: ranking'); // live-refresh.js übernimmt nur Antworten mit diesem Kennzeichen
     View::render('partials/ranking-sections', $vars, null);
     exit;
 }

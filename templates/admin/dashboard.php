@@ -38,7 +38,7 @@ $phaseLabel = [EventPhase::UPCOMING => 'Bevorstehend', EventPhase::LIVE => 'Läu
         <div class="stat"><span class="stat-value"><?= $stats['entries'] ?></span><span class="stat-label"><?= (int) $event['team_size'] > 1 ? 'Teams' : 'Anmeldungen' ?></span></div>
         <div class="stat"><span class="stat-value"><?= $stats['results'] ?></span><span class="stat-label">Resultate</span></div>
         <div class="stat"><span class="stat-value"><?= $stats['judges'] ?></span><span class="stat-label">Kampfrichter</span></div>
-        <div class="stat"><span class="stat-value"><?= $registrationOpen ? 'offen' : 'zu' ?></span><span class="stat-label">Anmeldung</span></div>
+        <div class="stat"><span class="stat-value is-text"><?= $registrationOpen ? 'offen' : 'geschlossen' ?></span><span class="stat-label">Anmeldung</span></div>
     </div>
 
     <div class="row g-4">
