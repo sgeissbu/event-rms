@@ -260,6 +260,8 @@ a:hover { color: var(--brand-hover); }
 .navbar-toggler { border-color: var(--border); }
 /* Bootstrap zeichnet das Menü-Symbol fest dunkel; im Dunkelmodus hell überschreiben */
 @media (prefers-color-scheme: dark) {
+    /* Rahmen-Buttons: der helle Mischton verschwindet auf dunklem Grund – Hauptfarbe (≥ 3:1) als Rahmen */
+    .btn-outline-primary { --bs-btn-border-color: var(--brand); --bs-btn-color: var(--text); --bs-btn-hover-color: var(--text); --bs-btn-active-color: var(--text); }
     /* Aufgehellte dunkle Vereinsfarben wirken grau – aktiver Eintrag sonst blasser als inaktive */
     .app-header .nav-link.active { color: var(--text); }
     .app-header .navbar {
@@ -650,3 +652,109 @@ pre.env-preview {
 }
 .recent-list li.is-voided { opacity: 0.55; }
 .recent-list li.is-voided .fw-semibold { text-decoration: line-through; }
+
+/* ---------- Admin ---------- */
+.admin-topbar { display: flex; align-items: center; gap: var(--space-3); padding-block: var(--space-2); }
+.admin-tag {
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.1rem var(--space-2);
+    border-radius: var(--radius-sm);
+    background: var(--accent-subtle);
+    color: var(--accent-text);
+}
+.admin-event-switch { min-width: 0; flex: 0 1 22rem; }
+.admin-shell { display: flex; flex: 1 0 auto; }
+.admin-nav {
+    flex: 0 0 13rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-5) var(--space-3);
+    border-right: 1px solid var(--border);
+    background: var(--surface-raised);
+}
+.admin-nav a {
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-weight: 600;
+    text-decoration: none;
+}
+.admin-nav a:hover { background: var(--surface-alt); color: var(--text); }
+.admin-nav a.active { background: var(--brand-subtle); color: var(--brand-text); box-shadow: inset 3px 0 0 var(--accent); }
+@media (prefers-color-scheme: dark) {
+    .admin-nav a.active { color: var(--text); }
+}
+.admin-main { flex: 1; min-width: 0; padding: var(--space-6) clamp(var(--space-4), 3vw, var(--space-7)) var(--space-7); max-width: 72rem; }
+@media (max-width: 767.98px) {
+    .admin-shell { flex-direction: column; }
+    .admin-nav {
+        flex-direction: row;
+        overflow-x: auto;
+        padding: var(--space-2) var(--space-3);
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+        flex-basis: auto;
+    }
+    .admin-nav a { white-space: nowrap; }
+    .admin-nav a.active { box-shadow: inset 0 -3px 0 var(--accent); }
+    .admin-main { padding-top: var(--space-5); }
+}
+
+.auth-card { max-width: 26rem; }
+
+.stat-grid { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); }
+.stat {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+}
+.stat-value { font-size: var(--fs-2xl); font-weight: 800; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stat-label { font-size: var(--fs-sm); color: var(--text-muted); }
+
+.judge-access { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; }
+.qr { width: 9.5rem; aspect-ratio: 1; background: #FFFFFF; border-radius: var(--radius-md); padding: var(--space-1); }
+.qr svg { width: 100%; height: 100%; display: block; }
+.print-only { display: none; }
+
+@media print {
+    body * { visibility: hidden; }
+    .print-area, .print-area * { visibility: visible; }
+    .print-area { position: absolute; inset: 0 auto auto 0; width: 100%; border: 0; box-shadow: none; }
+    .print-hide { display: none !important; }
+    .print-only { display: block; }
+    .qr { width: 12cm; }
+    .judge-access { flex-direction: column; align-items: flex-start; }
+}
+
+.logo-preview { min-width: 6rem; min-height: 4rem; display: flex; align-items: center; justify-content: center;
+    padding: var(--space-2); border: 1px dashed var(--border); border-radius: var(--radius-md); background: var(--surface-alt); }
+.logo-preview img { max-height: 4rem; max-width: 12rem; }
+.hero-thumbs { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); }
+.hero-thumb { position: relative; margin: 0; border-radius: var(--radius-md); overflow: hidden; aspect-ratio: 16 / 10; background: var(--surface-alt); }
+.hero-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hero-thumb form { position: absolute; right: var(--space-2); bottom: var(--space-2); }
+
+.danger-zone { border-color: var(--danger) !important; }
+.btn-danger {
+    --bs-btn-bg: var(--danger);
+    --bs-btn-border-color: var(--danger);
+    --bs-btn-hover-bg: var(--danger);
+    --bs-btn-hover-border-color: var(--danger);
+    --bs-btn-color: #FFFFFF;
+    --bs-btn-hover-color: #FFFFFF;
+}
+@media (prefers-color-scheme: dark) {
+    .btn-danger { --bs-btn-color: #1A0505; --bs-btn-hover-color: #1A0505; }
+}
+
+.admin-table { --bs-table-bg: transparent; --bs-table-color: var(--text); --bs-table-border-color: var(--border); }
+.admin-table th { font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); white-space: nowrap; }
+.admin-table td, .admin-table th { padding: var(--space-3) var(--space-4); vertical-align: middle; }
+.admin-table tr.is-editing td { background: var(--brand-subtle); }

@@ -46,7 +46,8 @@ final class EventPhase
         return match ((string) $event['ranking_visibility']) {
             'public' => true,
             'judges_only' => false,
-            default => self::of($event, $now) !== self::UPCOMING,
+            // Archivierte Anlässe sind abgeschlossen – auch wenn das Datum (z.B. bei Verschiebung) noch in der Zukunft liegt.
+            default => !empty($event['archived_at']) || self::of($event, $now) !== self::UPCOMING,
         };
     }
 }

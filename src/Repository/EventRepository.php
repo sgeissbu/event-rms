@@ -36,6 +36,24 @@ final class EventRepository
     }
 
     /**
+     * Alle Events, neueste zuerst (für Auswahllisten und Archiv).
+     * @return list<array<string, mixed>>
+     */
+    public function all(): array
+    {
+        $rows = $this->pdo->query('SELECT * FROM events ORDER BY starts_at DESC, id DESC')->fetchAll();
+        return array_map([$this, 'hydrate'], $rows);
+    }
+
+    /** Neuer Kampfrichter-Code; bestehende Kampfrichter-Sitzungen werden damit ungültig. */
+    public function regenerateJudgeCode(int $id): string
+    {
+        $code = self::generateJudgeCode();
+        $this->pdo->prepare('UPDATE events SET judge_code = ? WHERE id = ?')->execute([$code, $id]);
+        return $code;
+    }
+
+    /**
      * Legt ein Event an. Pflicht: title, starts_at, ends_at. Alles andere hat Defaults.
      * @param array<string, mixed> $data
      */
@@ -125,6 +143,7 @@ final class EventRepository
             $row[$key] = (int) $row[$key];
         }
         $row['handicap_reference_age'] = $row['handicap_reference_age'] === null ? null : (int) $row['handicap_reference_age'];
+        $row['ranking_snapshot'] ??= null;
         return $row;
     }
 }

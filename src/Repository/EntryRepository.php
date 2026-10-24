@@ -121,6 +121,11 @@ final class EntryRepository
         }
     }
 
+    public function setCategory(int $entryId, int $eventId, ?int $categoryId): void
+    {
+        $this->pdo->prepare('UPDATE entries SET category_id = ? WHERE id = ? AND event_id = ?')->execute([$categoryId, $entryId, $eventId]);
+    }
+
     /** @param array<string, mixed> $row */
     private function hydrate(array $row): array
     {

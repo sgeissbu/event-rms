@@ -64,6 +64,13 @@ final class Session
     /** Bricht mit 400 ab, wenn das CSRF-Token eines POST nicht stimmt. */
     public static function requireCsrf(): void
     {
+        // Überschreitet ein Upload post_max_size, verwirft PHP das ganze Formular (auch das Token).
+        // Dann eine verständliche Meldung statt «Sitzung abgelaufen».
+        if ($_POST === [] && (int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 0) {
+            http_response_code(413);
+            exit('Die hochgeladenen Daten sind zu gross (Server-Limit: ' . ini_get('post_max_size')
+                . '). Bitte weniger oder kleinere Dateien wählen und zurück zur vorherigen Seite gehen.');
+        }
         if (!self::verifyCsrf($_POST['_csrf'] ?? null)) {
             http_response_code(400);
             exit('Sitzung abgelaufen oder ungültiges Formular. Bitte Seite neu laden und nochmals versuchen.');

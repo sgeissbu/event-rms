@@ -131,7 +131,7 @@ Disziplinen global statt pro Event, leere Eingabe wurde als 0 gespeichert.
 
 **Installer (`setup.php`):** Voraussetzungen prüfen → DB-Zugang testen → Schema einspielen → Admin anlegen → Vereinsname/Farben → erstes Event → `.env` schreiben (sonst Inhalt zum Kopieren anzeigen) → `uploads/setup.lock`. Gesperrt, sobald `setup.lock` existiert **oder** ein Admin in der DB steht. `.htaccess`-Selbsttest per HTTP: Warnung, keine Blockade.
 
-**Updates:** `settings.schema_version` + `database/migrations/NNN_name.sql`. Ausstehende Migrationen laufen beim nächsten Admin-Aufruf (mit Hinweis). Schema-Stand = Summe aller Migrationen; `001_initial.sql` ist das Grundschema, es gibt keine separate `schema.sql`.
+**Updates:** `settings.schema_version` + `database/migrations/NNN_name.sql`. Ausstehende Migrationen laufen beim nächsten Seitenaufruf automatisch (mit Sperre gegen Doppelläufe), damit nach einem FTP-Update keine Seite auf fehlende Spalten trifft. Schema-Stand = Summe aller Migrationen; `001_initial.sql` ist das Grundschema, es gibt keine separate `schema.sql`.
 
 ## 6. Branding und Design
 
@@ -143,7 +143,7 @@ Disziplinen global statt pro Event, leere Eingabe wurde als 0 gespeichert.
 ## 7. Sicherheit und Datenschutz
 
 - Prepared Statements, Escaping inkl. JS-Kontext (`json_encode` mit `JSON_HEX_*`), CSRF auf allen POSTs, Session-Härtung (HttpOnly, SameSite=Lax, Secure bei HTTPS, Regenerate nach Login), `password_hash`, Reset-Token nur gehasht, Rate-Limits (Admin-Login, Judge-Code, Anmeldung, Passwort-Reset), HTML-Mails mit escapten Daten, Upload-Prüfung per Bildinhalt statt Endung.
-- **revDSG / Kinderdaten:** Einwilligung bei der Anmeldung (Text mit `privacy_contact`), öffentliche Namen gemäss `name_display`, Jahrgang nie öffentlich, E-Mail nie öffentlich, CSV nur Admin, Funktion «Event anonymisieren» (Mitgliedernamen, Jahrgänge, E-Mails geleert; Einzel-Einträge heissen danach «Startnr. N»; Rangliste bleibt berechenbar). README-Hinweis zu Fotos von Kindern.
+- **revDSG / Kinderdaten:** Einwilligung bei der Anmeldung (Text mit `privacy_contact`), öffentliche Namen gemäss `name_display`, Jahrgang nie öffentlich, E-Mail nie öffentlich, CSV nur Admin, Funktion «Event anonymisieren»: Rangliste wird zuerst eingefroren (`events.ranking_snapshot`, nötig weil die Handicap-Wertung Geschlecht/Jahrgang braucht), danach werden Mitgliedernamen, Geschlecht, Jahrgänge, E-Mails und Kampfrichter-Namen gelöscht; Einzel-Einträge heissen «Startnr. N». Unwiderruflich, Bestätigung durch Eintippen des Anlass-Namens. README-Hinweis zu Fotos von Kindern.
 
 ## 8. Migration OKC → event-rms
 
@@ -159,3 +159,29 @@ Disziplinen global statt pro Event, leere Eingabe wurde als 0 gespeichert.
 4. **Design-Feinschliff:** Hero, mobile Erfassung, Ranglisten-Karten, Dark Mode.
 5. **Release:** README, Screenshots, Demo-Daten, GitHub-Repo (öffentlich, frischer Initial Commit).
 6. **OKC-Migration.**
+
+## 10. Stand Phase 3 und Muster für weitere Admin-Seiten (2026-10-24)
+
+**Fertig (Opus):** Admin-Login mit Passwort-Reset (`src/Http/AdminAuth.php`), Admin-Rahmen (`src/Http/Admin.php`,
+`templates/layout-admin.php`), Übersicht mit Kampfrichter-Code/QR (`admin/index.php`), Verein & Design inkl. Logo-/Foto-Upload
+(`admin/einstellungen.php`, `src/Service/ImageUpload.php`), Abschliessen/Anonymisieren (`admin/abschliessen.php`,
+`src/Service/EventLifecycle.php`, Migration 002 `ranking_snapshot`), Kategorien als **Vorlage** (`admin/kategorien.php`).
+
+**Offen (Sonnet, nach Muster `admin/kategorien.php`):**
+1. `admin/anlaesse.php` – Anlass anlegen/bearbeiten/kopieren (inkl. Disziplinen + Kategorien kopieren): Stammdaten, Texte,
+   Zeiten, Anmeldung, Sichtbarkeit, Namensanzeige, Teamgrösse + `member_config`, `category_member`, Handicap.
+   Teamgrösse nur änderbar, solange keine Anmeldungen existieren. Nach dem Speichern `MemberConfig::conflicts()` anzeigen.
+2. `admin/disziplinen.php` – CRUD inkl. Teilmessungen, Zeitformat, Dezimalstellen, Faktoren (≥ 1, mit Beispielrechnung
+   via `RankingCalculator::factor()/adjust()`); Löschen nur ohne Resultate, sonst «inaktiv».
+3. `admin/teilnehmer.php` – Liste mit Suche, bearbeiten (Mitglieder, Kategorie), löschen (mit Resultaten), CSV-Export.
+4. `admin/resultate.php` – Liste mit Filter (Disziplin/Kampfrichter/annulliert), annullieren (`ResultRepository::void` ohne
+   Kampfrichter-Einschränkung), Resultat nachtragen.
+5. `admin/benutzer.php` – Admins anlegen/entfernen (nicht sich selbst/letzten), eigenes Passwort ändern.
+6. Fotos vor dem Upload im Browser verkleinern (Canvas → JPEG, max. 1920 px), damit Handyfotos auch bei tiefem
+   `upload_max_filesize` (oft 2 MB) funktionieren. Serverseitige Prüfung bleibt.
+
+**Regeln fürs Muster:** Jede Seite startet mit `Admin::boot()`, POST immer `Session::requireCsrf()` + PRG-Redirect mit
+`Session::flash()`, Validierung als reine Klasse in `src/Domain/*Validator.php` mit Tests in `tests/`, Templates nutzen
+`App\Http\Form`, neue Seite in `Admin::NAV` eintragen, anonymisierte Anlässe sind schreibgeschützt (`$readOnly`),
+Buttons mit `data-once`, keine JS-Dialoge (`confirm()`), Löschen mit Bestätigung nur bei unwiderruflichen Massendaten.
+Nach jeder Seite: `php tests/run.php`, HTTP-Rauchtest, Browser-Check (hell/dunkel, Handy-Breite).

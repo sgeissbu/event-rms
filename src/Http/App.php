@@ -33,8 +33,15 @@ final class App
         }
         try {
             $pdo = Database::pdo();
-            if ((new Migrator($pdo))->currentVersion() === 0) {
+            $migrator = new Migrator($pdo);
+            if ($migrator->currentVersion() === 0) {
                 self::renderNotInstalled();
+            }
+            // Nach einem Update (neue Dateien per FTP) fehlende Migrationen sofort einspielen –
+            // sonst brechen Seiten ab, die schon neue Spalten erwarten. GET_LOCK verhindert Doppelläufe.
+            if ($migrator->pending() !== []) {
+                $done = $migrator->migrate();
+                error_log('event-rms: Migration(en) eingespielt: ' . implode(', ', $done));
             }
             Settings::all($pdo);
             Settings::applyTimezone();

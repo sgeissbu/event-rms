@@ -32,6 +32,17 @@ final class RankingService
         $eventId = (int) $event['id'];
         $entries = (new EntryRepository($this->pdo))->forEvent($eventId);
         $disciplines = (new DisciplineRepository($this->pdo))->forEvent($eventId);
+
+        // Anonymisierte Anlässe: eingefrorene Rangliste (Personendaten für die Handicap-Wertung fehlen).
+        $snapshot = json_decode((string) ($event['ranking_snapshot'] ?? ''), true);
+        if (is_array($snapshot) && isset($snapshot['sections'])) {
+            return [
+                'sections' => $snapshot['sections'],
+                'disciplines' => array_column($disciplines, null, 'id'),
+                'entries' => array_column($entries, null, 'id'),
+            ];
+        }
+
         $categories = (new CategoryRepository($this->pdo))->forEvent($eventId);
 
         $ranking = RankingCalculator::rank(
