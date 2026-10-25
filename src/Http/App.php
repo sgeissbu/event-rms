@@ -60,6 +60,7 @@ final class App
     {
         $clubName = (string) Settings::get('club_name');
         $logo = (string) Settings::get('logo_file');
+        $logoDark = (string) Settings::get('logo_file_dark');
         $query = self::eventQuery($event);
         $nav = ['home' => [url('index.php', $query), t('nav.home')]];
         if ($event !== null && EventPhase::registrationOpen($event)) {
@@ -72,9 +73,13 @@ final class App
             }
         }
         $logoUrl = ($logo !== '' && is_file(APP_ROOT . '/uploads/' . $logo)) ? asset('uploads/' . $logo) : null;
+        $logoDarkUrl = ($logoDark !== '' && is_file(APP_ROOT . '/uploads/' . $logoDark)) ? asset('uploads/' . $logoDark) : null;
         $primary = (string) Settings::get('color_primary');
         $secondary = (string) Settings::get('color_secondary');
-        $brandVars = Theme::variables($primary, $secondary)['light'];
+        // Optionale eigene Farbe des Vereinsnamens pro Modus (leer = automatisch berechnete Markenfarbe).
+        $nameLight = trim((string) Settings::get('club_name_color_light'));
+        $nameDark = trim((string) Settings::get('club_name_color_dark'));
+        $brandVars = Theme::variables($primary, $secondary, $nameLight, $nameDark)['light'];
         $initials = Text::initials($clubName);
         $shareImage = self::heroImages()[0] ?? (($logo !== '' && $logoUrl !== null) ? $logo : null);
         // Anderer als der aktive Anlass (z.B. aus «Frühere Anlässe»): Weg zurück anbieten.
@@ -95,9 +100,10 @@ final class App
             'clubName' => $clubName,
             'clubUrl' => (string) Settings::get('club_url'),
             'logoUrl' => $logoUrl,
+            'logoDarkUrl' => $logoDarkUrl,
             'hideClubName' => $logoUrl !== null && Settings::get('hide_club_name') === '1',
             'logoInitials' => $initials,
-            'themeCss' => Theme::css($primary, $secondary),
+            'themeCss' => Theme::css($primary, $secondary, $nameLight, $nameDark),
             'brandHex' => $brandVars['--brand'],
             'faviconHref' => $logoUrl ?? PageMeta::favicon($initials, $brandVars['--brand'], $brandVars['--brand-contrast']),
             'metaDescription' => PageMeta::description($event, $clubName),

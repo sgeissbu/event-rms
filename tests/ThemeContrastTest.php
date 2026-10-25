@@ -101,4 +101,33 @@ return [
         assert_true(count(array_filter($same, fn ($m) => str_contains($m, 'fast gleich'))) === 1);
         assert_true(count(array_filter(Theme::warnings('#1D284C', '#222B50'), fn ($m) => str_contains($m, 'fast gleich'))) === 1, 'ähnliche Farben');
     },
+    'Vereinsnamen-Farbe: CSS-Variable nur, wenn die Einstellung gesetzt ist' => function (): void {
+        assert_true(!str_contains(Theme::css('#1D284C', '#FEC028'), '--club-name-color'), 'ohne Angabe unverändert wie bisher');
+        $both = explode('@media', Theme::css('#1D284C', '#FEC028', '#1D284C', '#FEC028'), 2);
+        assert_true(str_contains($both[0], '--club-name-color:#1D284C;'), 'Hellblock: gewählte Farbe');
+        assert_true(str_contains($both[1], '--club-name-color:#FEC028;'), 'Dunkelblock: gewählte Farbe');
+        $onlyDark = explode('@media', Theme::css('#1D284C', '#FEC028', null, '#FEC028'), 2);
+        assert_true(!str_contains($onlyDark[0], '--club-name-color'), 'ohne Hellmodus-Farbe bleibt der Hellblock unverändert');
+        assert_true(str_contains($onlyDark[1], '--club-name-color:#FEC028;'), 'nur Dunkelmodus:Variable nur im Dunkelblock');
+    },
+    'Vereinsnamen-Farbe Hell: sickert nicht in den Dunkelmodus durch' => function (): void {
+        $default = Theme::variables('#1D284C', '#FEC028');
+        assert_true(!isset($default['light']['--club-name-color']) && !isset($default['dark']['--club-name-color']), 'Standard: keine neue Variable');
+        $with = Theme::variables('#1D284C', '#FEC028', '#1D284C', '');
+        assert_same('#1D284C', $with['light']['--club-name-color']);
+        // Nur Hellmodus gesetzt: der Dunkelblock muss die berechnete Marke zurückschreiben, sonst gilt
+        // die dunkle Farbe auch auf dunklem Grund (Variable aus dem :root würde geerbt).
+        assert_same($default['dark']['--brand-text'], $with['dark']['--club-name-color'], 'Dunkel-Fallback = berechnete --brand-text');
+        assert_same(Theme::css('#1D284C', '#FEC028', 'miese Eingabe', ''), Theme::css('#1D284C', '#FEC028'), 'ungültige Eingabe: CSS wie bisher');
+    },
+    'Namensfarbe: Warnung nur bei zu tiefem Kontrast (unter 4.5:1)' => function (): void {
+        assert_same(null, Theme::nameColorWarning('#1D284C', false), 'Dunkelblau auf hellen Flächen');
+        assert_same(null, Theme::nameColorWarning('#FEC028', true), 'Gelb auf dunklen Flächen');
+        assert_true(Theme::nameColorWarning('#1D284C', true) !== null, 'Dunkelblau auf dunklem Grund ist schlecht lesbar');
+        assert_true(Theme::nameColorWarning('#808080', false) !== null, 'Grau auf Weiss: unter 4.5:1');
+        assert_same(null, Theme::nameColorWarning('', false), 'leer = automatischer Wert, kein Hinweis');
+        assert_same(null, Theme::nameColorWarning('rot', true), 'ungültig: kein Hinweis (Ablehnung erfolgt anderswo)');
+        $msg = (string) Theme::nameColorWarning('#1D284C', true);
+        assert_true(str_contains($msg, 'Diese Farbe ist auf dem Hintergrund schlecht lesbar'), $msg);
+    },
 ];

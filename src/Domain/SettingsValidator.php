@@ -60,4 +60,22 @@ final class SettingsValidator
 
         return ['values' => $values, 'errors' => $errors];
     }
+
+    /**
+     * Prüft eine optionale Farbe des Vereinsnamens (Hell- oder Dunkelmodus). Die beiden Felder
+     * stehen in eigenen kleinen Formularen, darum nicht im grossen validate()-Durchlauf.
+     * Leer = bisheriges Verhalten; sonst Normalisierung auf #RRGGBB in Grossbuchstaben.
+     * @return array{value: string, error: string|null}
+     */
+    public static function validateNameColor(?string $input): array
+    {
+        $value = trim($input ?? '');
+        if ($value === '') {
+            return ['value' => '', 'error' => null];
+        }
+        $hex = Theme::normalizeHex($value);
+        return $hex === null
+            ? ['value' => '', 'error' => 'Bitte eine gültige Farbe wählen (z. B. #1D284C).']
+            : ['value' => $hex, 'error' => null];
+    }
 }

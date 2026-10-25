@@ -1,7 +1,9 @@
 <?php
 /**
  * @var array<string,string> $errors  @var array<string,string> $old  @var list<string> $heroImages
- * @var int $maxHero  @var string $uploadLimit  @var ?string $logoUrl
+ * @var int $maxHero  @var string $uploadLimit  @var ?string $logoUrl  @var ?string $logoDarkUrl
+ * @var string $clubName  @var array<string,string> $nameColor  @var array<string,string> $namePreview
+ * @var array<string,string|null> $nameWarnings
  */
 $invalid = static fn (string $key): string => isset($errors[$key]) ? ' is-invalid' : '';
 $feedback = static fn (string $key): string => isset($errors[$key]) ? '<div class="invalid-feedback">' . e($errors[$key]) . '</div>' : '';
@@ -68,6 +70,7 @@ $v = static fn (string $key): string => e($old[$key] ?? '');
                     <div class="hero-actions"><span class="btn btn-accent btn-sm">Jetzt anmelden</span><span class="btn btn-hero-ghost btn-sm">Startliste</span></div>
                 </div>
                 <div class="tp-body">
+                    <span class="tp-brand">Vereinsname</span>
                     <span class="btn btn-primary btn-sm">Hauptknopf</span>
                     <span class="btn btn-outline-primary btn-sm">Zweitknopf</span>
                     <span class="badge-soft">Hervorhebung</span>
@@ -137,6 +140,72 @@ $v = static fn (string $key): string => e($old[$key] ?? '');
             <?php endif; ?>
         </div>
         <p class="form-text mt-3 mb-0">PNG mit transparentem Hintergrund eignet sich am besten (auch JPEG oder WebP). Wird automatisch auf max. 600 px verkleinert.</p>
+    </div>
+</section>
+
+<section class="card mb-4">
+    <div class="card-body">
+        <h2 class="h5 mb-3">Logo (Dunkelmodus)</h2>
+        <div class="d-flex flex-wrap align-items-center gap-4">
+            <?php if ($logoDarkUrl): ?>
+                <div class="logo-preview logo-preview-dark">
+                    <img src="<?= e($logoDarkUrl) ?>" alt="Aktuelles Logo für den Dunkelmodus">
+                </div>
+            <?php endif; ?>
+            <form method="post" enctype="multipart/form-data" class="d-flex flex-wrap gap-2 align-items-center">
+                <?= csrf_field() ?>
+                <input type="hidden" name="action" value="upload_logo_dark">
+                <input class="form-control" type="file" name="logo_dark" accept="image/png,image/jpeg,image/webp" required aria-label="Datei für das Dunkelmodus-Logo" data-resize="600" data-resize-keep="png">
+                <button class="btn btn-primary" type="submit" data-once>Hochladen</button>
+                <div class="form-text w-100" data-resize-status></div>
+            </form>
+            <?php if ($logoDarkUrl): ?>
+                <form method="post">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="action" value="remove_logo_dark">
+                    <button class="btn btn-outline-primary" type="submit" data-once>Entfernen</button>
+                </form>
+            <?php endif; ?>
+        </div>
+        <p class="form-text mt-3 mb-0">Optional. Wird im Dunkelmodus statt des Logos gezeigt – z.B. eine hellere Variante auf transparentem Grund. Ohne eigenes Dunkelmodus-Logo gilt in beiden Modi das normale Logo.</p>
+    </div>
+</section>
+
+<section class="card mb-4">
+    <div class="card-body">
+        <h2 class="h5 mb-3">Farbe des Vereinsnamens</h2>
+        <p class="form-text mt-0 mb-3">Leer gelassen erscheint der Vereinsname in der automatisch berechneten Markenfarbe.
+            Mit einer eigenen Farbe passt er sich z. B. exakt an die Farbe des Logos an – getrennt für Hell- und Dunkelmodus.</p>
+        <div class="row g-3">
+            <?php foreach (['light' => 'Hellmodus', 'dark' => 'Dunkelmodus'] as $mode => $modeLabel): ?>
+                <div class="col-md-6">
+                    <label class="form-label" for="club_name_color_<?= $mode ?>">Farbe des Vereinsnamens (<?= $modeLabel ?>)</label>
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                        <form method="post" class="d-flex flex-wrap align-items-center gap-2">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="action" value="set_name_color">
+                            <input type="hidden" name="mode" value="<?= $mode ?>">
+                            <input class="form-control form-control-color" type="color" id="club_name_color_<?= $mode ?>"
+                                   name="club_name_color" value="<?= e($namePreview[$mode]) ?>" aria-describedby="club_name_color_<?= $mode ?>_help">
+                            <button class="btn btn-primary" type="submit" name="name_color_action" value="set" data-once>Anwenden</button>
+                            <?php if ($nameColor[$mode] !== ''): ?>
+                                <button class="btn btn-outline-primary" type="submit" name="name_color_action" value="clear" data-once>Leeren</button>
+                            <?php endif; ?>
+                        </form>
+                        <?php /* Vorschau auf fest hellem bzw. fest dunklem Grund – unabhängig von der Einstellung des Geräts. */ ?>
+                        <div class="name-preview<?= $mode === 'dark' ? ' name-preview-dark' : '' ?>" aria-hidden="true">
+                            <span style="color: <?= e($namePreview[$mode]) ?>"><?= e($clubName) ?></span>
+                        </div>
+                    </div>
+                    <div class="form-text" id="club_name_color_<?= $mode ?>_help">
+                        Optional. Leer = automatische Markenfarbe. Wirkt nur, wenn der Vereinsname neben dem Logo gezeigt wird.
+                    </div>
+                    <?php if ($nameWarnings[$mode] !== null): ?>
+                        <div class="alert alert-warning small mb-0 mt-2"><?= e($nameWarnings[$mode]) ?></div>
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+        </div>
     </div>
 </section>
 

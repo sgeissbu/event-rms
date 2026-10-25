@@ -30,4 +30,14 @@ return [
         assert_same([], $r['errors']);
         assert_same('Europe/Zurich', $r['values']['timezone']);
     },
+    'Namensfarbe: leer erlaubt, sonst Normalisierung auf #RRGGBB' => function (): void {
+        assert_same(['value' => '', 'error' => null], SettingsValidator::validateNameColor(''));
+        assert_same(['value' => '', 'error' => null], SettingsValidator::validateNameColor(null));
+        assert_same(['value' => '#FEC028', 'error' => null], SettingsValidator::validateNameColor('#fec028'));
+        assert_same(['value' => '#1D284C', 'error' => null], SettingsValidator::validateNameColor(' 1d284c '));
+        assert_same(['value' => '#AABBCC', 'error' => null], SettingsValidator::validateNameColor('#abc'));
+        assert_true(SettingsValidator::validateNameColor('rot')['error'] !== null);
+        assert_true(SettingsValidator::validateNameColor('#12345')['error'] !== null);
+        assert_true(SettingsValidator::validateNameColor('https://x.ch/')['error'] !== null);
+    },
 ];

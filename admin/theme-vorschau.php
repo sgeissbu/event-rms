@@ -2,6 +2,7 @@
 /**
  * JSON-Endpunkt für die Farb-Vorschau in «Verein & Design»: liefert die berechneten Theme-Variablen
  * (hell und dunkel) und Lesbarkeits-Hinweise für zwei Farben – dieselbe Logik wie die echte Seite.
+ * Optional name_light/name_dark: eigene Farbe des Vereinsnamens; leer oder ungültig = automatisch.
  */
 declare(strict_types=1);
 
@@ -29,4 +30,9 @@ if ($primary === null || $secondary === null) {
     exit;
 }
 
-echo json_encode(Theme::preview($primary, $secondary), JSON_UNESCAPED_UNICODE);
+echo json_encode(Theme::preview(
+    $primary,
+    $secondary,
+    is_string($_GET['name_light'] ?? null) ? Theme::normalizeHex($_GET['name_light']) : null,
+    is_string($_GET['name_dark'] ?? null) ? Theme::normalizeHex($_GET['name_dark']) : null
+), JSON_UNESCAPED_UNICODE);

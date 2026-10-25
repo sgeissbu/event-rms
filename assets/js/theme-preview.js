@@ -6,6 +6,8 @@
     const box = document.getElementById('theme-preview');
     const primary = document.getElementById('color_primary');
     const secondary = document.getElementById('color_secondary');
+    const nameLight = document.getElementById('club_name_color_light');
+    const nameDark = document.getElementById('club_name_color_dark');
     if (!box || !primary || !secondary) return;
 
     const warnings = box.querySelector('[data-theme-warnings]');
@@ -19,6 +21,7 @@
         buttons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.modeButton === mode)));
         box.dataset.mode = mode;
         if (!data) return;
+        box.style.cssText = ''; // alte Werte verwerfen, damit eine geleerte Namensfarbe nicht stehen bleibt
         Object.entries(data[mode]).forEach(([name, value]) => box.style.setProperty(name, value));
         warnings.replaceChildren();
         data.warnings.forEach((text) => {
@@ -32,7 +35,9 @@
     async function load() {
         const current = ++request;
         try {
-            const url = box.dataset.url + '?primary=' + encodeURIComponent(primary.value) + '&secondary=' + encodeURIComponent(secondary.value);
+            let url = box.dataset.url + '?primary=' + encodeURIComponent(primary.value) + '&secondary=' + encodeURIComponent(secondary.value);
+            if (nameLight) url += '&name_light=' + encodeURIComponent(nameLight.value);
+            if (nameDark) url += '&name_dark=' + encodeURIComponent(nameDark.value);
             const response = await fetch(url, { cache: 'no-store' });
             if (!response.ok) return;
             const json = await response.json();
@@ -47,6 +52,8 @@
     const schedule = () => { clearTimeout(timer); timer = setTimeout(load, 120); };
     primary.addEventListener('input', schedule);
     secondary.addEventListener('input', schedule);
+    if (nameLight) nameLight.addEventListener('input', schedule);
+    if (nameDark) nameDark.addEventListener('input', schedule);
     buttons.forEach((button) => button.addEventListener('click', () => { mode = button.dataset.modeButton; render(); }));
     load();
 })();

@@ -26,8 +26,12 @@ final class Theme
     public const MIN_TEXT = 4.5;
     public const MIN_UI = 3.0;
 
-    /** @return array{light: array<string,string>, dark: array<string,string>} */
-    public static function variables(string $primaryHex, string $secondaryHex): array
+    /**
+     * $nameLight/$nameDark: optional eine eigene Farbe für den Vereinsnamen pro Modus.
+     * Leer/gelassen = Verhalten wie bisher (Schrift in berechneter Markenfarbe --brand-text).
+     * @return array{light: array<string,string>, dark: array<string,string>}
+     */
+    public static function variables(string $primaryHex, string $secondaryHex, ?string $nameLight = null, ?string $nameDark = null): array
     {
         $primary = Color::fromHex($primaryHex) ?? Color::fromHex(self::FALLBACK_PRIMARY);
         $secondary = Color::fromHex($secondaryHex) ?? Color::fromHex(self::FALLBACK_SECONDARY);
@@ -95,6 +99,20 @@ final class Theme
             '--accent-subtle' => $accentSubtleDark->hex(),
         ] + self::checkImages($brandContrastDark);
 
+        // Eigene Farbe des Vereinsnamens: nur da setzen, wo sie angegeben ist – sonst gilt --brand-text weiter.
+        $nameLight = $nameLight !== null && $nameLight !== '' ? Color::fromHex($nameLight) : null;
+        $nameDark = $nameDark !== null && $nameDark !== '' ? Color::fromHex($nameDark) : null;
+        if ($nameLight !== null) {
+            $light['--club-name-color'] = $nameLight->hex();
+        }
+        if ($nameDark !== null) {
+            $darkVars['--club-name-color'] = $nameDark->hex();
+        } elseif ($nameLight !== null) {
+            // Nur Hellmodus gesetzt: im Dunkelblock ausdrücklich auf die berechnete Marke zurücksetzen,
+            // sonst würde die CSS-Variable aus dem :root in den Dunkelmodus durchsickern.
+            $darkVars['--club-name-color'] = $brandTextDark->hex();
+        }
+
         return ['light' => $light, 'dark' => $darkVars];
     }
 
@@ -159,9 +177,9 @@ final class Theme
     }
 
     /** Fertiger CSS-Block für ein <style>-Element im <head>. */
-    public static function css(string $primaryHex, string $secondaryHex): string
+    public static function css(string $primaryHex, string $secondaryHex, ?string $nameLight = null, ?string $nameDark = null): string
     {
-        $vars = self::variables($primaryHex, $secondaryHex);
+        $vars = self::variables($primaryHex, $secondaryHex, $nameLight, $nameDark);
         $decl = static function (array $v): string {
             $out = '';
             foreach ($v as $name => $value) {
@@ -215,15 +233,38 @@ final class Theme
      * Daten für die Live-Vorschau im Admin: beide Modi und Hinweise.
      * @return array{light: array<string,string>, dark: array<string,string>, warnings: list<string>}
      */
-    public static function preview(string $primaryHex, string $secondaryHex): array
+    public static function preview(string $primaryHex, string $secondaryHex, ?string $nameLight = null, ?string $nameDark = null): array
     {
-        $vars = self::variables($primaryHex, $secondaryHex);
+        $vars = self::variables($primaryHex, $secondaryHex, $nameLight, $nameDark);
         // Der Dunkelmodus erbt alles, was er nicht überschreibt – für die Vorschau ausdrücklich zusammenführen.
         return [
             'light' => $vars['light'],
             'dark' => $vars['dark'] + $vars['light'],
             'warnings' => self::warnings($primaryHex, $secondaryHex),
         ];
+    }
+
+    /**
+     * Hinweis fürs Admin-Feld «Farbe des Vereinsnamens»: zu wenig Kontrast auf den Flächen des
+     * jeweiligen Modus (unter 4.5:1). Leere oder ungültige Eingabe ergibt keinen Hinweis –
+     * leer bedeutet «automatisch berechnete Markenfarbe», und ungültig wird ohnehin abgelehnt.
+     */
+    public static function nameColorWarning(?string $hex, bool $dark): ?string
+    {
+        $color = $hex !== null && trim($hex) !== '' ? Color::fromHex($hex) : null;
+        if ($color === null) {
+            return null;
+        }
+        $surfaces = array_map([Color::class, 'fromHex'], $dark ? self::DARK_SURFACES : self::LIGHT_SURFACES);
+        $worst = min(array_map(static fn (Color $s): float => $color->contrast($s), $surfaces));
+        if ($worst >= self::MIN_TEXT) {
+            return null;
+        }
+        return sprintf(
+            'Diese Farbe ist auf dem Hintergrund schlecht lesbar (Kontrast %.1f:1, empfohlen mindestens %.1f:1).',
+            floor($worst * 10) / 10, // abrunden wie bei warnings(): 4.49 darf nicht als «4.5» neben «mindestens 4.5» stehen
+            self::MIN_TEXT
+        );
     }
 
     /** Normalisiert eine Eingabe auf #RRGGBB oder null bei ungültigem Wert. */

@@ -269,11 +269,13 @@ a:hover { color: var(--brand-text); text-decoration-thickness: 2px; } /* Hover-F
     display: flex;
     align-items: center;
     gap: var(--space-3);
-    color: var(--text);
+    /* Vereinsname in der Markenfarbe: --brand-text wird von Theme.php je Modus lesbar berechnet.
+       --club-name-color existiert nur, wenn im Admin eine eigene Farbe gesetzt ist – dann überschreibt sie exakt. */
+    color: var(--club-name-color, var(--brand-text));
     text-decoration: none;
     font-weight: 700;
 }
-.app-brand:hover { color: var(--text); }
+.app-brand:hover { color: var(--club-name-color, var(--brand-text)); }
 .app-brand img, .app-brand .logo-placeholder { height: 2.5rem; width: auto; max-width: 10rem; object-fit: contain; flex: 0 0 auto; }
 .app-brand span:not(.logo-placeholder) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .app-header .nav-link {
@@ -308,9 +310,13 @@ a:hover { color: var(--brand-text); text-decoration-thickness: 2px; } /* Hover-F
     font-weight: 800;
     letter-spacing: 0.02em;
 }
+/* Zwei Logos: CSS tauscht das Bild je Modus ohne JS und ohne Flackern. */
+.logo-dark { display: none; }
 @media (prefers-color-scheme: dark) {
     /* Dunkle Vereinsfarben verschwinden sonst im dunklen Header */
     .logo-placeholder { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22); }
+    .logo-light { display: none; }
+    .logo-dark { display: inline-block; }
 }
 
 .app-footer {
@@ -793,6 +799,13 @@ pre.env-preview {
 .logo-preview { min-width: 6rem; min-height: 4rem; display: flex; align-items: center; justify-content: center;
     padding: var(--space-2); border: 1px dashed var(--border); border-radius: var(--radius-md); background: var(--surface-alt); }
 .logo-preview img { max-height: 4rem; max-width: 12rem; }
+/* Feste dunkle Vorschaufläche fürs Dunkelmodus-Logo – bewusst unabhängig von der Browsereinstellung. */
+.logo-preview-dark { background: #111827; border-color: #374151; }
+/* Vereinsname: Vorschau des Namens in der gewählten Farbe, auf fest hellem bzw. fest dunklem Grund. */
+.name-preview { display: inline-flex; align-items: center; padding: var(--space-2) var(--space-3);
+    border: 1px dashed var(--border); border-radius: var(--radius-md); background: #FFFFFF;
+    font-weight: 700; font-size: var(--fs-sm); white-space: nowrap; }
+.name-preview-dark { background: #111827; border-color: #374151; }
 .hero-thumbs { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); }
 .hero-thumb { position: relative; margin: 0; border-radius: var(--radius-md); overflow: hidden; aspect-ratio: 16 / 10; background: var(--surface-alt); }
 .hero-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -941,5 +954,7 @@ html { scroll-padding-top: 5rem; scroll-padding-bottom: 6rem; } /* Fokus nicht u
 .theme-preview .hero-actions { margin-top: 0; }
 .theme-preview .tp-body { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); padding: var(--space-4); background: var(--surface-raised); }
 .theme-preview .tp-link { color: var(--brand-text); text-decoration: underline; font-weight: 600; }
+/* Vereinsname in der Kopfzeile: eigene Farbe, sonst Markenfarbe (var-Fallback wie in .app-brand). */
+.theme-preview .tp-brand { font-weight: 700; color: var(--club-name-color, var(--brand-text)); }
 .theme-preview-surface .btn { pointer-events: none; } /* nur Anschauung, die Hell/Dunkel-Knöpfe oben bleiben bedienbar */
 .theme-preview [data-theme-warnings] { padding: 0 var(--space-3) var(--space-3); }

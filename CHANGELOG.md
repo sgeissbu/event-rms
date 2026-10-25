@@ -2,6 +2,13 @@
 
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen an [Semantic Versioning](https://semver.org/lang/de/).
 
+## [0.9.2] – 2026-10-25
+
+### Neu
+- «Verein & Design»: optional ein zweites Logo für den Dunkelmodus (im Admin hochladen, ersetzen oder entfernen); der Wechsel passiert rein per CSS je nach Betriebssystem-Einstellung
+- Vereinsname im Kopf neu in Vereinsfarbe – für die Lesbarkeit wird sie in Hell und Dunkel automatisch berechnet
+- «Verein & Design»: optional eine eigene Farbe für den Vereinsnamen, getrennt für Hell- und Dunkelmodus (mit Vorschau und Lesbarkeits-Hinweis); ohne Angabe bleibt die automatisch berechnete Farbe
+
 ## [0.9.1] – 2026-10-24
 
 ### Neu
