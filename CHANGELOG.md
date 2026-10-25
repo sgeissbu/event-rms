@@ -2,6 +2,15 @@
 
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen an [Semantic Versioning](https://semver.org/lang/de/).
 
+## [0.9.3] – 2026-10-25
+
+### Neu
+- PDF-Export der Rangliste (A4 quer): gleiche Spalten und Werte wie die Ranglistenseite, mit Kopf (Vereinsname, Anlass, Stand), wiederholtem Tabellenkopf bei Seitenumbruch und Fusszeile mit Seitenzahlen; lange Namen werden der Spaltenbreite angepasst gekürzt
+- «PDF»-Knopf auf der Ranglistenseite und Link «Rangliste als PDF» auf der Admin-Übersicht; Zugriff wie bei der Rangliste (öffentlich bzw. Kampfrichter des Anlasses) und für angemeldete Admins immer
+- PDF: Plätze 1–3 sind golden, silbern und bronzen hinterlegt (nach Rang – bei Gleichstand teilen sich die Zeilen die Farbe)
+- «Drucken»-Knopf auf der Ranglistenseite: öffnet dasselbe PDF (`?inline=1`) in einem neuen Tab zum Ausdrucken mit dem Drucken-Knopf des Browsers
+- Generator Dompdf 3.1.6 (LGPL-2.1) liegt ohne Composer unter `vendor/dompdf/`; verwendet werden nur die eingebauten Schriftarten (Helvetica), externe Downloads sind deaktiviert
+
 ## [0.9.2] – 2026-10-25
 
 ### Neu

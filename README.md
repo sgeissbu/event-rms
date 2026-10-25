@@ -29,7 +29,7 @@ steht noch aus. Bitte vor dem ersten grossen Anlass einmal mit Probedaten durchs
 - **Admin-Bereich** für alles Laufende: Anlässe (auch als Vorlage kopieren), Disziplinen, Kategorien, Teilnehmende (nachmelden, ändern, CSV-Export), Resultate (annullieren, nachtragen), Admins.
 - **Eigenes Aussehen in zwei Minuten:** zwei Farben, Logo, Fotos. Schriftfarben und Dunkelmodus werden automatisch lesbar berechnet; eine Vorschau zeigt das Ergebnis sofort und warnt bei schlecht lesbaren Farben.
 - **Datenschutz eingebaut:** Namen auf den Listen voll, gekürzt oder nur als Startnummer; Jahrgang und E-Mail nie öffentlich; «Anlass anonymisieren» löscht alle Personendaten unwiderruflich und friert die Rangliste ein.
-- **Druckbar:** Start- und Rangliste (Rangliste im Querformat). Ein PDF-Export ist geplant.
+- **Druckbar:** Start- und Rangliste (Rangliste im Querformat). Die Rangliste gibt es ausserdem als PDF (A4 quer) – zum Herunterladen oder zum Ausdrucken: «Drucken» öffnet das PDF in einem Browser-Tab mit Druckfunktion.
 
 <p align="center">
   <img src="docs/screenshots/rangliste-hell.jpg" alt="Rangliste am Computer" width="62%">
@@ -133,7 +133,7 @@ php tests/run.php               # alle Tests (eigener Runner, keine Abhängigkei
 ## Bekannte Einschränkungen
 
 - Nur deutsche Oberfläche (Texte in `lang/de.php`).
-- Kein PDF-Export (Rangliste lässt sich drucken); keine Urkunden.
+- Keine Urkunden (Rangliste lässt sich drucken oder als PDF herunterladen).
 - Ein Anlass hat genau ein Format (Einzel *oder* Team); für beides am selben Tag zwei Anlässe anlegen.
 - Logo mit dunklem, transparentem Hintergrund ist im Dunkelmodus schwer erkennbar – dann ein Logo mit hellem Rand oder eigener Fläche verwenden.
 - Kein Offline-Betrieb: Die Kampfrichter brauchen Netz (Mobilfunk genügt).
@@ -141,4 +141,5 @@ php tests/run.php               # alle Tests (eigener Runner, keine Abhängigkei
 ## Lizenz und Mitgelieferte Software
 
 [MIT](LICENSE) – frei nutz- und anpassbar. Mitgeliefert: [Bootstrap 5.3](https://getbootstrap.com) (MIT), [PHPMailer 7](https://github.com/PHPMailer/PHPMailer) (LGPL-2.1),
-[qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) (MIT) – die jeweiligen Lizenzen liegen bei den Dateien.
+[qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) (MIT) und für den Ranglisten-PDF [Dompdf 3.1.6](https://github.com/dompdf/dompdf) (LGPL-2.1)
+samt den darin enthaltenen Bibliotheken PHP CSS Parser (MIT), Masterminds HTML5 (MIT), PHP Font Lib (LGPL-2.1), PHP SVG Lib (LGPL-3.0) und Composer ClassLoader (MIT) – die jeweiligen Lizenzen liegen bei den Dateien.

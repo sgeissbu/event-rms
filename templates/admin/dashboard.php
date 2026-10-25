@@ -4,6 +4,7 @@
  * Nur mit Event: @var string $phase  @var bool $registrationOpen  @var bool $isActive  @var string $judgeUrl  @var list<array> $perCategory
  */
 use App\Domain\EventPhase;
+use App\Http\App;
 
 $phaseLabel = [EventPhase::UPCOMING => 'Bevorstehend', EventPhase::LIVE => 'Läuft gerade', EventPhase::PAST => 'Vorbei'];
 ?>
@@ -19,15 +20,18 @@ $phaseLabel = [EventPhase::UPCOMING => 'Bevorstehend', EventPhase::LIVE => 'Läu
             <h1 class="h2 mb-1"><?= e($event['title']) ?></h1>
             <p class="text-muted mb-0"><?= e(format_event_date(new DateTimeImmutable((string) $event['starts_at']))) ?><?= $event['location'] ? ' · ' . e($event['location']) : '' ?></p>
         </div>
-        <?php if ($isActive): ?>
-            <span class="badge-soft">Aktiv auf der Website</span>
-        <?php elseif (!$event['archived_at']): ?>
-            <form method="post">
-                <?= csrf_field() ?>
-                <input type="hidden" name="action" value="activate">
-                <button class="btn btn-outline-primary" type="submit" data-once>Auf der Website anzeigen</button>
-            </form>
-        <?php endif; ?>
+        <div class="d-flex flex-wrap align-items-center gap-2 print-hide">
+            <?php if ($isActive): ?>
+                <span class="badge-soft">Aktiv auf der Website</span>
+            <?php elseif (!$event['archived_at']): ?>
+                <form method="post">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="action" value="activate">
+                    <button class="btn btn-outline-primary" type="submit" data-once>Auf der Website anzeigen</button>
+                </form>
+            <?php endif; ?>
+            <a class="btn btn-outline-primary" href="<?= e(url('rangliste-pdf.php', App::eventQuery($event))) ?>" rel="noopener">Rangliste als PDF</a>
+        </div>
     </div>
 
     <?php foreach ($warnings as $warning): ?>

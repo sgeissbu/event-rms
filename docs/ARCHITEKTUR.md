@@ -19,13 +19,13 @@ Kleinanlässe – Einzel oder Teams, mit oder ohne Handicap, mit eigenen Diszipl
 ## Plattform
 
 - PHP ≥ 8.1 mit `pdo_mysql`, `gd`, `mbstring`; MySQL ≥ 5.7 oder MariaDB ≥ 10.3 (utf8mb4, InnoDB).
-- Bootstrap 5.3 und der QR-Code-Generator liegen lokal in `assets/vendor/`, PHPMailer in `vendor/phpmailer/` – keine CDNs, keine Google Fonts
+- Bootstrap 5.3 und der QR-Code-Generator liegen lokal in `assets/vendor/`, PHPMailer in `vendor/phpmailer/` und Dompdf in `vendor/dompdf/` – keine CDNs, keine Google Fonts
   (Datenschutz, Offline-Tauglichkeit, keine Abhängigkeit von Dritten beim Anlass).
 - Flaches Verzeichnis: Auf Shared Hosting ist der Upload-Ordner meist das Webroot. Interne Ordner sind per `.htaccess` gesperrt;
   der Installer prüft per HTTP-Anfrage, ob der Schutz wirkt (unter nginx ignoriert der Server `.htaccess`).
 
 ```
-index.php anmeldung.php startliste.php rangliste.php   öffentliche Seiten
+index.php anmeldung.php startliste.php rangliste.php rangliste-pdf.php   öffentliche Seiten
 judge/        Kampfrichter: Zugang per Code, Erfassung, Suche
 admin/        Verwaltung (Anlässe, Kategorien, Disziplinen, Teilnehmende, Resultate, Design, Admins, Abschliessen)
 setup.php     Web-Installer (sperrt sich selbst)
@@ -105,6 +105,20 @@ wird die Rangliste vorher eingefroren (`events.ranking_snapshot`) und bleibt dan
 - Die Vorschau unter «Verein & Design» nutzt dieselbe Berechnung über `admin/theme-vorschau.php` und warnt bei schwer lesbaren Farben.
 - `tests/ThemeContrastTest.php` prüft zwölf sehr verschiedene Vereinsfarben (Gelb, Rot, Pink, Grau, Weiss, Schwarz …) in beiden Modi.
 
+## Rangliste als PDF
+
+Der Export (`rangliste-pdf.php` mit `src/Service/RankingPdf.php`) setzt die Rangliste in A4 quer aus HTML und CSS – mit Dompdf 3.1.6,
+das unverändert unter `vendor/dompdf/` liegt (LGPL-2.1, rund 10 MB). Bewusst Dompdf statt FPDF: Spaltenbreiten, wiederholter
+Tabellenkopf und Seitenumbruch sind damit deklarativ beschrieben, statt jede Zelle und jede Seite von Hand zu setzen; die Bibliothek
+läuft ausserdem – wie PHPMailer – ohne Composer und Zusatzdienste auf dem Hoster.
+
+Zwei Grenzen halten den Fremdzugriff klein: `isRemoteEnabled` ist deaktiviert (kein PDF lädt etwas aus dem Netz), und das chroot
+beschränkt Dateizugriffe auf das Projekt – gelesen wird höchstens das Logo in `uploads/`. Verwendet sind nur die eingebauten
+Helvetica-Schriften; eingebettete Schriftdateien wären mehrere Megabyte schwer und auf Druckern unnötig.
+
+**Warnung an spätere Änderungen:** CSS `margin: 0` auf `html` oder `body` deaktiviert in Dompdf sämtliche `@page`-Ränder
+(verifiziert, Oktober 2026) – auch «zum Aufräumen» nicht einbauen.
+
 ## Updates und Migrationen
 
 `database/migrations/NNN_name.sql` werden beim ersten Seitenaufruf nach einem Update automatisch eingespielt (Stand in `settings.schema_version`, Sperre gegen Doppelläufe).
@@ -118,5 +132,5 @@ Vereins-Rangliste und läuft nur, wenn die (nicht veröffentlichten) Daten vorha
 
 ## Bewusst nicht enthalten (v1)
 
-PDF- und Urkunden-Export, mehrere Sprachen, Zahlungen, mehrere Vereine pro Installation, Einzel- und Teamwertung im selben Anlass (dafür zwei Anlässe anlegen),
+Urkunden-Export, mehrere Sprachen, Zahlungen, mehrere Vereine pro Installation, Einzel- und Teamwertung im selben Anlass (dafür zwei Anlässe anlegen),
 Teamgrösse pro Anlass wechselnd, Offline-Erfassung.
