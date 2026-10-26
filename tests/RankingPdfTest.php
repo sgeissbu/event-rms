@@ -151,4 +151,19 @@ return [
         assert_true(str_starts_with($pdf, '%PDF-'), 'PDF-Marker fehlt');
         assert_true(strlen($pdf) > 1000, 'PDF ist verdächtig klein: ' . strlen($pdf) . ' Bytes');
     },
+    'Rauchtest: jede Kategorie beginnt auf einer neuen Seite' => function () use ($disc, $detail, $row, $entry, $event, $ranking, $renderPdf): void {
+        $section = static fn (int $id, string $name) => ['category' => ['id' => $id, 'name' => $name], 'counted' => [1],
+            'rows' => [$row(1, 1, 1, [1 => $detail(1, 10.0)])]];
+        $entries = [1 => $entry(1, 'Käufer')];
+        $pages = static fn (string $pdf): int => (int) preg_match_all('#/Type /Page\b#', $pdf);
+
+        $one = $renderPdf($event(), $ranking([$section(1, 'U10')], [1 => $disc(1, 'Weit')], $entries));
+        $three = $renderPdf($event(), $ranking(
+            [$section(1, 'U10'), $section(2, 'U12'), $section(3, 'U14')],
+            [1 => $disc(1, 'Weit')],
+            $entries
+        ));
+        assert_same(1, $pages($one));
+        assert_same(3, $pages($three));
+    },
 ];

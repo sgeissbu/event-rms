@@ -191,10 +191,15 @@ final class RankingPdf
             . '<div class="head-text">' . $lines . '</div>'
             . '</div>';
 
+        // Jede Kategorie beginnt auf einer neuen Seite (page-break-before in css()). Die erste
+        // bekommt die Zusatzklasse «first» ohne Umbruch – sonst entstünde ein leeres Blatt 1,
+        // weil #head per position:fixed ausserhalb des Flusses liegt.
         $body = '';
+        $first = true;
         foreach (self::tables($event, $ranking) as $table) {
-            $body .= '<div class="section"><h2>' . e($table['title'])
+            $body .= '<div class="section' . ($first ? ' first' : '') . '"><h2>' . e($table['title'])
                 . ' <span class="count">' . e($table['note']) . '</span></h2>';
+            $first = false;
             if ($table['empty']) {
                 $body .= '<p class="none">Noch keine Resultate erfasst.</p></div>';
                 continue;
@@ -221,7 +226,7 @@ final class RankingPdf
         }
 
         if ($body === '') {
-            $body = '<div class="section"><p class="none">Noch keine Anmeldungen.</p></div>';
+            $body = '<div class="section first"><p class="none">Noch keine Anmeldungen.</p></div>';
         }
 
         return self::css($colors) . $head . $body;
@@ -287,7 +292,8 @@ body { font-family: Helvetica; font-size: 8.5pt; color: #111827; }
 #head .club { font-size: 12pt; font-weight: bold; color: ' . $colors['title'] . '; }
 #head .title { font-size: 9.5pt; }
 #head .sub { font-size: 7.5pt; color: #555555; }
-.section { margin-bottom: 5mm; }
+.section { margin-bottom: 5mm; page-break-before: always; }
+.section.first { page-break-before: auto; }
 h2 { font-size: 10.5pt; color: ' . $colors['title'] . '; border-bottom: 0.75pt solid ' . $colors['fill']
             . '; margin: 0 0 1.5mm 0; padding-bottom: 0.8mm; page-break-after: avoid; }
 h2 .count { font-size: 8pt; font-weight: normal; color: #555555; }
