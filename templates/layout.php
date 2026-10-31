@@ -25,7 +25,7 @@
     <meta property="og:url" content="<?= e(base_url() . ($_SERVER['REQUEST_URI'] ?? '')) ?>">
     <?php if (!empty($shareImage)): ?><meta property="og:image" content="<?= e($shareImage) ?>"><?php endif; ?>
     <meta name="twitter:card" content="<?= !empty($shareImage) ? 'summary_large_image' : 'summary' ?>">
-    <link rel="icon" href="<?= e($faviconHref ?? '') ?>">
+    <?php if (!empty($faviconHref)): ?><link rel="icon" href="<?= e($faviconHref) ?>"><?php endif; ?>
     <link rel="stylesheet" href="<?= e(asset('assets/vendor/bootstrap/bootstrap.min.css')) ?>">
     <link rel="stylesheet" href="<?= e(asset('assets/css/app.css')) ?>">
     <style><?= $themeCss ?></style>

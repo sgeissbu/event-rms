@@ -11,6 +11,9 @@ Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1
 ### Geändert
 - PDF-Rangliste: jede Kategorie beginnt auf einer neuen Seite
 
+### Behoben
+- Favicon (Tab-Symbol): Ein nicht quadratisches Logo wurde auf ein Quadrat gestaucht und war auf dunkler Tab-Leiste kaum sichtbar. Neu erzeugt die App ein quadratisches Bild (128 px): leere Ränder werden abgeschnitten, das Logo proportional und zentriert eingesetzt – auf einer abgerundeten Fläche in Vereinsfarbe mit dem Logo für den Dunkelmodus bzw. einer weissen Silhouette (einfarbige Logos). Mehrfarbige Logos ohne Dunkelmodus-Logo erscheinen unverändert. Ohne Logo bleiben es die Initialen
+
 ## [0.9.3] – 2026-10-25
 
 ### Neu

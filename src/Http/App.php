@@ -11,6 +11,7 @@ use App\Core\View;
 use App\Domain\EventPhase;
 use App\Domain\Text;
 use App\Repository\EventRepository;
+use App\Service\Favicon;
 use App\Service\PageMeta;
 use App\Service\Theme;
 use RuntimeException;
@@ -93,6 +94,16 @@ final class App
                 'activeTitle' => $active['title'] ?? null,
             ];
         }
+        // Favicon: quadratisches Emblem aus dem Logo (proportional, nie gestaucht), meist hell auf Vereinsfarbe.
+        // Ein einziges Bild für beide Modi, weil Safari Medienabfragen in SVG-Favicons
+        // ignoriert und der einfarbige Chip auf heller wie dunkler Tab-Leiste trägt.
+        $favicon = Favicon::fromLogos($logo !== '' ? $logo : null, $logoDark !== '' ? $logoDark : null, $primary);
+        if ($favicon !== null) {
+            $faviconHref = asset('uploads/' . $favicon['png']);
+        } else {
+            // Ohne Logo, ohne GD oder bei unlesbarem Bild: Initialen – nie das rohe Logo (würde gestaucht).
+            $faviconHref = PageMeta::favicon($initials, $brandVars['--brand'], $brandVars['--brand-contrast']);
+        }
         return [
             'navItems' => $nav,
             'otherEvent' => $otherEvent,
@@ -105,7 +116,7 @@ final class App
             'logoInitials' => $initials,
             'themeCss' => Theme::css($primary, $secondary, $nameLight, $nameDark),
             'brandHex' => $brandVars['--brand'],
-            'faviconHref' => $logoUrl ?? PageMeta::favicon($initials, $brandVars['--brand'], $brandVars['--brand-contrast']),
+            'faviconHref' => $faviconHref,
             'metaDescription' => PageMeta::description($event, $clubName),
             'shareImage' => $shareImage !== null ? base_url() . '/uploads/' . $shareImage : null,
             'activeNav' => $activeNav,
