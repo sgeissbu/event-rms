@@ -2,11 +2,19 @@
 
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen an [Semantic Versioning](https://semver.org/lang/de/).
 
+## [0.9.4] – 2026-10-31
+
+### Neu
+- «Verein & Design»: Option «Fotos als Diashow wechseln» – die Kopfbild-Fotos überblenden sich in zufälliger Reihenfolge mit langsamem Zoom und Schwenk (standardmässig aus; ohne Option bleibt es bei einem zufälligen Foto pro Seitenaufruf). Der Schwenk nutzt den ganzen Bildüberhang, damit im breiten Fenster nicht dauernd derselbe Streifen zu sehen ist. Ohne JavaScript oder bei «Bewegung reduzieren» erscheint ein Standbild
+- Bis zu 60 statt 12 Fotos für den Kopfbereich (die Diashow lädt jeweils nur das aktuelle und das nächste Foto)
+
+### Geändert
+- PDF-Rangliste: jede Kategorie beginnt auf einer neuen Seite
+
 ## [0.9.3] – 2026-10-25
 
 ### Neu
 - PDF-Export der Rangliste (A4 quer): gleiche Spalten und Werte wie die Ranglistenseite, mit Kopf (Vereinsname, Anlass, Stand), wiederholtem Tabellenkopf bei Seitenumbruch und Fusszeile mit Seitenzahlen; lange Namen werden der Spaltenbreite angepasst gekürzt
-- PDF-Rangliste: jede Kategorie beginnt auf einer neuen Seite
 - «PDF»-Knopf auf der Ranglistenseite und Link «Rangliste als PDF» auf der Admin-Übersicht; Zugriff wie bei der Rangliste (öffentlich bzw. Kampfrichter des Anlasses) und für angemeldete Admins immer
 - PDF: Plätze 1–3 sind golden, silbern und bronzen hinterlegt (nach Rang – bei Gleichstand teilen sich die Zeilen die Farbe)
 - «Drucken»-Knopf auf der Ranglistenseite: öffnet dasselbe PDF (`?inline=1`) in einem neuen Tab zum Ausdrucken mit dem Drucken-Knopf des Browsers

@@ -344,7 +344,21 @@ a:hover { color: var(--brand-text); text-decoration-thickness: 2px; } /* Hover-F
 /* Mit Foto liegt ein dunkler Schleier darüber – dann immer weisse Schrift.
    Rechnung für den ungünstigsten Fall (rein weisser Himmel): 22 % Farbtönung + 48 % Schwarz ergibt ≈ 4.8:1 für weisse Schrift. */
 .hero--photo { --hero-text: #FFFFFF; --hero-text-rgb: 255, 255, 255; --hero-chip-bg: rgba(0, 0, 0, 0.35); }
-.hero-photo { position: absolute; inset: 0; z-index: -2; background-size: cover; background-position: center; }
+.hero-photo { position: absolute; inset: 0; z-index: -2; overflow: hidden; background-size: cover; background-position: center; }
+/* Diashow (Option «Fotos als Diashow wechseln»): Grösse, Zoom und Pan setzt assets/js/hero-slideshow.js */
+.hero-slide {
+    position: absolute;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 2s ease-in-out;
+    will-change: transform, opacity;
+}
+.hero-slide.is-current { opacity: 1; }
+.hero-slide.is-kb { animation: hero-kenburns var(--kb-dur, 12s) linear forwards; }
+@keyframes hero-kenburns {
+    from { transform: translate(var(--kb-x0, 0px), var(--kb-y0, 0px)) scale(var(--kb-s0, 1.1)); }
+    to   { transform: translate(var(--kb-x1, 0px), var(--kb-y1, 0px)) scale(var(--kb-s1, 1.25)); }
+}
 .hero-photo + .hero-scrim {
     position: absolute;
     inset: 0;

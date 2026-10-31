@@ -212,7 +212,7 @@ $v = static fn (string $key): string => e($old[$key] ?? '');
 <section class="card mb-4">
     <div class="card-body">
         <h2 class="h5 mb-1">Fotos für den Kopfbereich</h2>
-        <p class="text-muted small">Bei jedem Seitenaufruf erscheint zufällig eines davon. Ohne Fotos wird ein Farbverlauf aus den Vereinsfarben gezeigt.
+        <p class="text-muted small">Bei jedem Seitenaufruf erscheint zufällig eines davon – oder, mit eingeschalteter Diashow, wechseln sie sich laufend ab. Ohne Fotos wird ein Farbverlauf aus den Vereinsfarben gezeigt.
             Bilder werden auf max. 1920 px verkleinert; Standort- und Kameradaten werden entfernt.</p>
         <div class="alert alert-info small">Bitte nur Fotos verwenden, für die eine Einwilligung zur Veröffentlichung vorliegt – besonders bei Kindern.</div>
 
@@ -231,6 +231,18 @@ $v = static fn (string $key): string => e($old[$key] ?? '');
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
+
+        <form method="post" class="mb-3">
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="set_hero_slideshow">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="hero_slideshow" name="hero_slideshow" value="1"
+                       aria-describedby="hero_slideshow_help"<?= ($old['hero_slideshow'] ?? '') === '1' ? ' checked' : '' ?>>
+                <label class="form-check-label" for="hero_slideshow">Fotos als Diashow wechseln</label>
+            </div>
+            <div class="form-text" id="hero_slideshow_help">Die Fotos überblenden sich in zufälliger Reihenfolge mit langsamem Zoom und Schwenk. Braucht mindestens zwei Fotos; wer in den Systemeinstellungen «Bewegung reduzieren» gewählt hat, sieht ein Standbild.</div>
+            <button class="btn btn-sm btn-outline-primary mt-2" type="submit" data-once>Speichern</button>
+        </form>
 
         <?php if (count($heroImages) < $maxHero): ?>
             <form method="post" enctype="multipart/form-data" class="d-flex flex-wrap gap-2 align-items-center">

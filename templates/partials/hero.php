@@ -1,6 +1,6 @@
 <?php
 /**
- * @var array $event  @var string $phase  @var ?string $heroImage  @var array $eventQuery  @var string $clubName
+ * @var array $event  @var string $phase  @var ?string $heroImage  @var list<string> $heroSlides  @var array $eventQuery  @var string $clubName
  * @var bool $registrationOpen  @var DateTimeImmutable $registrationCloses
  */
 use App\Domain\EventPhase;
@@ -10,7 +10,7 @@ $rankingPublic = EventPhase::rankingPublic($event);
 ?>
 <section class="hero text-center<?= !empty($heroImage) ? ' hero--photo' : '' ?>">
     <?php if (!empty($heroImage)): ?>
-        <div class="hero-photo" style="background-image:url('<?= e($heroImage) ?>')"></div>
+        <div class="hero-photo" style="background-image:url('<?= e($heroImage) ?>')"<?php if (!empty($heroSlides)): ?> data-slides="<?= e(json_encode($heroSlides, JSON_UNESCAPED_SLASHES)) ?>"<?php endif; ?>></div>
         <div class="hero-scrim"></div>
     <?php endif; ?>
     <div class="container">

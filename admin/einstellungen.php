@@ -2,7 +2,7 @@
 /**
  * Verein & Design: Name, Farben, Logo, Hero-Fotos, Mail-Absender, Datenschutz-Kontakt.
  * Aktionen (POST action=…): save, upload_logo, remove_logo, upload_logo_dark, remove_logo_dark,
- * set_name_color (Anwenden/Leeren je Modus), upload_hero, remove_hero
+ * set_name_color (Anwenden/Leeren je Modus), upload_hero, remove_hero, set_hero_slideshow
  */
 declare(strict_types=1);
 
@@ -16,7 +16,7 @@ use App\Http\Admin;
 use App\Service\ImageUpload;
 use App\Service\Theme;
 
-const MAX_HERO_IMAGES = 12;
+const MAX_HERO_IMAGES = 60;
 
 $ctx = Admin::boot();
 $errors = [];
@@ -113,6 +113,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($saved === 0 && $problems === []) {
                     Session::flash('warning', 'Bitte mindestens ein Foto auswählen.');
                 }
+                redirect('admin/einstellungen.php');
+
+            case 'set_hero_slideshow':
+                $on = !empty($_POST['hero_slideshow']);
+                Settings::set('hero_slideshow', $on ? '1' : '0');
+                Session::flash('success', $on ? 'Diashow eingeschaltet.' : 'Diashow ausgeschaltet – es wird wieder ein zufälliges Foto pro Seitenaufruf gezeigt.');
                 redirect('admin/einstellungen.php');
 
             case 'remove_hero':
