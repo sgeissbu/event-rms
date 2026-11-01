@@ -13,6 +13,7 @@ return [
 
     'footer.powered' => 'Erstellt mit {link}',
 
+    'error.to_home' => 'Zur Startseite',
     'home.intro' => 'Worum geht’s?',
     'home.recap' => 'Rückblick',
     'home.cta.title' => 'Seid ihr dabei?',

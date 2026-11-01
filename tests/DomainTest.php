@@ -160,6 +160,10 @@ return [
         $code = EventRepository::generateJudgeCode();
         assert_true(preg_match('/^[A-HJKMNP-Z2-9]{8}$/', $code) === 1, "Code {$code}");
     },
+    'Helpers: format_text trennt Liste und Folgezeile ohne Leerzeile' => function (): void {
+        assert_same('<ul><li>Turnschuhe</li><li>Trinken</li></ul><p>Festwirtschaft <strong>vor Ort</strong></p>', format_text("- Turnschuhe\n- Trinken\nFestwirtschaft **vor Ort**"));
+        assert_same('<p>Bitte mitbringen:</p><ul><li>Schuhe</li></ul>', format_text("Bitte mitbringen:\n- Schuhe"));
+    },
     'Helpers: format_text escaped HTML und baut Listen/Absätze' => function (): void {
         $html = format_text("Hallo <script>x</script> **Welt**\nZeile 2\n\n- Turnschuhe\n- Trinken");
         assert_same('<p>Hallo &lt;script&gt;x&lt;/script&gt; <strong>Welt</strong><br>Zeile 2</p><ul><li>Turnschuhe</li><li>Trinken</li></ul>', $html);

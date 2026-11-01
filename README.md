@@ -13,28 +13,35 @@ Läuft auf gewöhnlichem Webhosting, wird per FTP hochgeladen und im Browser ein
 Entstanden aus der Resultatverwaltung des «Oldies & Kids Cup» der Jugi Langenthal (Teams aus Kind und erwachsener Person) – verallgemeinert für alle Vereine.
 Das Schwesterprojekt für laufende Vereinsmeisterschaften ist [jugi-rms](https://github.com/sgeissbu/jugi-rms).
 
-**Status:** Version 0.9 (Beta). Die Wertung ist gegen eine echte Rangliste geprüft und von automatischen Tests abgedeckt; ein Einsatz im Ernstfall
-steht noch aus. Bitte vor dem ersten grossen Anlass einmal mit Probedaten durchspielen (siehe [Ausprobieren](#ausprobieren)).
+**Status:** Version 0.12 (Beta). Die Wertung ist gegen eine echte Rangliste geprüft und von automatischen Tests abgedeckt; ein Einsatz im Ernstfall
+von A bis Z steht noch aus – danach folgt Version 1.0. Bitte vor dem ersten grossen Anlass einmal mit Probedaten durchspielen (siehe [Ausprobieren](#ausprobieren)).
 
 <p align="center">
-  <img src="docs/screenshots/start-hell.jpg" alt="Startseite mit Countdown, Anmeldung und Infos" width="48%">
-  <img src="docs/screenshots/start-dunkel.jpg" alt="Dieselbe Startseite im Dunkelmodus" width="48%">
+  <img src="docs/screenshots/start-hell.jpg" alt="Startseite: Foto über die ganze Breite, Sticker, Titel, Anmeldeknopf und Info-Leiste mit Countdown" width="64%">
+  <img src="docs/screenshots/handy-start.png" alt="Dieselbe Startseite auf dem Handy" width="20%">
+</p>
+<p align="center">
+  <img src="docs/screenshots/start-dunkel.jpg" alt="Kurzpunkte mit Symbolen und Disziplinen als Bildkarten im Dunkelmodus" width="84%">
 </p>
 
 ## Was kann es?
 
+- **Startseite, die Lust macht:** Fotos bzw. Diashow über die ganze Breite, Sticker («25 Jahre …»), Kurzpunkte mit Symbolen, Disziplinen als Bildkarten, Zeitplan als Zeitleiste, «Mitnehmen» mit Symbolen und Countdown. Nach dem Anlass stellt sie sich selbst um: Rangliste statt Anmeldung, Rückblick statt Einladung.
 - **Anmeldung** für Einzelpersonen oder Teams mit 2–10 Mitgliedern – Felder (Geschlecht, Jahrgang) pro Mitglied Pflicht, freiwillig oder ausgeblendet. Mit Einwilligung, Spam-Schutz und Bestätigungsmail.
 - **Kampfrichter ohne Konto:** Code oder QR-Code scannen, Namen eingeben, loslegen. Erfassung fürs Handy gebaut: Suche nach Startnummer oder Name, Zeiten als `1:23.45` oder `83.45`, Teilmessungen, Korrektur der letzten Eingaben.
-- **Automatische Rangliste** nach Rangpunkten, live während des Anlasses (aktualisiert sich selbst), mit Kategorien (z.B. «U10 Mädchen»), Handicap-Faktoren und Strafrang bei fehlenden Resultaten.
+- **Automatische Rangliste** nach Rangpunkten, live während des Anlasses (aktualisiert sich selbst), mit Podest pro Kategorie (z.B. «U10 Mädchen»), Handicap-Faktoren und Strafrang bei fehlenden Resultaten.
 - **Admin-Bereich** für alles Laufende: Anlässe (auch als Vorlage kopieren), Disziplinen, Kategorien, Teilnehmende (nachmelden, ändern, CSV-Export), Resultate (annullieren, nachtragen), Admins.
-- **Eigenes Aussehen in zwei Minuten:** zwei Farben, Logo, Fotos. Schriftfarben und Dunkelmodus werden automatisch lesbar berechnet; eine Vorschau zeigt das Ergebnis sofort und warnt bei schlecht lesbaren Farben.
+- **Eigenes Aussehen in zwei Minuten:** zwei Farben, Logo, Fotos, Titelschrift (rund oder schlicht). Schriftfarben und Dunkelmodus (im Farbton des Vereins) werden automatisch lesbar berechnet; eine Vorschau zeigt das Ergebnis sofort und warnt bei schlecht lesbaren Farben. Favicon und Icon für den Home-Bildschirm entstehen aus dem Logo.
 - **Datenschutz eingebaut:** Namen auf den Listen voll, gekürzt oder nur als Startnummer; Jahrgang und E-Mail nie öffentlich; «Anlass anonymisieren» löscht alle Personendaten unwiderruflich und friert die Rangliste ein.
-- **Druckbar:** Start- und Rangliste (Rangliste im Querformat). Die Rangliste gibt es ausserdem als PDF (A4 quer) – zum Herunterladen oder zum Ausdrucken: «Drucken» öffnet das PDF in einem Browser-Tab mit Druckfunktion.
+- **Druckbar:** Start- und Rangliste. Die Rangliste gibt es ausserdem als PDF (A4 quer, mit Kopfband in der Vereinsfarbe und Podest) – zum Herunterladen oder zum Ausdrucken: «Drucken» öffnet das PDF in einem Browser-Tab mit Druckfunktion.
 
 <p align="center">
-  <img src="docs/screenshots/rangliste-hell.jpg" alt="Rangliste am Computer" width="62%">
-  <img src="docs/screenshots/handy-rangliste.png" alt="Rangliste auf dem Handy" width="17%">
-  <img src="docs/screenshots/handy-erfassen.png" alt="Resultaterfassung auf dem Handy" width="17%">
+  <img src="docs/screenshots/rangliste-hell.jpg" alt="Live-Rangliste mit Podest am Computer" width="58%">
+  <img src="docs/screenshots/handy-rangliste.png" alt="Rangliste auf dem Handy" width="19%">
+  <img src="docs/screenshots/handy-erfassen.png" alt="Resultaterfassung auf dem Handy" width="19%">
+</p>
+<p align="center">
+  <img src="docs/screenshots/startliste-hell.jpg" alt="Startliste als Kacheln mit Startnummer" width="58%">
 </p>
 
 ## Installation
@@ -144,3 +151,9 @@ php tests/run.php               # alle Tests (eigener Runner, keine Abhängigkei
 [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) (MIT) und für den Ranglisten-PDF [Dompdf 3.1.6](https://github.com/dompdf/dompdf) (LGPL-2.1)
 samt den darin enthaltenen Bibliotheken PHP CSS Parser (MIT), Masterminds HTML5 (MIT), PHP Font Lib (LGPL-2.1), PHP SVG Lib (LGPL-3.0) und Composer ClassLoader (MIT),
 die Titelschrift [Nunito](https://github.com/googlefonts/nunito) (SIL OFL 1.1) und Symbole aus [Lucide](https://lucide.dev) (ISC) – die jeweiligen Lizenzen liegen bei den Dateien.
+
+**Fotos in den Screenshots:** teils gemeinfreie Bilder von Wikimedia Commons (Public Domain bzw. CC0), u.a. aus der Serie
+[«Vilseck Elementary School Family Fun Run»](https://commons.wikimedia.org/wiki/File:Vilseck_Elementary_School_Family_Fun_Run_(7840531).jpg),
+[VMC Color Run](https://commons.wikimedia.org/wiki/File:VMC_Color_Run_(8972304).jpg) und
+[Potato sack race in Sterling KS](https://commons.wikimedia.org/wiki/File:Potato_sack_race_in_Sterling_KS_250th.jpg) (CC0),
+teils mit KI erzeugt (FLUX.2, lokal mit Draw Things: Seilziehen, Frisbee, Parcours, Siegerehrung) – darauf sind keine echten Personen zu sehen. Verein, Anlass und Namen sind erfunden.

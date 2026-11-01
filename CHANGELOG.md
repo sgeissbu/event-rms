@@ -2,6 +2,19 @@
 
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen an [Semantic Versioning](https://semver.org/lang/de/).
 
+## [0.12.1] – 2026-11-01
+
+### Geändert
+- Hinweis- und Fehlerseiten (z.B. «Die Rangliste wird zum Wettkampfstart veröffentlicht», unbekannter Anlass) im normalen Seitenlayout mit Kopf, Menü und Knopf «Zur Startseite» statt als Sackgasse
+- Bestätigung nach der Anmeldung: «Danke, …!» in der Titelschrift, Startnummer gross als gekippter Sticker
+- Bestätigungs-Mail im Stil der Website: Kopfbalken in der Vereinsfarbe mit Verein und Anlass, Startnummer hervorgehoben (Tabellen und Inline-Stile, ohne Bilder und Webfonts)
+- Disziplin-Karten ohne Foto sind niedriger statt leerer Hochformat-Karten
+- Kampfrichter-Seiten: Logo im Kopf, Anlassname in der Titelschrift
+- README: neue Screenshots des aktuellen Designs (Demo-Verein mit gemeinfreien Fotos von Wikimedia Commons und KI-Bildern ohne echte Personen, Bildnachweis im README)
+
+### Behoben
+- Text-Aufbereitung: Folgt auf eine «- »-Liste direkt eine Zeile ohne Strich (ohne Leerzeile), erschien der ganze Block als Fliesstext mit sichtbaren Strichen – z.B. «Mitnehmen» in der Bestätigungs-Mail. Liste und Folgezeile werden jetzt getrennt
+
 ## [0.12.0] – 2026-11-01
 
 ### Neu

@@ -664,6 +664,8 @@ pre.env-preview {
     z-index: 1020;
 }
 .judge-event { font-weight: 700; }
+.font-rounded .judge-event { font-family: var(--font-display); font-weight: 900; font-size: 1.1rem; }
+.judge-logo img, .judge-logo .logo-placeholder { height: 2.2rem; }
 .judge-name { font-size: var(--fs-sm); color: var(--text-muted); }
 .judge-tabs { display: flex; gap: var(--space-1); margin-top: var(--space-2); }
 .judge-tabs a {
@@ -1387,6 +1389,43 @@ html { scroll-padding-top: 5rem; scroll-padding-bottom: 6rem; } /* Fokus nicht u
     .podium--classic .podium-3 { order: 3; }
 }
 .ranking-explain { border-radius: 1.25rem; }
+
+/* Disziplin-Karten ohne Foto: niedriger statt leerem Hochformat (ab 0.12.1) */
+.disc-card:not(.disc-card--photo) { aspect-ratio: auto; min-height: 9.5rem; }
+.disc-card:not(.disc-card--photo) .disc-text { position: relative; padding-top: 3.6rem; }
+
+/* Bestätigung nach der Anmeldung */
+.done-card .card-body { text-align: center; padding: clamp(2rem, 6vw, 3rem) var(--space-5); }
+.done-badge { display: inline-grid; place-items: center; width: 3.2rem; height: 3.2rem; border-radius: 50%; background: var(--success-subtle); color: var(--success); margin-bottom: var(--space-3); }
+.done-badge .ico { width: 1.6rem; height: 1.6rem; stroke-width: 3; vertical-align: 0; }
+.done-title { font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.2rem); margin-bottom: var(--space-1); overflow-wrap: anywhere; }
+.font-rounded .done-title { font-weight: 900; }
+.done-sub { font-size: var(--fs-lg); margin-bottom: var(--space-5); }
+.done-number { display: inline-flex; flex-direction: column; align-items: center; gap: var(--space-2); margin-bottom: var(--space-4); }
+.done-number-label { font-weight: 700; color: var(--text-muted); font-size: var(--fs-sm); }
+.done-number-value {
+    display: inline-grid;
+    place-items: center;
+    min-width: 5.5rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 1.1rem;
+    background: var(--accent);
+    color: var(--accent-contrast);
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 3.2rem;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    box-shadow: 0 6px 0 rgba(0, 0, 0, 0.18);
+    transform: rotate(var(--tilt));
+}
+
+/* Hinweis- und Fehlerseiten */
+.message-page { text-align: center; padding: clamp(3rem, 10vw, 6rem) var(--space-4); }
+.message-badge { width: 3.4rem; height: 3.4rem; margin-bottom: var(--space-4); }
+.message-badge .ico { width: 1.8rem; height: 1.8rem; }
+.message-text { font-size: clamp(1.25rem, 1rem + 1vw, 1.6rem); font-weight: 700; max-width: 34rem; margin: 0 auto var(--space-5); text-wrap: balance; }
+.font-rounded .message-text { font-family: var(--font-display); font-weight: 800; }
 @media (max-width: 575.98px) {
     .podium { gap: var(--space-2); }
     .podium-place {

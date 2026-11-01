@@ -17,11 +17,15 @@ $privacyContact = (string) Settings::get('privacy_contact');
 <div class="container-narrow mx-auto">
 
     <?php if ($done !== null): ?>
-        <div class="card mb-4">
-            <div class="card-body text-center py-5">
-                <div class="success-mark" aria-hidden="true">✓</div>
-                <h2 class="h4">Danke, <?= e($done['name']) ?> ist angemeldet!</h2>
-                <p class="mb-1">Startnummer <strong><?= (int) $done['start_no'] ?></strong></p>
+        <div class="card done-card mb-4">
+            <div class="card-body">
+                <span class="done-badge" aria-hidden="true"><?= icon('check') ?></span>
+                <h2 class="done-title">Danke, <?= e($done['name']) ?>!</h2>
+                <p class="done-sub"><?= $isTeam ? 'Ihr seid angemeldet.' : 'Du bist angemeldet.' ?></p>
+                <div class="done-number">
+                    <span class="done-number-label">Startnummer</span>
+                    <span class="done-number-value"><?= (int) $done['start_no'] ?></span>
+                </div>
                 <p class="text-muted mb-4"><?= $done['mail'] ? 'Eine Bestätigung ist per E-Mail unterwegs.' : 'Bitte notiere dir die Startnummer.' ?></p>
                 <div class="d-flex flex-wrap justify-content-center gap-2">
                     <a class="btn btn-outline-primary" href="<?= e(url('startliste.php', \App\Http\App::eventQuery($event))) ?>">Zur Startliste</a>

@@ -137,18 +137,29 @@ function format_event_date(DateTimeInterface $date, bool $withTime = true): stri
 function format_text(string $text): string
 {
     $html = '';
+    $inline = static fn (string $s): string => (string) preg_replace('/\*\*(.+?)\*\*/u', '<strong>$1</strong>', e($s));
     foreach (preg_split('/\R{2,}/', trim(str_replace("\r\n", "\n", $text))) ?: [] as $block) {
-        $lines = preg_split('/\R/', $block) ?: [];
-        $isList = $lines !== [] && array_reduce($lines, static fn (bool $all, string $l): bool => $all && preg_match('/^\s*[-*]\s+/', $l) === 1, true);
-        $inline = static fn (string $s): string => (string) preg_replace('/\*\*(.+?)\*\*/u', '<strong>$1</strong>', e($s));
-        if ($isList) {
-            $html .= '<ul>';
-            foreach ($lines as $line) {
-                $html .= '<li>' . $inline((string) preg_replace('/^\s*[-*]\s+/', '', $line)) . '</li>';
+        // Innerhalb eines Blocks: aufeinanderfolgende «- »-Zeilen werden zur Liste, die übrigen zum Absatz –
+        // so funktioniert auch «- Turnschuhe … ⏎ Festwirtschaft vor Ort» ohne Leerzeile dazwischen.
+        $runs = [];
+        foreach (preg_split('/\R/', $block) ?: [] as $line) {
+            $isItem = preg_match('/^\s*[-*]\s+/', $line) === 1;
+            if ($runs !== [] && $runs[count($runs) - 1][0] === $isItem) {
+                $runs[count($runs) - 1][1][] = $line;
+            } else {
+                $runs[] = [$isItem, [$line]];
             }
-            $html .= '</ul>';
-        } else {
-            $html .= '<p>' . implode('<br>', array_map($inline, $lines)) . '</p>';
+        }
+        foreach ($runs as [$isList, $lines]) {
+            if ($isList) {
+                $html .= '<ul>';
+                foreach ($lines as $line) {
+                    $html .= '<li>' . $inline((string) preg_replace('/^\s*[-*]\s+/', '', $line)) . '</li>';
+                }
+                $html .= '</ul>';
+            } else {
+                $html .= '<p>' . implode('<br>', array_map($inline, $lines)) . '</p>';
+            }
         }
     }
     return $html;

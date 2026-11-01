@@ -53,10 +53,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $vars['open']) {
         try {
             $created = (new EntryRepository($pdo))->register((int) $event['id'], $result['data']);
             $data = $result['data'];
+            // Vereinsfarben für den Mail-Kopf (Schrift darauf lesbar berechnet, wie auf der Website)
+            $themeVars = \App\Service\Theme::variables((string) Settings::get('color_primary'), (string) Settings::get('color_secondary'))['light'];
+            $mailBrand = ['brandHex' => $themeVars['--hero-a'], 'brandText' => $themeVars['--hero-text'], 'accentHex' => $themeVars['--accent'], 'accentText' => $themeVars['--accent-contrast']];
             $mailSent = $data['email'] !== null && Mailer::send(
                 $data['email'],
                 'Anmeldebestätigung: ' . $event['title'],
-                View::capture('mail/registration', ['event' => $event, 'data' => $data, 'startNo' => $created['start_no'], 'clubName' => Settings::get('club_name')]),
+                View::capture('mail/registration', ['event' => $event, 'data' => $data, 'startNo' => $created['start_no'], 'clubName' => Settings::get('club_name')] + $mailBrand),
                 View::capture('mail/registration-text', ['event' => $event, 'data' => $data, 'startNo' => $created['start_no'], 'clubName' => Settings::get('club_name')])
             );
             $_SESSION['registered'] = ['name' => $data['name'], 'start_no' => $created['start_no'], 'mail' => $mailSent];

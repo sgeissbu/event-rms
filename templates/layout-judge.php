@@ -20,9 +20,10 @@
     <link rel="stylesheet" href="<?= e(asset('assets/css/app.css')) ?>">
     <style><?= $themeCss ?></style>
 </head>
-<body class="judge-body">
+<body class="judge-body<?= !empty($roundedHeadings) ? ' font-rounded' : '' ?>">
 <header class="judge-header">
     <div class="container container-narrow d-flex align-items-center gap-3">
+        <span class="app-brand judge-logo"><?php $logoAlt = ''; require __DIR__ . '/partials/logo.php'; ?></span>
         <div class="flex-grow-1 min-w-0">
             <div class="judge-event text-truncate"><?= e($judge['event']['title'] ?? $clubName) ?></div>
             <?php if (!empty($judge)): ?>

@@ -199,7 +199,13 @@ final class App
     public static function notFound(string $message = 'Seite nicht gefunden.'): never
     {
         http_response_code(404);
-        View::render('errors/message', ['message' => $message, 'pageTitle' => 'Nicht gefunden'] + self::layoutVars(), 'layout-plain');
+        // Im normalen Seitenlayout (Kopf, Menü, Fuss) – sonst wäre die Seite eine Sackgasse.
+        $event = self::currentEvent();
+        View::render('errors/message', [
+            'message' => $message,
+            'pageTitle' => 'Nicht gefunden',
+            'homeUrl' => url('index.php', self::eventQuery($event)),
+        ] + self::layoutVars('', $event));
         exit;
     }
 
