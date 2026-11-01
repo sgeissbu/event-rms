@@ -1053,6 +1053,7 @@ html { scroll-padding-top: 5rem; scroll-padding-bottom: 6rem; } /* Fokus nicht u
 }
 .hero--home .lead { margin: 0; max-width: 34rem; font-size: clamp(1.05rem, 1rem + 0.4vw, 1.3rem); }
 .hero--home .hero-actions { justify-content: flex-start; margin-top: var(--space-5); }
+.hero--home .hero-note--status { margin-top: var(--space-5); font-size: var(--fs-lg); font-weight: 700; }
 .hero--home .btn-accent { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25); }
 .hero--home.hero--photo :is(h1, .lead, .hero-note) { text-shadow: 0 2px 20px rgba(0, 0, 0, 0.4); }
 .hero-amp { color: var(--hero-accent); }

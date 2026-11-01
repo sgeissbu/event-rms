@@ -38,6 +38,13 @@ final class EntryRepository
     }
 
     /** @return array<string, mixed>|null */
+    public function countForEvent(int $eventId): int
+    {
+        $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM entries WHERE event_id = ?');
+        $stmt->execute([$eventId]);
+        return (int) $stmt->fetchColumn();
+    }
+
     public function find(int $id, int $eventId): ?array
     {
         $stmt = $this->pdo->prepare('SELECT * FROM entries WHERE id = ? AND event_id = ?');

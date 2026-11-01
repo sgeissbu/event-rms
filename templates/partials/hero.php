@@ -3,7 +3,7 @@
  * Startseiten-Kopf (ab 0.10): randloses Foto bzw. Diashow, Text unten links, darunter eine Info-Leiste
  * mit Datum, Ort und Countdown/Status.
  * @var array $event  @var string $phase  @var ?string $heroImage  @var list<string> $heroSlides  @var array $eventQuery
- * @var bool $registrationOpen  @var DateTimeImmutable $registrationCloses
+ * @var bool $registrationOpen  @var DateTimeImmutable $registrationCloses  @var bool $startlistVisible
  */
 use App\Domain\EventPhase;
 
@@ -26,19 +26,22 @@ $title = str_replace('&amp;', '<span class="hero-amp">&amp;</span>', e((string) 
             <?php if (!empty($event['tagline'])): ?>
                 <p class="lead"><?= e($event['tagline']) ?></p>
             <?php endif; ?>
-            <div class="hero-actions">
+            <?php $hasAction = ($phase === EventPhase::UPCOMING && $registrationOpen) || ($phase !== EventPhase::UPCOMING && $rankingPublic) || $startlistVisible; ?>
+            <?php if ($hasAction): ?><div class="hero-actions">
                 <?php if ($phase === EventPhase::UPCOMING && $registrationOpen): ?>
                     <a class="btn btn-accent btn-lg" href="<?= e(url('anmeldung.php', $eventQuery)) ?>"><?= e(t('event.register')) ?><?= icon('arrow', 'ico ico-go') ?></a>
                 <?php elseif ($phase !== EventPhase::UPCOMING && $rankingPublic): ?>
                     <a class="btn btn-accent btn-lg" href="<?= e(url('rangliste.php', $eventQuery)) ?>">
                         <?= e(t($phase === EventPhase::LIVE ? 'event.to_live_ranking' : 'event.to_ranking')) ?><?= icon('arrow', 'ico ico-go') ?>
                     </a>
-                <?php else: ?>
+                <?php elseif ($startlistVisible): ?>
                     <a class="btn btn-hero-ghost btn-lg" href="<?= e(url('startliste.php', $eventQuery)) ?>"><?= e(t('nav.startlist')) ?></a>
                 <?php endif; ?>
-            </div>
+            </div><?php endif; ?>
             <?php if ($phase === EventPhase::UPCOMING && $registrationOpen): ?>
                 <p class="hero-note"><?= e(t('event.registration_until', ['date' => format_event_date($registrationCloses)])) ?></p>
+            <?php elseif ($phase === EventPhase::UPCOMING): ?>
+                <p class="hero-note hero-note--status"><?= e(t($registrationCloses < new DateTimeImmutable() && (int) $event['registration_enabled'] ? 'event.registration_closed' : 'event.registration_soon')) ?></p>
             <?php endif; ?>
         </div>
     </div>

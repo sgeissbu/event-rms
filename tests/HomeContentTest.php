@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+use App\Domain\EventPhase;
 use App\Domain\EventValidator;
 use App\Domain\HomeContent;
 
@@ -58,5 +59,13 @@ return [
         assert_same(null, $foreign['values']['intro_image']);
         $long = EventValidator::validate(['badge' => str_repeat('x', 81)] + $input, null, []);
         assert_true(isset($long['errors']['badge']));
+    },
+    'Startliste: vor dem Anlass erst ab der ersten Anmeldung, ab Start und archiviert immer' => function (): void {
+        $event = ['starts_at' => '2027-08-28 10:00:00', 'ends_at' => '2027-08-28 16:00:00', 'archived_at' => null];
+        $before = new DateTimeImmutable('2027-06-01 12:00');
+        assert_same(false, EventPhase::startlistVisible($event, 0, $before));
+        assert_same(true, EventPhase::startlistVisible($event, 1, $before));
+        assert_same(true, EventPhase::startlistVisible($event, 0, new DateTimeImmutable('2027-08-28 11:00')));
+        assert_same(true, EventPhase::startlistVisible(['archived_at' => '2027-09-01 00:00:00'] + $event, 0, $before));
     },
 ];

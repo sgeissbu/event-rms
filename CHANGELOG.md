@@ -2,6 +2,12 @@
 
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen an [Semantic Versioning](https://semver.org/lang/de/).
 
+## [0.10.2] – 2026-11-01
+
+### Geändert
+- Startliste erscheint vor dem Anlass erst ab der ersten Anmeldung (Menü und Knopf im Kopf) – eine leere Liste wirkte wie «hier ist nichts los». Ab dem Start und bei archivierten Anlässen ist sie immer verlinkt; die Seite selbst bleibt per Link erreichbar
+- Startseite: Ist die Anmeldung (noch) nicht offen, steht im Kopf «Die Anmeldung wird bald eröffnet.» bzw. nach dem Anmeldeschluss «Die Anmeldung ist geschlossen.»
+
 ## [0.10.1] – 2026-11-01
 
 ### Behoben

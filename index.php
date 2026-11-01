@@ -36,6 +36,7 @@ if ($event !== null) {
         'heroImage' => $images[0] ?? null,
         'heroSlides' => $slideshow ? $images : [],
         'registrationOpen' => $registrationOpen,
+        'startlistVisible' => $vars['startlistVisible'],
         'registrationCloses' => new DateTimeImmutable($closes),
     ]);
     $vars['disciplines'] = (new DisciplineRepository(Database::pdo()))->forEvent((int) $event['id'], true);

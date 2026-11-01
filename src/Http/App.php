@@ -10,6 +10,7 @@ use App\Core\Settings;
 use App\Core\View;
 use App\Domain\EventPhase;
 use App\Domain\Text;
+use App\Repository\EntryRepository;
 use App\Repository\EventRepository;
 use App\Service\Favicon;
 use App\Service\PageMeta;
@@ -67,8 +68,12 @@ final class App
         if ($event !== null && EventPhase::registrationOpen($event)) {
             $nav['register'] = [url('anmeldung.php', $query), t('nav.register')];
         }
+        $startlistVisible = $event !== null
+            && EventPhase::startlistVisible($event, (new EntryRepository(Database::pdo()))->countForEvent((int) $event['id']));
         if ($event !== null) {
-            $nav['startlist'] = [url('startliste.php', $query), t('nav.startlist')];
+            if ($startlistVisible || $activeNav === 'startlist') {
+                $nav['startlist'] = [url('startliste.php', $query), t('nav.startlist')];
+            }
             if (EventPhase::rankingPublic($event)) {
                 $nav['ranking'] = [url('rangliste.php', $query), t('nav.ranking')];
             }
@@ -120,6 +125,7 @@ final class App
             'metaDescription' => PageMeta::description($event, $clubName),
             'shareImage' => $shareImage !== null ? base_url() . '/uploads/' . $shareImage : null,
             'activeNav' => $activeNav,
+            'startlistVisible' => $startlistVisible,
             'roundedHeadings' => Settings::get('heading_font', 'rounded') !== 'system',
             'flashes' => Session::takeFlashes(),
         ];

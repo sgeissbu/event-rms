@@ -30,6 +30,8 @@ return [
     'event.to_live_ranking' => 'Zur Live-Rangliste',
     'event.register' => 'Jetzt anmelden',
     'event.registration_until' => 'Anmeldeschluss: {date}',
+    'event.registration_soon' => 'Die Anmeldung wird bald eröffnet.',
+    'event.registration_closed' => 'Die Anmeldung ist geschlossen.',
     'event.other.archived' => 'Früherer Anlass',
     'event.other.viewing' => 'Du siehst',
     'event.other.to_current' => 'Zum aktuellen Anlass',

@@ -53,6 +53,16 @@ final class EventPhase
         ));
     }
 
+    /**
+     * Startliste im Menü und als Knopf zeigen? Vor dem Anlass erst, wenn jemand angemeldet ist –
+     * eine leere Liste wirkt wie «hier ist nichts los». Ab dem Start (und archiviert) immer.
+     * @param array<string, mixed> $event
+     */
+    public static function startlistVisible(array $event, int $entryCount, ?DateTimeImmutable $now = null): bool
+    {
+        return $entryCount > 0 || !empty($event['archived_at']) || self::of($event, $now) !== self::UPCOMING;
+    }
+
     /** @param array<string, mixed> $event */
     public static function rankingPublic(array $event, ?DateTimeImmutable $now = null): bool
     {
