@@ -10,7 +10,7 @@ if (defined('APP_ROOT')) {
 }
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_VERSION', '0.10.0');
+define('APP_VERSION', '0.10.1');
 
 if (PHP_VERSION_ID < 80100) {
     http_response_code(500);

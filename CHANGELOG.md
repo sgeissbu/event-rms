@@ -2,6 +2,11 @@
 
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen an [Semantic Versioning](https://semver.org/lang/de/).
 
+## [0.10.1] – 2026-11-01
+
+### Behoben
+- Zeitleiste: Zeiten mit Zusatz («ca. 15:30», «ab 9:00») liefen in die Linie hinein. Die Zeitspalte wird in diesem Fall breiter, der Zusatz erscheint kleiner
+
 ## [0.10.0] – 2026-11-01
 
 ### Neu

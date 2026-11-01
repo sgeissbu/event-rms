@@ -1224,13 +1224,14 @@ html { scroll-padding-top: 5rem; scroll-padding-bottom: 6rem; } /* Fokus nicht u
 .home-two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: var(--space-5); }
 .home-card { padding: clamp(1.4rem, 3vw, 2rem); border-radius: 1.25rem; }
 .home-card .home-h { font-size: 1.4rem; margin-bottom: var(--space-4); }
-.timeline { list-style: none; margin: 0; padding: 0; position: relative; }
-.timeline::before { content: ""; position: absolute; left: 4.5rem; top: 0.9rem; bottom: 0.9rem; width: 2px; background: var(--border); }
-.timeline li { position: relative; display: grid; grid-template-columns: 3.75rem 1fr; gap: 1.6rem; padding: var(--space-2) 0; }
+.timeline { --tl: 3.75rem; list-style: none; margin: 0; padding: 0; position: relative; }
+.timeline--wide { --tl: 4.9rem; } /* Zeiten mit «ca.», «ab» … */
+.timeline::before { content: ""; position: absolute; left: calc(var(--tl) + 0.75rem); top: 0.9rem; bottom: 0.9rem; width: 2px; background: var(--border); }
+.timeline li { position: relative; display: grid; grid-template-columns: var(--tl) 1fr; gap: 1.6rem; padding: var(--space-2) 0; }
 .timeline li::before {
     content: "";
     position: absolute;
-    left: calc(4.5rem - 5px);
+    left: calc(var(--tl) + 0.75rem - 5px);
     top: 0.95rem;
     width: 12px;
     height: 12px;
@@ -1238,8 +1239,9 @@ html { scroll-padding-top: 5rem; scroll-padding-bottom: 6rem; } /* Fokus nicht u
     background: var(--bs-card-bg, var(--surface-raised));
     border: 3px solid var(--accent);
 }
-.timeline li.is-strong::before { left: calc(4.5rem - 7px); top: 0.83rem; width: 16px; height: 16px; background: var(--accent); border-color: var(--bs-card-bg, var(--surface-raised)); box-shadow: 0 0 0 2px var(--accent); }
+.timeline li.is-strong::before { left: calc(var(--tl) + 0.75rem - 7px); top: 0.83rem; width: 16px; height: 16px; background: var(--accent); border-color: var(--bs-card-bg, var(--surface-raised)); box-shadow: 0 0 0 2px var(--accent); }
 .timeline time { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; color: var(--brand-text); white-space: nowrap; }
+.timeline time small { font-size: 0.75em; font-weight: 600; }
 .timeline li.is-strong span { font-weight: 700; }
 .bring-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); }
 .bring-list li { display: flex; align-items: center; gap: var(--space-3); }

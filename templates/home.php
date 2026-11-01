@@ -72,9 +72,10 @@ use App\Domain\HomeContent;
                     <section class="card home-card" aria-labelledby="schedule-title">
                         <h2 class="home-h" id="schedule-title"><span class="home-badge"><?= icon('clock') ?></span>Zeitplan</h2>
                         <?php if ($schedule !== null): ?>
-                            <ol class="timeline">
-                                <?php foreach ($schedule as $row): ?>
-                                    <li<?= $row['strong'] ? ' class="is-strong"' : '' ?>><time><?= e($row['time']) ?></time><span><?= e($row['text']) ?></span></li>
+                            <?php $wide = array_filter($schedule, static fn (array $r): bool => str_contains($r['time'], ' ')) !== []; ?>
+                            <ol class="timeline<?= $wide ? ' timeline--wide' : '' ?>">
+                                <?php foreach ($schedule as $row): $parts = explode(' ', $row['time'], 2); ?>
+                                    <li<?= $row['strong'] ? ' class="is-strong"' : '' ?>><time><?= count($parts) === 2 ? '<small>' . e($parts[0]) . '</small> ' . e($parts[1]) : e($row['time']) ?></time><span><?= e($row['text']) ?></span></li>
                                 <?php endforeach; ?>
                             </ol>
                         <?php else: ?>
