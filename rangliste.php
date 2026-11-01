@@ -40,7 +40,7 @@ $layout = App::layoutVars('ranking', $event);
 $teams = array_sum(array_map(static fn (array $sec): int => count($sec['rows']), $vars['ranking']['sections']));
 $teamWord = (int) $event['team_size'] > 1 ? ($teams === 1 ? 'Team' : 'Teams') : ($teams === 1 ? 'Person' : 'Personen');
 $meta = match (true) {
-    $vars['live'] => '<span class="live-badge"><span class="live-dot"></span>Live · aktualisiert sich automatisch</span>',
+    $vars['live'] => '<span class="live-badge" aria-live="polite"><span class="live-dot"></span>Live – aktualisiert sich automatisch</span>',
     $vars['previewOnly'] => 'Vorschau für Kampfrichter',
     default => ($phase === EventPhase::PAST || !empty($event['archived_at']) ? 'Schlussrangliste · ' : '')
         . e(format_event_date(new DateTimeImmutable((string) $event['starts_at']), false)) . ' · ' . $teams . ' ' . $teamWord,

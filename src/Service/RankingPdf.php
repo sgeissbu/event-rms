@@ -87,7 +87,7 @@ final class RankingPdf
      *
      * @param array<string, mixed> $event
      * @param array{sections: list<array>, disciplines: array<int, array>, entries: array<int, array>} $ranking
-     * @return list<array{title: string, note: string, empty: bool, columns: list<string>, rows: list<list<string>>, widths: list<string>, tableWidth: string}>
+     * @return list<array{title: string, note: string, empty: bool, columns: list<string>, rows: list<list<string>>, podium: list<array{rank: int, name: string, members: string, points: string}>, widths: list<string>, tableWidth: string}>
      */
     public static function tables(array $event, array $ranking): array
     {
@@ -107,6 +107,7 @@ final class RankingPdf
             }
 
             $cells = [];
+            $podium = [];
             if ($counted !== []) {
                 $limit = self::nameLimit(count($counted));
                 foreach ($section['rows'] as $row) {
@@ -123,6 +124,20 @@ final class RankingPdf
                         $cellsRow[] = self::disciplineCell($row['details'][$id] ?? null, $ranking['disciplines'][$id]);
                     }
                     $cells[] = $cellsRow;
+                    if ((int) $row['rank'] <= 3) {
+                        $members = $teamSize > 1 && $mode !== 'start_no'
+                            ? array_values(array_filter(array_map(
+                                static fn (array $m): string => NameDisplay::member((string) ($m['name'] ?? ''), $mode),
+                                (array) ($entry['members'] ?? [])
+                            )))
+                            : [];
+                        $podium[] = [
+                            'rank' => (int) $row['rank'],
+                            'name' => self::truncate(NameDisplay::entry($entry, $mode, $teamSize), 34),
+                            'members' => self::truncate(implode(' · ', $members), 48),
+                            'points' => (string) $row['points'],
+                        ];
+                    }
                 }
             }
 
@@ -134,6 +149,7 @@ final class RankingPdf
                 'empty' => $counted === [],
                 'columns' => $columns,
                 'rows' => $cells,
+                'podium' => $podium,
                 'widths' => $widths,
                 'tableWidth' => $tableWidth,
             ];
@@ -168,28 +184,29 @@ final class RankingPdf
         return mb_strlen($text) <= $limit ? $text : mb_substr($text, 0, $limit - 1) . '…';
     }
 
-    /** Ganzer HTML-Inhalt des Dokuments (inkl. Stil). */
+    /** Ganzer HTML-Inhalt des Dokuments (inkl. Stil). Layout ab 0.11: Kopfband, Podest, luftige Tabelle. */
     private static function html(array $event, array $ranking, array $brand, DateTimeImmutable $now): string
     {
         $colors = self::palette((string) ($brand['primary'] ?? ''));
         $club = trim((string) ($brand['club'] ?? ''));
         $title = (string) $event['title'];
         $date = format_event_date(new DateTimeImmutable((string) $event['starts_at']), false);
-        $logo = self::logo((string) ($brand['logo'] ?? ''));
+        // Auf dunklem Band das helle (Dunkelmodus-)Logo; ohne passendes Logo ein weisses Kärtchen dahinter.
+        $darkBand = $colors['fillText'] === '#FFFFFF';
+        $logoDark = self::logo((string) ($brand['logo_dark'] ?? ''));
+        $logo = $darkBand && $logoDark !== '' ? $logoDark : self::logo((string) ($brand['logo'] ?? ''));
+        $logoCard = $logo !== '' && $darkBand && $logoDark === '';
+        $final = !empty($event['archived_at']) || \App\Domain\EventPhase::of($event, $now) === \App\Domain\EventPhase::PAST;
+        $status = $final ? 'Schlussrangliste' : 'Zwischenstand';
 
-        $lines = '';
-        if ($club !== '') {
-            $lines .= '<span class="club">' . e($club) . '</span><br>';
-        }
-        $lines .= '<span class="title">Rangliste · ' . e($title) . ' · ' . e($date) . '</span><br>'
-            . '<span class="sub">Stand: ' . e($now->format('d.m.Y H:i')) . ' Uhr</span>';
-
-        // Logo links bündig mit der Tabelle, der Text linksbündig direkt daneben (Float statt Tabelle:
-        // Tabellenzellen erbten sonst die Zentrierung und Spaltenbreite der Ranglisten-Tabellen).
-        $head = '<div id="head">'
-            . ($logo !== '' ? '<img class="logo" src="' . $logo . '">' : '')
-            . '<div class="head-text">' . $lines . '</div>'
-            . '</div>';
+        $head = '<div id="head"><table class="head"><tr>'
+            . ($logo !== '' ? '<td class="logo-cell"><img class="logo' . ($logoCard ? ' card' : '') . '" src="' . $logo . '"></td>' : '')
+            . '<td class="head-text">'
+            . ($club !== '' ? '<div class="club">' . e($club) . '</div>' : '')
+            . '<div class="title">Rangliste <span class="event">' . e($title) . '</span></div>'
+            . '</td><td class="head-meta"><div class="status">' . e($status) . '</div>'
+            . '<div>' . e($date) . '</div><div class="stand">Stand ' . e($now->format('d.m.Y H:i')) . ' Uhr</div></td>'
+            . '</tr></table></div>';
 
         // Jede Kategorie beginnt auf einer neuen Seite (page-break-before in css()). Die erste
         // bekommt die Zusatzklasse «first» ohne Umbruch – sonst entstünde ein leeres Blatt 1,
@@ -197,28 +214,37 @@ final class RankingPdf
         $body = '';
         $first = true;
         foreach (self::tables($event, $ranking) as $table) {
-            $body .= '<div class="section' . ($first ? ' first' : '') . '"><h2>' . e($table['title'])
+            $body .= '<div class="section' . ($first ? ' first' : '') . '"><h2><span class="mark"></span>' . e($table['title'])
                 . ' <span class="count">' . e($table['note']) . '</span></h2>';
             $first = false;
             if ($table['empty']) {
                 $body .= '<p class="none">Noch keine Resultate erfasst.</p></div>';
                 continue;
             }
-            $body .= '<table style="width:' . $table['tableWidth'] . '"><thead><tr>';
+            $body .= self::podiumHtml($table['podium']);
+            $body .= '<table class="ranking" style="width:' . $table['tableWidth'] . '"><thead><tr>';
             foreach ($table['columns'] as $i => $column) {
-                $body .= '<th' . ($i === 1 ? ' class="name"' : '') . ' style="width:' . $table['widths'][$i] . '">'
+                $class = $i === 1 ? 'name' : ($i === 2 ? 'pts' : '');
+                $body .= '<th' . ($class !== '' ? ' class="' . $class . '"' : '') . ' style="width:' . $table['widths'][$i] . '">'
                     . e($column) . '</th>';
             }
             $body .= '</tr></thead><tbody>';
             foreach ($table['rows'] as $n => $row) {
-                $alt = $n % 2 === 1;
-                // Platz 1–3 golden, silbern, bronzen hinterlegt (nach Rang, nicht nach Zeile: Gleichstand teilt die Farbe).
                 $rank = (int) ($row[0] ?? 0);
-                $medal = $rank >= 1 && $rank <= 3 ? ' medal' . $rank : '';
-                $body .= '<tr>';
+                $body .= '<tr' . ($n % 2 === 1 ? ' class="alt"' : '') . '>';
                 foreach ($row as $i => $cell) {
-                    $class = trim(($i === 1 ? 'name' : '') . ($medal !== '' ? $medal : ($alt ? ' alt' : '')));
-                    $body .= '<td' . ($class !== '' ? ' class="' . $class . '"' : '') . '>' . e($cell) . '</td>';
+                    if ($i === 0) {
+                        $medal = $rank >= 1 && $rank <= 3 ? ' medal' . $rank : '';
+                        $body .= '<td class="rank"><span class="badge' . $medal . '">' . e($cell) . '</span></td>';
+                    } elseif ($i === 1) {
+                        $body .= '<td class="name">' . e($cell) . '</td>';
+                    } elseif ($i === 2) {
+                        $body .= '<td class="pts">' . e($cell) . '</td>';
+                    } else {
+                        // «2 · 2:24.40» → Rang fett, Messwert klein daneben
+                        [$r, $v] = array_pad(explode(' · ', $cell, 2), 2, '');
+                        $body .= '<td>' . ($v === '' ? e($r) : '<b>' . e($r) . '</b> <span class="val">' . e($v) . '</span>') . '</td>';
+                    }
                 }
                 $body .= '</tr>';
             }
@@ -230,6 +256,36 @@ final class RankingPdf
         }
 
         return self::css($colors) . $head . $body;
+    }
+
+    /**
+     * Podest als Tabelle mit drei Karten (Dompdf kennt kein Flexbox). Bei genau 1-2-3 klassisch 2 · 1 · 3,
+     * sonst (Gleichstand) nach Rang; mehr als drei Plätze werden auf drei Karten pro Zeile umbrochen.
+     * @param list<array{rank: int, name: string, members: string, points: string}> $podium
+     */
+    private static function podiumHtml(array $podium): string
+    {
+        if ($podium === []) {
+            return '';
+        }
+        if (array_column($podium, 'rank') === [1, 2, 3]) {
+            $podium = [$podium[1], $podium[0], $podium[2]];
+        }
+        $html = '<table class="podium">';
+        foreach (array_chunk($podium, 3) as $chunk) {
+            $html .= '<tr>';
+            foreach ($chunk as $place) {
+                $html .= '<td class="place p' . $place['rank'] . '"><div class="prank">' . $place['rank'] . '</div>'
+                    . '<div class="pname">' . e($place['name']) . '</div>'
+                    . ($place['members'] !== '' ? '<div class="pmembers">' . e($place['members']) . '</div>' : '')
+                    . '<div class="ppoints">' . e($place['points']) . ' Punkte</div></td>';
+            }
+            for ($i = count($chunk); $i < 3; $i++) {
+                $html .= '<td class="place empty"></td>';
+            }
+            $html .= '</tr>';
+        }
+        return $html . '</table>';
     }
 
     /** Logo nur, wenn die Datei wirklich im Projekt liegt (chroot) und lesbar ist. */
@@ -252,7 +308,7 @@ final class RankingPdf
      * Akzentfarbe: Primärfarbe für Kopf und Tabellenkopf, aber mit mindestens 4.5:1
      * Kontrast zur Schrift, damit es auch im Schwarz-Weiss-Drucker lesbar bleibt.
      *
-     * @return array{fill: string, fillText: string, title: string}
+     * @return array{fill: string, fillText: string, title: string, tint: string}
      */
     private static function palette(string $primaryHex): array
     {
@@ -274,7 +330,7 @@ final class RankingPdf
             $title = $primary->mix($black, $i * 0.05);
         }
 
-        return ['fill' => $fill->hex(), 'fillText' => $text->hex(), 'title' => $title->hex()];
+        return ['fill' => $fill->hex(), 'fillText' => $text->hex(), 'title' => $title->hex(), 'tint' => $fill->mix($white, 0.88)->hex()];
     }
 
     /**
@@ -283,28 +339,54 @@ final class RankingPdf
      */
     private static function css(array $colors): string
     {
+        $font = str_replace('\\', '/', APP_ROOT) . '/assets/vendor/nunito/nunito-black.ttf';
         return '<style>
-@page { margin: 26mm 15mm 18mm 15mm; }
+@font-face { font-family: "Nunito"; font-weight: 900; src: url("' . $font . '") format("truetype"); }
+@page { margin: 28mm 15mm 18mm 15mm; }
 body { font-family: Helvetica; font-size: 8.5pt; color: #111827; }
-#head { position: fixed; top: -19mm; left: 0; right: 0; }
-#head img.logo { float: left; height: 12mm; margin-right: 4mm; }
-#head .head-text { text-align: left; }
-#head .club { font-size: 12pt; font-weight: bold; color: ' . $colors['title'] . '; }
-#head .title { font-size: 9.5pt; }
-#head .sub { font-size: 7.5pt; color: #555555; }
+#head { position: fixed; top: -28mm; left: -15mm; right: -15mm; height: 21mm; background-color: ' . $colors['fill'] . '; color: ' . $colors['fillText'] . '; }
+table.head { width: 100%; border-collapse: collapse; margin-top: 3.5mm; }
+table.head td { border: 0; padding: 0; vertical-align: middle; }
+td.logo-cell { width: 26mm; padding-left: 15mm !important; }
+img.logo { height: 12mm; }
+img.logo.card { background-color: #FFFFFF; padding: 1.2mm 2mm; border-radius: 2mm; }
+td.head-text { text-align: left; padding-left: 4mm !important; }
+td.head-text .club { font-size: 8.5pt; font-weight: bold; }
+td.head-text .title { font-family: Nunito; font-weight: 900; font-size: 20pt; line-height: 1.1; }
+td.head-text .event { font-size: 13pt; }
+td.head-meta { text-align: right; padding-right: 15mm !important; font-size: 8pt; line-height: 1.35; }
+td.head-meta .status { font-weight: bold; font-size: 10pt; }
+td.head-meta .stand { opacity: 0.85; }
 .section { margin-bottom: 5mm; page-break-before: always; }
 .section.first { page-break-before: auto; }
-h2 { font-size: 10.5pt; color: ' . $colors['title'] . '; border-bottom: 0.75pt solid ' . $colors['fill']
-            . '; margin: 0 0 1.5mm 0; padding-bottom: 0.8mm; page-break-after: avoid; }
-h2 .count { font-size: 8pt; font-weight: normal; color: #555555; }
-table { border-collapse: collapse; table-layout: fixed; }
-th, td { border: 0.4pt solid #B8BCC4; padding: 1mm 1.2mm; text-align: center; font-size: 8pt; }
-thead th { background-color: ' . $colors['fill'] . '; color: ' . $colors['fillText'] . '; font-size: 7.5pt; }
-td.name, th.name { text-align: left; }
-td.alt { background-color: #F1F3F6; }
-td.medal1 { background-color: #F8E08E; }
-td.medal2 { background-color: #DDE1E6; }
-td.medal3 { background-color: #E9C39B; }
+h2 { font-family: Nunito; font-weight: 900; font-size: 15pt; color: ' . $colors['title'] . '; margin: 0 0 2.5mm 0; page-break-after: avoid; }
+h2 .mark { display: inline-block; width: 3.2mm; height: 3.2mm; border-radius: 0.8mm; background-color: ' . $colors['fill'] . '; margin-right: 2mm; }
+h2 .count { font-family: Helvetica; font-weight: normal; font-size: 8.5pt; color: #555555; }
+table.podium { width: 100%; border-collapse: separate; border-spacing: 3mm 0; margin: 0 -3mm 3mm -3mm; page-break-inside: avoid; }
+td.place { width: 33.3%; text-align: center; vertical-align: bottom; padding: 2mm 2mm 2mm 2mm; border: 0.5pt solid #D5D9DF; border-top: 2mm solid #D5D9DF; border-radius: 2.5mm; }
+td.place.empty { border: 0; }
+td.p1 { border-top-color: #F5C542; background-color: #FDF6DC; padding-top: 3.5mm; }
+td.p2 { border-top-color: #C3C8D0; background-color: #F3F4F6; }
+td.p3 { border-top-color: #E2A46B; background-color: #FBEFE3; }
+.prank { font-family: Nunito; font-weight: 900; font-size: 15pt; line-height: 1; }
+.p1 .prank { color: #8A6A00; } .p2 .prank { color: #4B5563; } .p3 .prank { color: #8A4B16; }
+.pname { font-family: Nunito; font-weight: 900; font-size: 11pt; margin-top: 0.8mm; }
+.p1 .pname { font-size: 12.5pt; }
+.pmembers { font-size: 7.5pt; color: #555555; margin-top: 0.5mm; }
+.ppoints { font-size: 8.5pt; font-weight: bold; color: ' . $colors['title'] . '; margin-top: 1mm; }
+table.ranking { border-collapse: collapse; table-layout: fixed; }
+table.ranking th, table.ranking td { border: 0; border-bottom: 0.4pt solid #DADDE3; padding: 1.1mm 1.2mm; text-align: center; font-size: 8pt; }
+table.ranking thead th { background-color: ' . $colors['fill'] . '; color: ' . $colors['fillText'] . '; font-size: 7.5pt; border-bottom: 0; }
+table.ranking td.name, table.ranking th.name { text-align: left; font-weight: bold; }
+table.ranking th.name { font-weight: bold; }
+table.ranking tr.alt td { background-color: #F6F7F9; }
+table.ranking td.pts { background-color: ' . $colors['tint'] . '; font-weight: bold; font-size: 9pt; }
+table.ranking tr.alt td.pts { background-color: ' . $colors['tint'] . '; }
+.badge { display: inline-block; min-width: 5mm; padding: 0.4mm 1mm; border-radius: 2.5mm; font-weight: bold; }
+.badge.medal1 { background-color: #F5C542; color: #3B2F00; }
+.badge.medal2 { background-color: #D3D7DE; color: #1F2937; }
+.badge.medal3 { background-color: #E2A46B; color: #3A1F06; }
+.val { color: #555555; font-size: 7.5pt; }
 .none { color: #555555; font-size: 8.5pt; }
 </style>';
     }
@@ -350,6 +432,9 @@ td.medal3 { background-color: #E9C39B; }
         $options->set('chroot', [APP_ROOT]);
         $options->set('defaultFont', 'Helvetica');
         $options->setTempDir(self::tempDir());
+        // Nunito (Titel) wird beim ersten PDF in den Font-Cache übernommen – dafür ein schreibbarer Ordner.
+        $options->set('fontDir', self::tempDir());
+        $options->set('fontCache', self::tempDir());
 
         return $options;
     }

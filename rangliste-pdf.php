@@ -30,7 +30,8 @@ $now = new DateTimeImmutable();
 $pdf = RankingPdf::build($event, (new RankingService(Database::pdo()))->forEvent($event), [
     'club' => (string) Settings::get('club_name'),
     'primary' => (string) Settings::get('color_primary'),
-    'logo' => (string) Settings::get('logo_file'), // immer das Hellmodus-Logo – das PDF geht auch auf den Drucker
+    'logo' => (string) Settings::get('logo_file'),
+    'logo_dark' => (string) Settings::get('logo_file_dark'), // für das dunkle Kopfband (sonst Logo auf weissem Kärtchen)
 ], $now);
 
 // ?inline=1 liefert dasselbe PDF zur Ansicht im Browser (Drucken-Knopf), sonst zum Herunterladen.

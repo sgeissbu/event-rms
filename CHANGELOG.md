@@ -2,6 +2,12 @@
 
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen an [Semantic Versioning](https://semver.org/lang/de/).
 
+## [0.11.1] – 2026-11-01
+
+### Geändert
+- PDF-Rangliste neu gestaltet: Kopfband in der Vereinsfarbe über die ganze Breite (Logo – auf dunklem Band das Dunkelmodus-Logo bzw. ein weisses Kärtchen –, Vereinsname, «Rangliste» in Nunito, rechts «Schlussrangliste»/«Zwischenstand», Datum und Stand), pro Kategorie ein Podest mit den Plätzen 1–3, Tabelle ohne Gitter mit feinen Zeilenlinien, Medaillen-Rang, hervorgehobener Punktespalte und «Rang fett · Messwert klein» je Disziplin. Nunito Black liegt als TTF bei (`assets/vendor/nunito/nunito-black.ttf`, SIL OFL), Dompdf legt den Schrift-Cache in `uploads/tmp` ab
+- Rangliste: Live-Hinweis im Seitenkopf als helles Schild mit pulsierendem Punkt (vorher rote Schrift auf der Vereinsfarbe, schlecht lesbar)
+
 ## [0.11.0] – 2026-11-01
 
 ### Neu

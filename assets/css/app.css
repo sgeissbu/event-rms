@@ -1314,6 +1314,15 @@ html { scroll-padding-top: 5rem; scroll-padding-bottom: 6rem; } /* Fokus nicht u
 .font-rounded .page-hero h1 { font-weight: 900; }
 .page-hero h1 .home-badge { width: 2.75rem; height: 2.75rem; }
 .page-hero-meta { margin: var(--space-3) 0 0; font-weight: 600; }
+/* Live-Hinweis im Seitenkopf: helles Schild statt roter Schrift auf der Vereinsfarbe (Kontrast) */
+.page-hero-meta .live-badge {
+    padding: 0.3rem 0.8rem 0.3rem 0.65rem;
+    border-radius: var(--radius-pill);
+    background: #FFFFFF;
+    color: #B91C1C;
+    font-weight: 800;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
 .page-hero-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-4); }
 .page-hero-actions .ico { width: 1.1em; height: 1.1em; }
 /* Foto vollständig als gekippte Karte (kein Zuschneiden von Köpfen) */
