@@ -2,6 +2,11 @@
 
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen an [Semantic Versioning](https://semver.org/lang/de/).
 
+## [0.12.3] – 2026-11-01
+
+### Geändert
+- Kampfrichter-Zugang: Knopf «Zur Website» im Kopf (z.B. nach dem Abmelden gab es keinen Weg zurück); das Logo verlinkt ebenfalls auf die Startseite
+
 ## [0.12.2] – 2026-11-01
 
 ### Geändert

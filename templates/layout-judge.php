@@ -23,7 +23,7 @@
 <body class="judge-body<?= !empty($roundedHeadings) ? ' font-rounded' : '' ?>">
 <header class="judge-header">
     <div class="container container-narrow d-flex align-items-center gap-3">
-        <span class="app-brand judge-logo"><?php $logoAlt = ''; require __DIR__ . '/partials/logo.php'; ?></span>
+        <a class="app-brand judge-logo" href="<?= e(url('index.php')) ?>" aria-label="Zur Website von <?= e($clubName) ?>"><?php $logoAlt = ''; require __DIR__ . '/partials/logo.php'; ?></a>
         <div class="flex-grow-1 min-w-0">
             <?php /* Angemeldet: Anlass; beim Login statt des Vereinsnamens (sonst in Titelschrift, anders als überall) ein Seitentitel */ ?>
             <div class="judge-event text-truncate"><?= e($judge['event']['title'] ?? 'Kampfrichter-Zugang') ?></div>
@@ -31,6 +31,9 @@
                 <div class="judge-name text-truncate">Kampfrichter: <?= e($judge['name']) ?></div>
             <?php endif; ?>
         </div>
+        <?php if (empty($judge)): /* Login-Seite: Weg zurück zur Website (z.B. nach dem Abmelden) */ ?>
+            <a class="btn btn-sm btn-outline-primary" href="<?= e(url('index.php')) ?>">Zur Website</a>
+        <?php endif; ?>
         <?php if (!empty($judge)): ?>
             <form method="post" action="<?= e(url('judge/logout.php')) ?>">
                 <?= csrf_field() ?>
