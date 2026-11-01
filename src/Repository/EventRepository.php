@@ -49,7 +49,7 @@ final class EventRepository
     }
 
     private const UPDATABLE = [
-        'title', 'tagline', 'badge', 'location', 'description', 'schedule_text', 'bring_text', 'key_points', 'intro_image', 'ranking_image', 'startlist_image', 'registration_image', 'starts_at', 'ends_at',
+        'title', 'tagline', 'badge', 'location', 'description', 'schedule_text', 'bring_text', 'key_points', 'recap', 'recap_auto_points', 'intro_image', 'ranking_image', 'startlist_image', 'registration_image', 'starts_at', 'ends_at',
         'registration_enabled', 'registration_closes_at', 'ranking_visibility', 'name_display', 'team_size',
         'member_config', 'category_member', 'handicap_enabled', 'handicap_gender_member', 'handicap_age_member',
         'handicap_reference_age',
@@ -97,6 +97,7 @@ final class EventRepository
                 'schedule_text' => $source['schedule_text'],
                 'bring_text' => $source['bring_text'],
                 'key_points' => $source['key_points'],
+                'recap_auto_points' => $source['recap_auto_points'], // der Rückblick selbst gehört zum alten Anlass
                 'intro_image' => $source['intro_image'],
                 'ranking_image' => $source['ranking_image'],
                 'startlist_image' => $source['startlist_image'],
@@ -132,6 +133,15 @@ final class EventRepository
         }
     }
 
+    /**
+     * Nur den Rückblick speichern – geht auch bei anonymisierten Anlässen (enthält keine Personendaten).
+     */
+    public function updateRecap(int $id, ?string $recap, bool $autoPoints): void
+    {
+        $this->pdo->prepare('UPDATE events SET recap = ?, recap_auto_points = ? WHERE id = ?')
+            ->execute([$recap, $autoPoints ? 1 : 0, $id]);
+    }
+
     /** Neuer Kampfrichter-Code; bestehende Kampfrichter-Sitzungen werden damit ungültig. */
     public function regenerateJudgeCode(int $id): string
     {
@@ -157,6 +167,8 @@ final class EventRepository
             'schedule_text' => $data['schedule_text'] ?? null,
             'bring_text' => $data['bring_text'] ?? null,
             'key_points' => self::encodeKeyPoints($data['key_points'] ?? []),
+            'recap' => $data['recap'] ?? null,
+            'recap_auto_points' => (int) ($data['recap_auto_points'] ?? 1),
             'intro_image' => $data['intro_image'] ?? null,
             'ranking_image' => $data['ranking_image'] ?? null,
             'startlist_image' => $data['startlist_image'] ?? null,
@@ -241,6 +253,8 @@ final class EventRepository
         foreach (['id', 'team_size', 'category_member', 'handicap_gender_member', 'handicap_age_member', 'registration_enabled', 'handicap_enabled'] as $key) {
             $row[$key] = (int) $row[$key];
         }
+        $row['recap'] ??= null;
+        $row['recap_auto_points'] = (int) ($row['recap_auto_points'] ?? 1);
         $row['handicap_reference_age'] = $row['handicap_reference_age'] === null ? null : (int) $row['handicap_reference_age'];
         $row['ranking_snapshot'] ??= null;
         $row['badge'] ??= null;

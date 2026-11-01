@@ -28,6 +28,7 @@ $bodyClass = trim((!empty($roundedHeadings) ? 'font-rounded' : '') . (!empty($he
     <?php if (!empty($shareImage)): ?><meta property="og:image" content="<?= e($shareImage) ?>"><?php endif; ?>
     <meta name="twitter:card" content="<?= !empty($shareImage) ? 'summary_large_image' : 'summary' ?>">
     <?php if (!empty($faviconHref)): ?><link rel="icon" href="<?= e($faviconHref) ?>"><?php endif; ?>
+    <?php if (!empty($touchIconHref)): ?><link rel="apple-touch-icon" href="<?= e($touchIconHref) ?>"><?php endif; ?>
     <link rel="stylesheet" href="<?= e(asset('assets/vendor/bootstrap/bootstrap.min.css')) ?>">
     <?php if (!empty($roundedHeadings)): ?><link rel="preload" href="<?= e(url('assets/vendor/nunito/nunito-latin.woff2')) ?>" as="font" type="font/woff2" crossorigin><?php endif; ?>
     <link rel="stylesheet" href="<?= e(asset('assets/css/app.css')) ?>">

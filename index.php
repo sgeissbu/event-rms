@@ -9,6 +9,7 @@ use App\Core\View;
 use App\Domain\EventPhase;
 use App\Http\App;
 use App\Repository\DisciplineRepository;
+use App\Repository\EntryRepository;
 use App\Repository\EventRepository;
 
 App::boot();
@@ -53,6 +54,7 @@ if ($event !== null) {
     $vars['introImage'] = $intro !== null ? asset('uploads/' . $intro) : null;
     $vars['photoFiles'] = $files;
     $vars['registrationOpen'] = $registrationOpen;
+    $vars['entryCount'] = (new EntryRepository(Database::pdo()))->countForEvent((int) $event['id']);
     $vars['eventQuery'] = App::eventQuery($event);
     // Kopf liegt durchsichtig über dem Foto (nur ohne Hinweisbalken «anderer Anlass» dazwischen)
     $vars['heroOverlay'] = $images !== [] && empty($vars['otherEvent']);

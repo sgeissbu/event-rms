@@ -14,6 +14,7 @@
     <title><?= e(isset($pageTitle) && $pageTitle !== '' ? $pageTitle . ' · ' . $clubName : $clubName) ?></title>
     <meta name="theme-color" content="<?= e($brandHex ?? '#1D4ED8') ?>">
     <?php if (!empty($faviconHref)): ?><link rel="icon" href="<?= e($faviconHref) ?>"><?php endif; ?>
+    <?php if (!empty($touchIconHref)): ?><link rel="apple-touch-icon" href="<?= e($touchIconHref) ?>"><?php endif; ?>
     <link rel="stylesheet" href="<?= e(asset('assets/vendor/bootstrap/bootstrap.min.css')) ?>">
     <link rel="stylesheet" href="<?= e(asset('assets/css/app.css')) ?>">
     <style><?= $themeCss ?></style>

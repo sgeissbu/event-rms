@@ -165,4 +165,27 @@ final class HomeContent
         }
         return self::validateKeyPoints($data)['value'];
     }
+
+    /**
+     * Kurzpunkte nach dem Anlass, aus Fakten, die event-rms kennt (statt der Einladungs-Punkte).
+     * @param array<string, mixed> $event
+     * @return list<array{icon: string, text: string}>
+     */
+    public static function recapPoints(array $event, int $entryCount, int $disciplineCount): array
+    {
+        $points = [];
+        if ($entryCount > 0) {
+            $team = (int) ($event['team_size'] ?? 1) > 1;
+            $points[] = ['icon' => 'users', 'text' => $entryCount . ' ' . ($team ? ($entryCount === 1 ? 'Team' : 'Teams') : ($entryCount === 1 ? 'Teilnehmende/r' : 'Teilnehmende'))];
+        }
+        if ($disciplineCount > 0) {
+            $points[] = ['icon' => 'sparkles', 'text' => $disciplineCount . ' ' . ($disciplineCount === 1 ? 'Disziplin' : 'Disziplinen')];
+        }
+        $location = trim((string) ($event['location'] ?? ''));
+        if ($location !== '') {
+            $points[] = ['icon' => 'pin', 'text' => mb_strlen($location) > self::MAX_KEY_POINT_LENGTH ? mb_substr($location, 0, self::MAX_KEY_POINT_LENGTH - 1) . '…' : $location];
+        }
+        $points[] = ['icon' => 'heart', 'text' => 'Danke fürs Mitmachen!'];
+        return $points;
+    }
 }

@@ -50,6 +50,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     Session::requireCsrf();
     $action = (string) ($_POST['action'] ?? '');
 
+    if ($action === 'save_recap' && $mode === 'edit') {
+        $result = EventValidator::validateRecap($_POST);
+        if ($result['errors'] === []) {
+            $events->updateRecap((int) $target['id'], $result['values']['recap'], $result['values']['recap_auto_points']);
+            Session::flash('success', 'Rückblick gespeichert.');
+            redirect('admin/anlaesse.php', ['edit' => $target['id']]);
+        }
+        $errors = $result['errors'];
+        $old = $_POST;
+    }
+
     if ($action === 'save' && !$readOnly) {
         $result = EventValidator::validate($_POST, $lockedTeamSize, App::heroImages());
         if ($result['errors'] === []) {
@@ -99,6 +110,7 @@ if ($old === []) {
         $old = [
             'title' => $target['title'], 'tagline' => $target['tagline'], 'badge' => $target['badge'], 'location' => $target['location'],
             'key_points' => $target['key_points'], 'intro_image' => $target['intro_image'],
+            'recap' => $target['recap'], 'recap_auto_points' => $target['recap_auto_points'],
             'ranking_image' => $target['ranking_image'], 'startlist_image' => $target['startlist_image'], 'registration_image' => $target['registration_image'],
             'description' => $target['description'], 'schedule_text' => $target['schedule_text'], 'bring_text' => $target['bring_text'],
             'starts_at' => EventValidator::toInput($target['starts_at']), 'ends_at' => EventValidator::toInput($target['ends_at']),
@@ -116,7 +128,7 @@ if ($old === []) {
         )];
     } elseif ($mode === 'new') {
         $old = ['team_size' => 1, 'starts_at' => (new DateTimeImmutable('+30 days'))->format('Y-m-d') . 'T13:30', 'ends_at' => (new DateTimeImmutable('+30 days'))->format('Y-m-d') . 'T17:30',
-            'registration_enabled' => 1, 'ranking_visibility' => 'from_start', 'name_display' => 'full', 'category_member' => 1,
+            'registration_enabled' => 1, 'recap_auto_points' => 1, 'ranking_visibility' => 'from_start', 'name_display' => 'full', 'category_member' => 1,
             'handicap_gender_member' => 1, 'handicap_age_member' => 1, 'members' => [1 => EventRepository::defaultMemberConfig(1)[0]]];
     }
 }

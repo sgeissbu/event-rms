@@ -41,13 +41,20 @@ final class Favicon
     private const VERSION = 4;
 
     /**
+     * apple-touch-icon (Safari-Favoriten, «Zum Home-Bildschirm» auf iPhone/iPad): 180 px, deckend und eckig –
+     * iOS rundet die Ecken selbst; durchsichtige Ränder würden schwarz. Etwas mehr Rand als beim Favicon.
+     */
+    private const TOUCH_SIZE = 180;
+    private const TOUCH_MARGIN = 0.14;
+
+    /**
      * Erzeugt (oder findet) das Favicon-Bild für die beiden Logo-Varianten.
      * Liefert null, wenn kein brauchbares Logo vorhanden ist – die Aufrufstelle
      * fällt dann auf das bisherige Verhalten zurück (Logo direkt oder Initialen).
      *
      * @param string|null $logoRel     helles Logo, Pfad relativ zu uploads/
      * @param string|null $logoDarkRel dunkles Logo (für dunkle Navigation = helle Bildvariante), falls vorhanden
-     * @return ?array{png: string} Pfad relativ zu uploads/
+     * @return ?array{png: string, touch: ?string} Pfade relativ zu uploads/ (touch = apple-touch-icon, falls erzeugbar)
      */
     public static function fromLogos(?string $logoRel, ?string $logoDarkRel, string $backgroundHex, string $uploadsDir = APP_ROOT . '/uploads'): ?array
     {
@@ -66,31 +73,35 @@ final class Favicon
             . '|' . ($darkPath !== null ? (int) filemtime($darkPath) : '0')), 0, 16);
         $pngRel = 'branding/favicon-' . $key . '.png';
         $pngPath = rtrim($uploadsDir, '/') . '/' . $pngRel;
-        if (is_file($pngPath)) {
-            return ['png' => $pngRel];
+        $touchRel = 'branding/touch-icon-' . $key . '.png';
+        $touchPath = rtrim($uploadsDir, '/') . '/' . $touchRel;
+        if (is_file($pngPath) && is_file($touchPath)) {
+            return ['png' => $pngRel, 'touch' => $touchRel];
         }
 
         $dir = rtrim($uploadsDir, '/') . '/branding';
         if (!is_dir($dir) && !@mkdir($dir, 0755, true) && !is_dir($dir)) {
             return null;
         }
-        $icon = self::build($lightPath, $darkPath, $backgroundHex);
-        if ($icon === null) {
-            return null;
+        if (!is_file($pngPath)) {
+            $icon = self::build($lightPath, $darkPath, $backgroundHex, self::SIZE, self::MARGIN, self::RADIUS, false);
+            $data = $icon !== null ? self::encodePng($icon) : '';
+            if ($data === '' || !self::writeFile($pngPath, $data)) {
+                return null;
+            }
         }
-        $data = self::encodePng($icon);
-        if ($data === '' || !self::writeFile($pngPath, $data)) {
-            return null;
-        }
-        self::removeOutdated($dir, [$pngRel]);
+        $touch = self::build($lightPath, $darkPath, $backgroundHex, self::TOUCH_SIZE, self::TOUCH_MARGIN, 0, true);
+        $touchData = $touch !== null ? self::encodePng($touch) : '';
+        $touchOk = $touchData !== '' && self::writeFile($touchPath, $touchData);
+        self::removeOutdated($dir, [$pngRel, $touchRel]);
 
-        return ['png' => $pngRel];
+        return ['png' => $pngRel, 'touch' => $touchOk ? $touchRel : null];
     }
 
     /**
      * Setzt das Emblem zusammen: Vereinsfarbe als Fläche, Logo darüber.
      */
-    private static function build(string $lightPath, ?string $darkPath, string $backgroundHex): ?\GdImage
+    private static function build(string $lightPath, ?string $darkPath, string $backgroundHex, int $size, float $margin, int $radius, bool $opaque): ?\GdImage
     {
         $light = self::readPng($lightPath);
         $lightBox = $light !== null ? self::visibleBox($light) : null;
@@ -98,14 +109,18 @@ final class Favicon
             return null;
         }
 
-        $icon = self::createCanvas();
+        $icon = self::createCanvas($size);
         $dark = $darkPath !== null ? self::readPng($darkPath) : null;
         $darkBox = $dark !== null ? self::visibleBox($dark) : null;
         if ($darkBox === null && !self::isMonochrome($light, $lightBox)) {
-            self::placeCentered($icon, $light, $lightBox);
+            // Mehrfarbiges Logo: unverändert. Das Touch-Icon braucht trotzdem eine deckende Fläche – dann weiss.
+            if ($opaque) {
+                self::drawChip($icon, Color::rgb(255, 255, 255), $size, 0);
+            }
+            self::placeCentered($icon, $light, $lightBox, $size, $margin);
             return $icon;
         }
-        self::drawChip($icon, Color::fromHex($backgroundHex) ?? Color::fromHex(Theme::FALLBACK_PRIMARY));
+        self::drawChip($icon, Color::fromHex($backgroundHex) ?? Color::fromHex(Theme::FALLBACK_PRIMARY), $size, $radius);
 
         // Logo für den Dunkelmodus (für dunklen Grund gemacht, also hell) unverändert,
         // sonst eine weiss eingefärbte Silhouette – auf der Vereinsfarbe stets sichtbar.
@@ -113,7 +128,7 @@ final class Favicon
             $dark = self::tintWhite($light, $lightBox);
             $darkBox = [0, 0, $lightBox[2], $lightBox[3]];
         }
-        self::placeCentered($icon, $dark, $darkBox);
+        self::placeCentered($icon, $dark, $darkBox, $size, $margin);
 
         return $icon;
     }
@@ -203,13 +218,13 @@ final class Favicon
     /**
      * Quadratische Fläche mit vollständig durchsichtigem Hintergrund.
      */
-    private static function createCanvas(): \GdImage
+    private static function createCanvas(int $size): \GdImage
     {
-        $canvas = imagecreatetruecolor(self::SIZE, self::SIZE);
+        $canvas = imagecreatetruecolor($size, $size);
         imagesavealpha($canvas, true);
         imagealphablending($canvas, false);
         $transparent = imagecolorallocatealpha($canvas, 0, 0, 0, 127);
-        imagefilledrectangle($canvas, 0, 0, self::SIZE - 1, self::SIZE - 1, $transparent);
+        imagefilledrectangle($canvas, 0, 0, $size - 1, $size - 1, $transparent);
         imagealphablending($canvas, true);
         return $canvas;
     }
@@ -218,18 +233,22 @@ final class Favicon
      * Farbige Fläche mit abgerundeten Ecken (ausserhalb der Rundung bleibt durchsichtig).
      * Ohne Mischung malen, sonst würde das Durchsichtige nicht überschrieben.
      */
-    private static function drawChip(\GdImage $canvas, Color $background): void
+    private static function drawChip(\GdImage $canvas, Color $background, int $size, int $radius): void
     {
         imagealphablending($canvas, false);
         $chip = imagecolorallocate($canvas, $background->r, $background->g, $background->b);
         $clear = imagecolorallocatealpha($canvas, 0, 0, 0, 127);
-        imagefilledrectangle($canvas, 0, 0, self::SIZE - 1, self::SIZE - 1, $chip);
-        $r = self::RADIUS;
-        $half = intdiv(self::SIZE, 2);
-        $centers = [[$r, $r], [self::SIZE - 1 - $r, $r], [$r, self::SIZE - 1 - $r], [self::SIZE - 1 - $r, self::SIZE - 1 - $r]];
+        imagefilledrectangle($canvas, 0, 0, $size - 1, $size - 1, $chip);
+        $r = $radius;
+        if ($r <= 0) {
+            imagealphablending($canvas, true);
+            return; // eckig (Touch-Icon)
+        }
+        $half = intdiv($size, 2);
+        $centers = [[$r, $r], [$size - 1 - $r, $r], [$r, $size - 1 - $r], [$size - 1 - $r, $size - 1 - $r]];
         foreach ($centers as [$cx, $cy]) {
-            $x0 = $cx < $half ? 0 : self::SIZE - $r - 1;
-            $y0 = $cy < $half ? 0 : self::SIZE - $r - 1;
+            $x0 = $cx < $half ? 0 : $size - $r - 1;
+            $y0 = $cy < $half ? 0 : $size - $r - 1;
             for ($y = $y0; $y <= $y0 + $r; $y++) {
                 for ($x = $x0; $x <= $x0 + $r; $x++) {
                     if (($x - $cx) ** 2 + ($y - $cy) ** 2 > $r ** 2) {
@@ -245,18 +264,18 @@ final class Favicon
      * Logo proportional und zentriert einsetzen – das Seitenverhältnis bleibt erhalten.
      * @param array{0: int, 1: int, 2: int, 3: int} $box
      */
-    private static function placeCentered(\GdImage $canvas, \GdImage $logo, array $box): void
+    private static function placeCentered(\GdImage $canvas, \GdImage $logo, array $box, int $size, float $margin): void
     {
         [$x, $y, $width, $height] = $box;
-        $inner = self::SIZE - 2 * (self::SIZE * self::MARGIN);
+        $inner = $size - 2 * ($size * $margin);
         $scale = min($inner / $width, $inner / $height);
         $targetWidth = max(1, (int) round($width * $scale));
         $targetHeight = max(1, (int) round($height * $scale));
         imagecopyresampled(
             $canvas,
             $logo,
-            intdiv(self::SIZE - $targetWidth, 2),
-            intdiv(self::SIZE - $targetHeight, 2),
+            intdiv($size - $targetWidth, 2),
+            intdiv($size - $targetHeight, 2),
             $x,
             $y,
             $targetWidth,
@@ -334,7 +353,7 @@ final class Favicon
     private static function removeOutdated(string $dir, array $keep): void
     {
         $keepNames = array_map('basename', $keep);
-        foreach ([$dir . '/favicon-*.png', $dir . '/favicon-*.svg'] as $pattern) {
+        foreach ([$dir . '/favicon-*.png', $dir . '/favicon-*.svg', $dir . '/touch-icon-*.png'] as $pattern) {
             foreach (glob($pattern) ?: [] as $file) {
                 if (!in_array(basename($file), $keepNames, true)) {
                     @unlink($file);

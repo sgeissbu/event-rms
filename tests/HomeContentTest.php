@@ -70,4 +70,16 @@ return [
         assert_same(true, EventPhase::startlistVisible($event, 0, new DateTimeImmutable('2027-08-28 11:00')));
         assert_same(true, EventPhase::startlistVisible(['archived_at' => '2027-09-01 00:00:00'] + $event, 0, $before));
     },
+    'Rückblick: Fakten-Kurzpunkte (Teams, Disziplinen, Ort, Dank), lange Orte gekürzt' => function (): void {
+        $points = HomeContent::recapPoints(['team_size' => 2, 'location' => 'Dreifachturnhalle Hard, Langenthal'], 40, 5);
+        assert_same(['40 Teams', '5 Disziplinen', 'Dreifachturnhalle Hard, Langenthal', 'Danke fürs Mitmachen!'], array_column($points, 'text'));
+        assert_same(['1 Teilnehmende/r', 'Danke fürs Mitmachen!'], array_column(HomeContent::recapPoints(['team_size' => 1], 1, 0), 'text'));
+        $long = HomeContent::recapPoints(['team_size' => 1, 'location' => str_repeat('x', 80)], 0, 0)[0]['text'];
+        assert_same(HomeContent::MAX_KEY_POINT_LENGTH, mb_strlen($long));
+    },
+    'Rückblick-Formular: leer = null, Länge begrenzt, Schalter' => function (): void {
+        assert_same(['recap' => null, 'recap_auto_points' => false], EventValidator::validateRecap(['recap' => '  '])['values']);
+        assert_same(['recap' => 'Danke!', 'recap_auto_points' => true], EventValidator::validateRecap(['recap' => 'Danke!', 'recap_auto_points' => '1'])['values']);
+        assert_true(isset(EventValidator::validateRecap(['recap' => str_repeat('x', 10001)])['errors']['recap']));
+    },
 ];

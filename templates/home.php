@@ -4,7 +4,7 @@
  * Zeitplan als Zeitleiste, «Mitnehmen» mit Symbolen, Schluss-Aufruf zur Anmeldung.
  * @var ?array $event  @var list<array> $disciplines  @var list<array> $pastEvents
  * @var ?string $introImage  URL  @var list<string> $photoFiles  gültige Foto-Pfade (relativ zu uploads/)
- * @var bool $registrationOpen  @var array $eventQuery
+ * @var bool $registrationOpen  @var array $eventQuery  @var int $entryCount
  */
 use App\Domain\HomeContent;
 
@@ -16,18 +16,22 @@ use App\Domain\HomeContent;
     </div>
 <?php else: ?>
     <?php
-    $intro = HomeContent::splitDescription($event['description'] ?? null);
-    $points = $event['key_points'] ?? [];
+    $isOver = !empty($event['archived_at']) || \App\Domain\EventPhase::of($event) === \App\Domain\EventPhase::PAST;
+    // Nach dem Anlass: Rückblick statt Beschreibung (falls erfasst), Fakten statt Einladungs-Kurzpunkte (falls gewünscht)
+    $hasRecap = $isOver && trim((string) ($event['recap'] ?? '')) !== '';
+    $intro = HomeContent::splitDescription($hasRecap ? $event['recap'] : ($event['description'] ?? null));
+    $points = $isOver && !empty($event['recap_auto_points'])
+        ? HomeContent::recapPoints($event, (int) ($entryCount ?? 0), count($disciplines))
+        : ($event['key_points'] ?? []);
     $schedule = HomeContent::schedule($event['schedule_text'] ?? null);
     $bring = HomeContent::bring($event['bring_text'] ?? null);
-    $isOver = !empty($event['archived_at']) || \App\Domain\EventPhase::of($event) === \App\Domain\EventPhase::PAST;
     $photoOf = static fn (?string $file): ?string => $file !== null && in_array($file, $photoFiles, true) ? asset('uploads/' . $file) : null;
     ?>
     <div class="home">
         <?php if ($intro['teaser'] !== '' || $intro['rest'] !== '' || $points !== []): ?>
             <section class="home-intro<?= $introImage ? '' : ' home-intro--text' ?>" aria-labelledby="intro-title">
                 <div>
-                    <h2 class="home-h" id="intro-title"><span class="home-badge"><?= icon('info') ?></span><?= e(t('home.intro')) ?></h2>
+                    <h2 class="home-h" id="intro-title"><span class="home-badge"><?= icon('info') ?></span><?= e(t($hasRecap ? 'home.recap' : 'home.intro')) ?></h2>
                     <?php if ($intro['teaser'] !== ''): ?>
                         <div class="home-teaser"><?= format_text($intro['teaser']) ?></div>
                     <?php endif; ?>

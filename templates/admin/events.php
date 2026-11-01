@@ -137,7 +137,7 @@ $f = new Form($errors, $old);
                 <label class="form-label" for="description">Beschreibung</label>
                 <textarea class="form-control<?= $f->invalid('description') ?>" id="description" name="description" rows="5" aria-describedby="description_help"><?= $f->value('description') ?></textarea>
                 <?= $f->feedback('description') ?>
-                <div class="form-text" id="description_help">Erscheint unter «Worum geht's?». Der erste Absatz wird als kurzer Einstieg hervorgehoben – am besten ein einziger Satz.</div>
+                <div class="form-text" id="description_help">Erscheint unter «Worum geht’s?». Der erste Absatz wird als kurzer Einstieg hervorgehoben – am besten ein einziger Satz.</div>
             </div>
 
             <div class="row g-3 mb-3">
@@ -344,6 +344,23 @@ $f = new Form($errors, $old);
             </div>
         </div></section>
 
+        <?php if (!$readOnly): ?>
+        <section class="card mb-4"><div class="card-body">
+            <h2 class="h5 mb-1">Nach dem Anlass</h2>
+            <p class="text-muted small">Sobald der Anlass vorbei ist, stellt sich die Startseite selbst um (Rangliste statt Anmeldung, ohne Zeitplan und Mitnehmen). Hier legst du fest, was unter «Worum geht’s?» stehen soll.</p>
+            <div class="mb-3">
+                <label class="form-label" for="recap">Rückblick-Text <span class="text-muted fw-normal">(optional)</span></label>
+                <textarea class="form-control<?= $f->invalid('recap') ?>" id="recap" name="recap" rows="4" aria-describedby="recap_help"<?= $recapDisabled ?? '' ?>><?= $f->value('recap') ?></textarea>
+                <?= $f->feedback('recap') ?>
+                <div class="form-text" id="recap_help">Ersetzt nach dem Anlass die Beschreibung unter «Rückblick» – z.B. «Am 28. März traten 40 Teams an … Danke allen!». Leer = die Beschreibung bleibt stehen. Der erste Absatz wird hervorgehoben.</div>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="recap_auto_points" name="recap_auto_points" value="1"<?= $f->checked('recap_auto_points') ?>>
+                <label class="form-check-label" for="recap_auto_points">Nach dem Anlass Fakten statt Kurzpunkte zeigen <span class="text-muted">– Anzahl Teams, Disziplinen, Ort und «Danke fürs Mitmachen!»</span></label>
+            </div>
+        </div></section>
+        <?php endif; ?>
+
         </fieldset>
         <?php if (!$readOnly): ?>
             <div class="d-flex gap-2">
@@ -352,4 +369,27 @@ $f = new Form($errors, $old);
             </div>
         <?php endif; ?>
     </form>
+
+    <?php if ($readOnly): /* Anonymisiert: nur der Rückblick bleibt bearbeitbar (keine Personendaten) */ ?>
+        <form method="post" class="mt-4" novalidate>
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="save_recap">
+            <input type="hidden" name="id" value="<?= (int) $target['id'] ?>">
+            <section class="card mb-4"><div class="card-body">
+            <h2 class="h5 mb-1">Nach dem Anlass</h2>
+            <p class="text-muted small">Sobald der Anlass vorbei ist, stellt sich die Startseite selbst um (Rangliste statt Anmeldung, ohne Zeitplan und Mitnehmen). Der Anlass ist anonymisiert – der Rückblick lässt sich trotzdem anpassen. Hier legst du fest, was unter «Worum geht’s?» stehen soll.</p>
+            <div class="mb-3">
+                <label class="form-label" for="recap">Rückblick-Text <span class="text-muted fw-normal">(optional)</span></label>
+                <textarea class="form-control<?= $f->invalid('recap') ?>" id="recap" name="recap" rows="4" aria-describedby="recap_help"<?= $recapDisabled ?? '' ?>><?= $f->value('recap') ?></textarea>
+                <?= $f->feedback('recap') ?>
+                <div class="form-text" id="recap_help">Ersetzt nach dem Anlass die Beschreibung unter «Rückblick» – z.B. «Am 28. März traten 40 Teams an … Danke allen!». Leer = die Beschreibung bleibt stehen. Der erste Absatz wird hervorgehoben.</div>
+            </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="recap_auto_points" name="recap_auto_points" value="1"<?= $f->checked('recap_auto_points') ?>>
+                <label class="form-check-label" for="recap_auto_points">Nach dem Anlass Fakten statt Kurzpunkte zeigen <span class="text-muted">– Anzahl Teams, Disziplinen, Ort und «Danke fürs Mitmachen!»</span></label>
+            </div>
+                <button class="btn btn-primary mt-3" type="submit" data-once>Rückblick speichern</button>
+            </div></section>
+        </form>
+    <?php endif; ?>
 <?php endif; ?>

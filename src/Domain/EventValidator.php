@@ -48,7 +48,7 @@ final class EventValidator
             }
             $values[$key] = $values[$key] === '' ? null : $values[$key];
         }
-        foreach (['description', 'schedule_text', 'bring_text'] as $key) {
+        foreach (['description', 'schedule_text', 'bring_text', 'recap'] as $key) {
             $values[$key] = $str($key);
             if (mb_strlen($values[$key]) > self::MAX_TEXT) {
                 $errors[$key] = 'Der Text ist zu lang (max. ' . self::MAX_TEXT . ' Zeichen).';
@@ -78,6 +78,7 @@ final class EventValidator
         $values['starts_at'] = $start?->format('Y-m-d H:i:s');
         $values['ends_at'] = $end?->format('Y-m-d H:i:s');
 
+        $values['recap_auto_points'] = empty($input['recap_auto_points']) ? 0 : 1;
         $values['registration_enabled'] = empty($input['registration_enabled']) ? 0 : 1;
         $closes = $str('registration_closes_at');
         $values['registration_closes_at'] = null;
@@ -158,6 +159,18 @@ final class EventValidator
         }
 
         return ['values' => $values, 'errors' => $errors];
+    }
+
+    /**
+     * Nur der Rückblick (eigenes Formular, auch bei anonymisierten Anlässen).
+     * @param array<string, mixed> $input
+     * @return array{values: array{recap: ?string, recap_auto_points: bool}, errors: array<string, string>}
+     */
+    public static function validateRecap(array $input): array
+    {
+        $recap = trim(is_string($input['recap'] ?? null) ? $input['recap'] : '');
+        $errors = mb_strlen($recap) > self::MAX_TEXT ? ['recap' => 'Der Text ist zu lang (max. ' . self::MAX_TEXT . ' Zeichen).'] : [];
+        return ['values' => ['recap' => $recap === '' ? null : $recap, 'recap_auto_points' => !empty($input['recap_auto_points'])], 'errors' => $errors];
     }
 
     /** «2027-03-20T13:30» (datetime-local) → Zeitpunkt oder null. */

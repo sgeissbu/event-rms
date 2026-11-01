@@ -2,6 +2,17 @@
 
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen an [Semantic Versioning](https://semver.org/lang/de/).
 
+## [0.12.0] – 2026-11-01
+
+### Neu
+- Anlass: Abschnitt **Nach dem Anlass** mit optionalem **Rückblick-Text** – ist er erfasst, steht er nach dem Anlass unter «Rückblick» statt der Beschreibung (erster Absatz hervorgehoben); leer = die Beschreibung bleibt
+- Nach dem Anlass zeigt die Startseite statt der Einladungs-Kurzpunkte **Fakten**: Anzahl Teams bzw. Teilnehmende, Anzahl Disziplinen, Ort und «Danke fürs Mitmachen!» (Schalter, standardmässig an; aus = die eigenen Kurzpunkte bleiben)
+- Der Rückblick lässt sich auch bei **anonymisierten** Anlässen bearbeiten (eigenes kleines Formular – enthält keine Personendaten; der Rest bleibt gesperrt)
+- **apple-touch-icon** (180 × 180 px) für Safari-Favoriten und «Zum Home-Bildschirm» auf iPhone/iPad, aus demselben Emblem wie das Favicon, deckend und eckig (iOS rundet selbst)
+
+### Datenbank
+- Migration 005: `events.recap`, `events.recap_auto_points`
+
 ## [0.11.1] – 2026-11-01
 
 ### Geändert

@@ -14,6 +14,7 @@ return [
     'footer.powered' => 'Erstellt mit {link}',
 
     'home.intro' => 'Worum geht’s?',
+    'home.recap' => 'Rückblick',
     'home.cta.title' => 'Seid ihr dabei?',
     'home.cta.text' => 'Die Anmeldung ist offen – wir freuen uns auf euch!',
     'event.none.title' => 'Noch kein Anlass geplant',

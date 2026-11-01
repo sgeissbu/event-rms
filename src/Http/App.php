@@ -103,8 +103,10 @@ final class App
         // Ein einziges Bild für beide Modi, weil Safari Medienabfragen in SVG-Favicons
         // ignoriert und der einfarbige Chip auf heller wie dunkler Tab-Leiste trägt.
         $favicon = Favicon::fromLogos($logo !== '' ? $logo : null, $logoDark !== '' ? $logoDark : null, $primary);
+        $touchIconHref = null;
         if ($favicon !== null) {
             $faviconHref = asset('uploads/' . $favicon['png']);
+            $touchIconHref = !empty($favicon['touch']) ? asset('uploads/' . $favicon['touch']) : null;
         } else {
             // Ohne Logo, ohne GD oder bei unlesbarem Bild: Initialen – nie das rohe Logo (würde gestaucht).
             $faviconHref = PageMeta::favicon($initials, $brandVars['--brand'], $brandVars['--brand-contrast']);
@@ -122,6 +124,7 @@ final class App
             'themeCss' => Theme::css($primary, $secondary, $nameLight, $nameDark),
             'brandHex' => $brandVars['--brand'],
             'faviconHref' => $faviconHref,
+            'touchIconHref' => $touchIconHref,
             'metaDescription' => PageMeta::description($event, $clubName),
             'shareImage' => $shareImage !== null ? base_url() . '/uploads/' . $shareImage : null,
             'activeNav' => $activeNav,
