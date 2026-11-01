@@ -25,7 +25,8 @@ if ($event !== null) {
     $images = array_map(static fn (string $f): string => url('uploads/' . $f), App::heroImages());
     shuffle($images);
     $slideshow = count($images) > 1 && Settings::get('hero_slideshow') === '1';
-    $phase = EventPhase::of($event);
+    // Archiviert = abgeschlossen, auch wenn das Datum (z.B. bei Verschiebung/Demo) noch in der Zukunft liegt.
+    $phase = !empty($event['archived_at']) ? EventPhase::PAST : EventPhase::of($event);
     $closes = (string) ($event['registration_closes_at'] ?: $event['starts_at']);
     $registrationOpen = EventPhase::registrationOpen($event);
     $vars['hero'] = View::capture('partials/hero', [

@@ -99,6 +99,7 @@ if ($old === []) {
         $old = [
             'title' => $target['title'], 'tagline' => $target['tagline'], 'badge' => $target['badge'], 'location' => $target['location'],
             'key_points' => $target['key_points'], 'intro_image' => $target['intro_image'],
+            'ranking_image' => $target['ranking_image'], 'startlist_image' => $target['startlist_image'], 'registration_image' => $target['registration_image'],
             'description' => $target['description'], 'schedule_text' => $target['schedule_text'], 'bring_text' => $target['bring_text'],
             'starts_at' => EventValidator::toInput($target['starts_at']), 'ends_at' => EventValidator::toInput($target['ends_at']),
             'registration_enabled' => $target['registration_enabled'], 'registration_closes_at' => EventValidator::toInput($target['registration_closes_at']),

@@ -1277,3 +1277,165 @@ html { scroll-padding-top: 5rem; scroll-padding-bottom: 6rem; } /* Fokus nicht u
 .icon-choice label:has(input:checked) { color: var(--accent-contrast); background: var(--accent); border-color: var(--accent); }
 .icon-choice label:has(input:focus-visible) { outline: 3px solid var(--text); outline-offset: 2px; }
 .icon-choice .ico { width: 1.2rem; height: 1.2rem; vertical-align: 0; }
+
+/* =====================================================================
+   Unterseiten (ab 0.11): Fotoband als Seitenkopf, Abschnittsköpfe,
+   Podest, Startliste als Kacheln – im Stil der Startseite
+   ===================================================================== */
+.page-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding-block: clamp(2rem, 5vw, 3.25rem);
+    color: var(--hero-text);
+    background:
+        radial-gradient(58rem 26rem at 92% -25%, rgba(var(--hero-glow-rgb), var(--hero-glow-alpha)), transparent 62%),
+        linear-gradient(135deg, var(--hero-a) 0%, var(--hero-b) 100%);
+}
+.page-hero .container { display: flex; align-items: center; justify-content: space-between; gap: var(--space-6); }
+.page-hero-text { min-width: 0; }
+.page-hero-event {
+    display: inline-block;
+    margin-bottom: var(--space-2);
+    color: inherit;
+    font-weight: 700;
+    font-size: var(--fs-sm);
+    text-decoration: none;
+}
+.page-hero-event:hover { color: inherit; text-decoration: underline; }
+.page-hero h1 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin: 0;
+    font-size: clamp(2.1rem, 1.4rem + 3vw, 3.4rem);
+    line-height: 1.05;
+}
+.font-rounded .page-hero h1 { font-weight: 900; }
+.page-hero h1 .home-badge { width: 2.75rem; height: 2.75rem; }
+.page-hero-meta { margin: var(--space-3) 0 0; font-weight: 600; }
+.page-hero-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-4); }
+.page-hero-actions .ico { width: 1.1em; height: 1.1em; }
+/* Foto vollständig als gekippte Karte (kein Zuschneiden von Köpfen) */
+.page-hero-snap { flex: none; width: clamp(14rem, 28vw, 21rem); margin: 0; }
+.page-hero-snap img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 1rem; border: 5px solid rgba(255, 255, 255, 0.9); box-shadow: var(--shadow-lg); transform: rotate(2.5deg); }
+@media (max-width: 767.98px) { .page-hero-snap { display: none; } }
+
+.section-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-2) var(--space-4); margin-bottom: var(--space-4); }
+.section-head .home-h { margin-bottom: 0; }
+.section-count { color: var(--text-muted); font-weight: 600; font-size: var(--fs-sm); }
+
+/* Rangliste */
+.ranking-section + .ranking-section { margin-top: clamp(2.5rem, 6vw, 4rem); }
+.ranking-card { overflow: hidden; }
+.ranking-table thead th { text-transform: none; letter-spacing: 0; font-size: var(--fs-sm); font-weight: 700; padding-block: var(--space-3); }
+.ranking-table .col-total { background: var(--brand-subtle); color: var(--text); }
+.ranking-table thead .col-total { color: var(--brand-text); }
+
+.podium { list-style: none; margin: 0 0 var(--space-5); padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: var(--space-4); align-items: end; }
+.podium-place {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    padding: var(--space-6) var(--space-4) var(--space-5);
+    text-align: center;
+    border-radius: 1.25rem;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    border-top: 6px solid var(--podium-color, var(--border));
+}
+.podium-1 { --podium-color: #F5C542; --podium-ink: #3B2F00; padding-top: var(--space-7); }
+.podium-2 { --podium-color: #D3D7DE; --podium-ink: #1F2937; }
+.podium-3 { --podium-color: #E2A46B; --podium-ink: #3A1F06; }
+.podium-rank {
+    position: absolute;
+    top: -1.35rem;
+    display: grid;
+    place-items: center;
+    width: 2.7rem;
+    height: 2.7rem;
+    border-radius: 0.8rem;
+    background: var(--podium-color);
+    color: var(--podium-ink);
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 1.3rem;
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18);
+    transform: rotate(var(--tilt));
+}
+.podium-2 .podium-rank { transform: rotate(3deg); }
+.podium-name { font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; line-height: 1.2; overflow-wrap: anywhere; }
+.podium-1 .podium-name { font-size: 1.45rem; }
+.podium-members { color: var(--text-muted); font-size: var(--fs-sm); }
+.podium-points { margin-top: var(--space-2); font-weight: 700; color: var(--brand-text); font-variant-numeric: tabular-nums; }
+@media (min-width: 768px) {
+    .podium--classic { grid-template-columns: 1fr 1.12fr 1fr; }
+    .podium--classic .podium-2 { order: 1; }
+    .podium--classic .podium-1 { order: 2; }
+    .podium--classic .podium-3 { order: 3; }
+}
+.ranking-explain { border-radius: 1.25rem; }
+@media (max-width: 575.98px) {
+    .podium { gap: var(--space-2); }
+    .podium-place {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        grid-template-areas: "rank name points" "rank members points";
+        align-items: center;
+        column-gap: var(--space-3);
+        row-gap: 0;
+        padding: var(--space-3) var(--space-4);
+        text-align: left;
+        border-top-width: 1px;
+        border-left: 6px solid var(--podium-color, var(--border));
+    }
+    .podium-1 { padding-top: var(--space-3); }
+    .podium-rank { position: static; grid-area: rank; width: 2.3rem; height: 2.3rem; font-size: 1.1rem; }
+    .podium-name, .podium-1 .podium-name { grid-area: name; font-size: 1.05rem; }
+    .podium-members { grid-area: members; font-size: var(--fs-xs); }
+    .podium-points { grid-area: points; margin: 0; white-space: nowrap; }
+}
+
+/* Startliste als Kacheln */
+.startlist { display: grid; gap: clamp(2.5rem, 6vw, 4rem); }
+.entry-tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr)); gap: var(--space-3); }
+.entry-tiles li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-radius: 1rem;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+.entry-no {
+    display: grid;
+    place-items: center;
+    flex: none;
+    min-width: 2.4rem;
+    height: 2.4rem;
+    padding-inline: 0.3rem;
+    border-radius: 0.65rem;
+    background: var(--accent);
+    color: var(--accent-contrast);
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    transform: rotate(var(--tilt));
+}
+.entry-tiles li:nth-child(even) .entry-no { transform: rotate(3deg); }
+.entry-text { min-width: 0; }
+.entry-name { display: block; font-weight: 700; overflow-wrap: anywhere; }
+.entry-members { display: block; color: var(--text-muted); font-size: var(--fs-sm); }
+
+@media print {
+    .podium { display: none; }
+    .entry-tiles { grid-template-columns: 1fr 1fr; gap: 0.2rem 1rem; }
+    .entry-tiles li { box-shadow: none; border: 0; padding: 0.15rem 0; }
+    .entry-no { transform: none; background: transparent; color: #111; border: 1px solid #888; }
+    .section-head .home-badge { display: none; }
+}

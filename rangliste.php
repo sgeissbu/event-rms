@@ -36,7 +36,19 @@ if (isset($_GET['partial'])) {
     exit;
 }
 
-View::render('ranking', App::layoutVars('ranking', $event) + $vars + [
+$layout = App::layoutVars('ranking', $event);
+$teams = array_sum(array_map(static fn (array $sec): int => count($sec['rows']), $vars['ranking']['sections']));
+$teamWord = (int) $event['team_size'] > 1 ? ($teams === 1 ? 'Team' : 'Teams') : ($teams === 1 ? 'Person' : 'Personen');
+$meta = match (true) {
+    $vars['live'] => '<span class="live-badge"><span class="live-dot"></span>Live · aktualisiert sich automatisch</span>',
+    $vars['previewOnly'] => 'Vorschau für Kampfrichter',
+    default => ($phase === EventPhase::PAST || !empty($event['archived_at']) ? 'Schlussrangliste · ' : '')
+        . e(format_event_date(new DateTimeImmutable((string) $event['starts_at']), false)) . ' · ' . $teams . ' ' . $teamWord,
+};
+$actions = '<a class="btn btn-sm btn-hero-ghost" href="' . e(url('rangliste-pdf.php', App::eventQuery($event))) . '" rel="noopener">' . icon('download') . 'PDF</a>'
+    . '<a class="btn btn-sm btn-hero-ghost" href="' . e(url('rangliste-pdf.php', App::eventQuery($event) + ['inline' => '1'])) . '" target="_blank" rel="noopener">' . icon('printer') . 'Drucken</a>';
+
+View::render('ranking', $layout + App::pageHero($layout, $event, 'Rangliste', 'trophy', $meta, $actions, 'ranking_image') + $vars + [
     'pageTitle' => 'Rangliste',
     'scripts' => $vars['live'] ? ['assets/js/live-refresh.js'] : [],
 ]);

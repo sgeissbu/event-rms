@@ -24,15 +24,36 @@ $medal = static fn (int $rank): string => $rank <= 3 ? ' rank-' . $rank : '';
     $counted = array_values(array_filter($section['counted'], static fn (int $id): bool => isset($ranking['disciplines'][$id])));
     $hasResults = $counted !== [];
 ?>
-    <section class="card ranking-card mb-4">
-        <div class="card-header-plain">
-            <h2 class="h5 mb-0"><?= e($section['category']['name'] ?? (count($ranking['sections']) > 1 ? 'Ohne Kategorie' : 'Gesamt')) ?></h2>
-            <span class="text-muted small"><?= count($section['rows']) ?> <?= $teamSize > 1 ? 'Teams' : 'Teilnehmende' ?></span>
+    <section class="ranking-section" aria-label="<?= e($section['category']['name'] ?? 'Rangliste') ?>">
+        <div class="section-head">
+            <h2 class="home-h"><span class="home-badge"><?= icon('medal') ?></span><?= e($section['category']['name'] ?? (count($ranking['sections']) > 1 ? 'Ohne Kategorie' : 'Gesamt')) ?></h2>
+            <span class="section-count"><?= count($section['rows']) ?> <?= $teamSize > 1 ? 'Teams' : 'Teilnehmende' ?></span>
         </div>
 
         <?php if (!$hasResults): ?>
-            <p class="text-muted px-4 py-3 mb-0">Noch keine Resultate erfasst.</p>
+            <div class="card"><p class="text-muted px-4 py-3 mb-0">Noch keine Resultate erfasst.</p></div>
         <?php else: ?>
+            <?php
+            // Podest: Plätze 1–3 (bei Gleichstand auch mehr). Klassische Anordnung 2-1-3 nur bei genau drei Plätzen.
+            $podium = array_values(array_filter($section['rows'], static fn (array $r): bool => $r['rank'] <= 3));
+            $classic = count($podium) === 3 && array_column($podium, 'rank') === [1, 2, 3];
+            ?>
+            <?php if ($podium !== []): ?>
+                <ol class="podium<?= $classic ? ' podium--classic' : '' ?>" aria-label="Podest">
+                    <?php foreach ($podium as $row): $entry = $ranking['entries'][$row['entry_id']]; ?>
+                        <li class="podium-place podium-<?= $row['rank'] ?>">
+                            <span class="podium-rank"><?= $row['rank'] ?><span class="visually-hidden">. Rang</span></span>
+                            <span class="podium-name"><?= e(NameDisplay::entry($entry, $mode, $teamSize)) ?></span>
+                            <?php if ($teamSize > 1 && $mode !== 'start_no' && !empty($entry['members'])):
+                                $names = array_filter(array_map(static fn (array $m): string => NameDisplay::member((string) ($m['name'] ?? ''), $mode), $entry['members'])); ?>
+                                <?php if ($names): ?><span class="podium-members"><?= e(implode(' · ', $names)) ?></span><?php endif; ?>
+                            <?php endif; ?>
+                            <span class="podium-points"><?= $row['points'] ?> Punkte</span>
+                        </li>
+                    <?php endforeach; ?>
+                </ol>
+            <?php endif; ?>
+            <div class="card ranking-card">
             <!-- Desktop: Tabelle -->
             <div class="table-responsive d-none d-md-block">
                 <table class="table ranking-table mb-0">
@@ -84,6 +105,7 @@ $medal = static fn (int $rank): string => $rank <= 3 ? ' rank-' . $rank : '';
                     </li>
                 <?php endforeach; ?>
             </ol>
+            </div>
         <?php endif; ?>
     </section>
 <?php endforeach; ?>

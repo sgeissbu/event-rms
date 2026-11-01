@@ -191,6 +191,25 @@ $f = new Form($errors, $old);
         </div></section>
 
         <section class="card mb-4"><div class="card-body">
+            <h2 class="h5 mb-1">Fotos der Unterseiten</h2>
+            <p class="text-muted small">Foto rechts im Kopf von Rangliste, Startliste und Anmeldung – z.B. die Siegerehrung für die Rangliste. «Zufällig» nimmt bei jedem Aufruf eines der Kopfbild-Fotos.</p>
+            <div class="row g-4">
+                <?php foreach (['ranking_image' => 'Rangliste', 'startlist_image' => 'Startliste', 'registration_image' => 'Anmeldung'] as $field => $label): ?>
+                    <div class="col-lg-4">
+                        <?php
+                        $pickerName = $field;
+                        $pickerValue = (string) ($old[$field] ?? '');
+                        $pickerLabel = $label;
+                        $pickerNone = 'Zufällig';
+                        $pickerHelp = '';
+                        require dirname(__DIR__) . '/partials/photo-picker.php';
+                        ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div></section>
+
+        <section class="card mb-4"><div class="card-body">
             <h2 class="h5 mb-3">Anmeldung &amp; Sichtbarkeit</h2>
             <div class="form-check form-switch mb-3">
                 <input class="form-check-input" type="checkbox" role="switch" id="registration_enabled" name="registration_enabled" value="1"<?= $f->checked('registration_enabled') ?>>

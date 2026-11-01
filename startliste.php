@@ -26,7 +26,12 @@ foreach ($entries as $entry) {
     $groups[$entry['category_id'] !== null && isset($groups[$entry['category_id']]) ? $entry['category_id'] : 0]['entries'][] = $entry;
 }
 
-View::render('startlist', App::layoutVars('startlist', $event) + [
+$layout = App::layoutVars('startlist', $event);
+$total = count($entries);
+$word = (int) $event['team_size'] > 1 ? ($total === 1 ? 'Team' : 'Teams') : ($total === 1 ? 'Person' : 'Personen');
+$meta = e(format_event_date(new DateTimeImmutable((string) $event['starts_at']), false)) . ' · ' . $total . ' ' . $word;
+
+View::render('startlist', $layout + App::pageHero($layout, $event, 'Startliste', 'list', $meta, '', 'startlist_image') + [
     'pageTitle' => 'Startliste',
     'groups' => array_values(array_filter($groups, static fn (array $g): bool => $g['entries'] !== [])),
     'total' => count($entries),

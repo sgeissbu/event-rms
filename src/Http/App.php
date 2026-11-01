@@ -132,6 +132,30 @@ final class App
     }
 
     /**
+     * Seitenkopf für Unterseiten (Band in Vereinsfarbe mit Titel und Fotokarte). Liefert die Layout-Variablen
+     * «hero» und «heroOverlay» (immer false: kein Foto hinter dem Menü).
+     * @param array<string, mixed> $layoutVars  Ergebnis von layoutVars()
+     * @param array<string, mixed> $event
+     * @param ?string $imageField  Spalte mit dem im Admin gewählten Foto (z.B. 'ranking_image'); leer = zufällig
+     * @return array{hero: string, heroOverlay: bool}
+     */
+    public static function pageHero(array $layoutVars, array $event, string $title, string $icon, string $metaHtml = '', string $actionsHtml = '', ?string $imageField = null): array
+    {
+        $images = self::heroImages();
+        // Im Admin gewähltes Foto der Seite (falls noch vorhanden), sonst zufällig aus den Kopfbild-Fotos.
+        $chosen = $imageField !== null && in_array($event[$imageField] ?? null, $images, true) ? $event[$imageField] : null;
+        $file = $chosen ?? ($images !== [] ? $images[array_rand($images)] : null);
+        $image = $file !== null ? asset('uploads/' . $file) : null;
+        return [
+            'hero' => View::capture('partials/page-hero', [
+                'event' => $event, 'heroTitle' => $title, 'heroIcon' => $icon, 'heroImage' => $image,
+                'heroMeta' => $metaHtml, 'heroActions' => $actionsHtml,
+            ]),
+            'heroOverlay' => false, // Band ohne Hintergrundfoto – Kopf bleibt normal
+        ];
+    }
+
+    /**
      * Hero-Fotos, die tatsächlich noch auf der Platte liegen (Dateinamen relativ zu uploads/).
      * @return list<string>
      */

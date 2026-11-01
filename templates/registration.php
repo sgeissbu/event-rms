@@ -15,8 +15,6 @@ $eventYear = (int) substr((string) $event['starts_at'], 0, 4);
 $privacyContact = (string) Settings::get('privacy_contact');
 ?>
 <div class="container-narrow mx-auto">
-    <span class="eyebrow"><?= e($event['title']) ?></span>
-    <h1 class="h2 mb-4">Anmeldung</h1>
 
     <?php if ($done !== null): ?>
         <div class="card mb-4">

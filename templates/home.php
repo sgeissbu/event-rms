@@ -20,6 +20,7 @@ use App\Domain\HomeContent;
     $points = $event['key_points'] ?? [];
     $schedule = HomeContent::schedule($event['schedule_text'] ?? null);
     $bring = HomeContent::bring($event['bring_text'] ?? null);
+    $isOver = !empty($event['archived_at']) || \App\Domain\EventPhase::of($event) === \App\Domain\EventPhase::PAST;
     $photoOf = static fn (?string $file): ?string => $file !== null && in_array($file, $photoFiles, true) ? asset('uploads/' . $file) : null;
     ?>
     <div class="home">
@@ -66,7 +67,8 @@ use App\Domain\HomeContent;
             </section>
         <?php endif; ?>
 
-        <?php if (!empty($event['schedule_text']) || !empty($event['bring_text'])): ?>
+        <?php // Zeitplan und «Mitnehmen» nur vor/während des Anlasses – danach interessiert die Rangliste ?>
+        <?php if (!$isOver && (!empty($event['schedule_text']) || !empty($event['bring_text']))): ?>
             <div class="home-two">
                 <?php if (!empty($event['schedule_text'])): ?>
                     <section class="card home-card" aria-labelledby="schedule-title">

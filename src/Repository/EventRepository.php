@@ -10,6 +10,8 @@ use PDO;
 final class EventRepository
 {
     public const MAX_TEAM_SIZE = 10;
+    /** Fotos aus den Kopfbild-Fotos: neben der Beschreibung und in den Seitenköpfen der Unterseiten. */
+    public const IMAGE_FIELDS = ['intro_image', 'ranking_image', 'startlist_image', 'registration_image'];
 
     // Ohne leicht verwechselbare Zeichen (0/O, 1/I/L) – wird von Hand eingetippt.
     private const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
@@ -47,7 +49,7 @@ final class EventRepository
     }
 
     private const UPDATABLE = [
-        'title', 'tagline', 'badge', 'location', 'description', 'schedule_text', 'bring_text', 'key_points', 'intro_image', 'starts_at', 'ends_at',
+        'title', 'tagline', 'badge', 'location', 'description', 'schedule_text', 'bring_text', 'key_points', 'intro_image', 'ranking_image', 'startlist_image', 'registration_image', 'starts_at', 'ends_at',
         'registration_enabled', 'registration_closes_at', 'ranking_visibility', 'name_display', 'team_size',
         'member_config', 'category_member', 'handicap_enabled', 'handicap_gender_member', 'handicap_age_member',
         'handicap_reference_age',
@@ -96,6 +98,9 @@ final class EventRepository
                 'bring_text' => $source['bring_text'],
                 'key_points' => $source['key_points'],
                 'intro_image' => $source['intro_image'],
+                'ranking_image' => $source['ranking_image'],
+                'startlist_image' => $source['startlist_image'],
+                'registration_image' => $source['registration_image'],
                 'starts_at' => $start->format('Y-m-d H:i:s'),
                 'ends_at' => $start->add($duration)->format('Y-m-d H:i:s'),
                 'registration_enabled' => $source['registration_enabled'],
@@ -153,6 +158,9 @@ final class EventRepository
             'bring_text' => $data['bring_text'] ?? null,
             'key_points' => self::encodeKeyPoints($data['key_points'] ?? []),
             'intro_image' => $data['intro_image'] ?? null,
+            'ranking_image' => $data['ranking_image'] ?? null,
+            'startlist_image' => $data['startlist_image'] ?? null,
+            'registration_image' => $data['registration_image'] ?? null,
             'starts_at' => (string) $data['starts_at'],
             'ends_at' => (string) $data['ends_at'],
             'registration_enabled' => (int) ($data['registration_enabled'] ?? 1),
@@ -236,7 +244,9 @@ final class EventRepository
         $row['handicap_reference_age'] = $row['handicap_reference_age'] === null ? null : (int) $row['handicap_reference_age'];
         $row['ranking_snapshot'] ??= null;
         $row['badge'] ??= null;
-        $row['intro_image'] ??= null;
+        foreach (self::IMAGE_FIELDS as $key) {
+            $row[$key] ??= null;
+        }
         $row['key_points'] = HomeContent::decodeKeyPoints($row['key_points'] ?? null);
         return $row;
     }

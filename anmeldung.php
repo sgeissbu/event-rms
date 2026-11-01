@@ -70,4 +70,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $vars['open']) {
     $vars['old'] = $_POST;
 }
 
+$closes = new DateTimeImmutable((string) ($event['registration_closes_at'] ?: $event['starts_at']));
+$meta = e(t(match (true) {
+    $vars['open'] => 'event.registration_until',
+    // nicht offen, Anmeldeschluss aber noch in der Zukunft = Anmeldung noch nicht eingeschaltet
+    $closes > new DateTimeImmutable() && empty($event['archived_at']) => 'event.registration_soon',
+    default => 'event.registration_closed',
+}, ['date' => format_event_date($closes)]));
+$vars += App::pageHero($vars, $event, 'Anmeldung', 'pen', $meta, '', 'registration_image');
 View::render('registration', $vars);

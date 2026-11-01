@@ -36,5 +36,5 @@ $pickerValue = in_array($pickerValue ?? '', $photos, true) ? $pickerValue : '';
             </div>
         </details>
     <?php endif; ?>
-    <div class="form-text"><?= e($pickerHelp) ?></div>
+    <?php if ($pickerHelp !== ''): ?><div class="form-text"><?= e($pickerHelp) ?></div><?php endif; ?>
 </div>

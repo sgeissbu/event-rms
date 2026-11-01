@@ -5,23 +5,12 @@
 use App\Http\App;
 
 $partialUrl = url('rangliste.php', App::eventQuery($event) + ['partial' => 1]);
-$pdfUrl = e(url('rangliste-pdf.php', App::eventQuery($event)));
-$printUrl = e(url('rangliste-pdf.php', App::eventQuery($event) + ['inline' => '1']));
 ?>
 <div class="print-landscape">
-<div class="d-flex flex-wrap align-items-end justify-content-between gap-2 mb-4">
-    <div>
-        <span class="eyebrow"><?= e($event['title']) ?></span>
-        <h1 class="h2 mb-0">Rangliste</h1>
-        <p class="print-only small mb-0">Stand: <?= e(date('d.m.Y H:i')) ?> Uhr</p>
-    </div>
-    <div class="d-flex flex-wrap align-items-center gap-2 print-hide">
-        <?php if ($live): ?>
-            <span class="live-badge" aria-live="polite"><span class="live-dot"></span>Live · aktualisiert sich automatisch</span>
-        <?php endif; ?>
-        <a class="btn btn-sm btn-outline-primary" href="<?= $pdfUrl ?>" rel="noopener">PDF</a>
-        <a class="btn btn-sm btn-outline-primary" href="<?= $printUrl ?>" target="_blank" rel="noopener">Drucken</a>
-    </div>
+<div class="print-only mb-3">
+    <span class="eyebrow"><?= e($event['title']) ?></span>
+    <h1 class="h2 mb-0">Rangliste</h1>
+    <p class="small mb-0">Stand: <?= e(date('d.m.Y H:i')) ?> Uhr</p>
 </div>
 
 <?php if ($previewOnly): ?>
@@ -33,7 +22,7 @@ $printUrl = e(url('rangliste-pdf.php', App::eventQuery($event) + ['inline' => '1
 </div>
 
 <?php if (!empty($event['handicap_enabled'])): ?>
-    <div class="card mt-4">
+    <div class="card ranking-explain mt-5">
         <div class="card-body small text-muted">
             <h2 class="h6 text-body">So wird gewertet</h2>
             <p>Pro Disziplin gibt es Rangpunkte (1. Rang = 1 Punkt). Wer in einer Disziplin kein Resultat hat, erhält die Anzahl

@@ -57,6 +57,8 @@ return [
         assert_same('branding/hero-0123456789abcdef.jpg', $ok['values']['intro_image']);
         $foreign = EventValidator::validate(['intro_image' => '../../.env'] + $input, null, []);
         assert_same(null, $foreign['values']['intro_image']);
+        $pages = EventValidator::validate(['ranking_image' => 'branding/hero-0123456789abcdef.jpg', 'startlist_image' => 'x.jpg'] + $input, null, ['branding/hero-0123456789abcdef.jpg']);
+        assert_same(['branding/hero-0123456789abcdef.jpg', null, null], [$pages['values']['ranking_image'], $pages['values']['startlist_image'], $pages['values']['registration_image']]);
         $long = EventValidator::validate(['badge' => str_repeat('x', 81)] + $input, null, []);
         assert_true(isset($long['errors']['badge']));
     },

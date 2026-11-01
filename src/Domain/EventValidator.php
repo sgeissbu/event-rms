@@ -60,8 +60,10 @@ final class EventValidator
         $points = HomeContent::validateKeyPoints($input['key_points'] ?? []);
         $values['key_points'] = $points['value'];
         $errors += $points['errors'];
-        $image = $str('intro_image');
-        $values['intro_image'] = in_array($image, $images, true) ? $image : null;
+        foreach (EventRepository::IMAGE_FIELDS as $key) {
+            $image = $str($key);
+            $values[$key] = in_array($image, $images, true) ? $image : null;
+        }
 
         $start = self::parseDate($str('starts_at'));
         $end = self::parseDate($str('ends_at'));

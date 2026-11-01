@@ -1,9 +1,9 @@
-// Startseite: Der Kopf liegt durchsichtig über dem Foto und wird deckend, sobald man über das Foto hinaus
+// Startseite und Unterseiten mit Fotoband: Der Kopf liegt durchsichtig über dem Foto und wird deckend, sobald man über das Foto hinaus
 // scrollt oder das Handy-Menü öffnet (sonst stünde das Menü ohne Hintergrund auf dem Inhalt).
 (function () {
     'use strict';
     var header = document.querySelector('.app-header[data-hero-overlay]');
-    var hero = document.querySelector('.hero--home');
+    var hero = document.querySelector('.hero--home, .page-hero');
     if (!header || !hero) return;
     var menuOpen = false;
 

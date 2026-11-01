@@ -2,6 +2,24 @@
 
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen an [Semantic Versioning](https://semver.org/lang/de/).
 
+## [0.11.0] – 2026-11-01
+
+### Neu
+- Rangliste, Startliste und Anmeldung im Stil der neuen Startseite: Seitenkopf in der Vereinsfarbe mit Anlassname, grossem Titel, Infozeile und rechts einem leicht gekippten Foto (vollständig sichtbar) – z.B. «Schlussrangliste · Datum · 40 Teams» oder der Live-Hinweis; Knöpfe «PDF» und «Drucken» im Kopf
+- Rangliste: pro Kategorie zuerst ein **Podest** mit den Plätzen 1–3 (Gold, Silber, Bronze; bei Gleichstand auch mehr), auf dem Handy kompakt untereinander; Abschnittsköpfe mit Symbol wie auf der Startseite
+- Anlass: neuer Abschnitt **Fotos der Unterseiten** – pro Anlass ein festes Foto für Rangliste, Startliste und Anmeldung (Auswahl aus den Kopfbild-Fotos, z.B. die Siegerehrung für die Rangliste); ohne Wahl ein zufälliges. Wird beim Kopieren als Vorlage übernommen
+- Startliste als Kacheln mit der Startnummer als gekipptem Sticker, nach Kategorien gruppiert
+
+### Geändert
+- Ranglisten-Tabelle: lesbare Spaltenköpfe (keine Mini-Grossbuchstaben), Punktespalte in der getönten Vereinsfarbe statt bräunlich
+- Startseite vergangener Anlässe: «Zeitplan» und «Mitnehmen» werden nicht mehr gezeigt
+
+### Datenbank
+- Migration 004: `events.ranking_image`, `events.startlist_image`, `events.registration_image` (läuft beim ersten Aufruf nach dem Update automatisch)
+
+### Behoben
+- Startseite eines archivierten Anlasses, dessen Datum noch in der Zukunft liegt (z.B. verschoben): zeigte Countdown und «Die Anmeldung wird bald eröffnet» statt «vorbei»
+
 ## [0.10.2] – 2026-11-01
 
 ### Geändert
