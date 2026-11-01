@@ -64,7 +64,7 @@ $v = static fn (string $key): string => e($old[$key] ?? '');
             <div class="form-text" id="heading_font_help">Für die Titel der öffentlichen Seiten. Die Schrift wird mitgeliefert – es werden keine Daten an Google gesendet.</div>
         </div>
 
-        <div class="theme-preview mb-4" id="theme-preview" data-url="<?= e(url('admin/theme-vorschau.php')) ?>" data-mode="light" aria-label="Vorschau der Vereinsfarben">
+        <div class="theme-preview mb-4<?= ($old['heading_font'] ?? 'rounded') !== 'system' ? ' font-rounded' : '' ?>" id="theme-preview" data-url="<?= e(url('admin/theme-vorschau.php')) ?>" data-mode="light" aria-label="Vorschau der Vereinsfarben">
             <div class="theme-preview-bar">
                 <span class="small fw-semibold">Vorschau</span>
                 <div class="btn-group btn-group-sm" role="group" aria-label="Darstellung">
@@ -74,16 +74,22 @@ $v = static fn (string $key): string => e($old[$key] ?? '');
             </div>
             <div class="theme-preview-surface">
                 <div class="tp-hero">
-                    <span class="hero-eyebrow"><?= e($old['club_name'] ?? '') ?></span>
+                    <span class="sticker"><?= icon('party') ?>25 Jahre Verein</span>
                     <strong class="tp-title">Dein Anlass</strong>
-                    <div class="hero-actions"><span class="btn btn-accent btn-sm">Jetzt anmelden</span><span class="btn btn-hero-ghost btn-sm">Startliste</span></div>
+                    <span class="btn btn-accent btn-sm">Jetzt anmelden<?= icon('arrow', 'ico ico-go') ?></span>
+                </div>
+                <div class="tp-bar">
+                    <span class="hero-bar-item"><?= icon('calendar') ?>Sa, 12. Juni</span>
+                    <span class="tp-countdown"><b>42</b> Tage</span>
                 </div>
                 <div class="tp-body">
+                    <span class="tp-heading"><span class="home-badge"><?= icon('info') ?></span>Worum geht’s?</span>
                     <span class="tp-brand">Vereinsname</span>
                     <span class="btn btn-primary btn-sm">Hauptknopf</span>
                     <span class="btn btn-outline-primary btn-sm">Zweitknopf</span>
                     <span class="badge-soft">Hervorhebung</span>
                     <span class="tp-link">Link-Text</span>
+                    <span class="disc-no tp-no" aria-hidden="true">1</span>
                     <span class="rank-badge rank-1">1</span>
                 </div>
             </div>

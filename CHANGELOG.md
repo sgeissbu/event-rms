@@ -2,6 +2,13 @@
 
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen an [Semantic Versioning](https://semver.org/lang/de/).
 
+## [0.12.2] – 2026-11-01
+
+### Geändert
+- «Verein & Design»: Die Farb-Vorschau zeigt das aktuelle Design – Kopf links bündig mit Sticker und runder Titelschrift, Info-Leiste mit Countdown in der Akzentfarbe, Überschrift mit Symbol und Nummern-Sticker. Die Titelschrift wechselt in der Vorschau sofort beim Umstellen; im Dunkelmodus erscheinen die getönten Flächen wie auf der Website
+- Kampfrichter-Zugang: Im Kopf steht «Kampfrichter-Zugang» statt des Vereinsnamens (der dort als einzige Stelle in der Titelschrift erschien), die Karte darunter heisst knapp «Code eingeben»; angemeldet steht im Kopf wie bisher der Anlass
+- README: Screenshot «Verein & Design» mit der neuen Vorschau
+
 ## [0.12.1] – 2026-11-01
 
 ### Geändert

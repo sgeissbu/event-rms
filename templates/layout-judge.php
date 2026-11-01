@@ -25,7 +25,8 @@
     <div class="container container-narrow d-flex align-items-center gap-3">
         <span class="app-brand judge-logo"><?php $logoAlt = ''; require __DIR__ . '/partials/logo.php'; ?></span>
         <div class="flex-grow-1 min-w-0">
-            <div class="judge-event text-truncate"><?= e($judge['event']['title'] ?? $clubName) ?></div>
+            <?php /* Angemeldet: Anlass; beim Login statt des Vereinsnamens (sonst in Titelschrift, anders als überall) ein Seitentitel */ ?>
+            <div class="judge-event text-truncate"><?= e($judge['event']['title'] ?? 'Kampfrichter-Zugang') ?></div>
             <?php if (!empty($judge)): ?>
                 <div class="judge-name text-truncate">Kampfrichter: <?= e($judge['name']) ?></div>
             <?php endif; ?>

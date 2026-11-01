@@ -5,7 +5,7 @@
     <div class="card">
         <div class="card-body">
             <span class="eyebrow"><?= e($loginEvent['title']) ?></span>
-            <h1 class="h3 mb-3">Kampfrichter-Zugang</h1>
+            <h1 class="h3 mb-3">Code eingeben</h1>
             <p class="text-muted">Den Code erhältst du von der Wettkampfleitung. Dein Name wird bei jedem erfassten Resultat gespeichert.</p>
             <?php if ($error): ?>
                 <div class="alert alert-danger" role="alert"><?= e($error) ?></div>

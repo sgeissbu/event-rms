@@ -55,5 +55,8 @@
     if (nameLight) nameLight.addEventListener('input', schedule);
     if (nameDark) nameDark.addEventListener('input', schedule);
     buttons.forEach((button) => button.addEventListener('click', () => { mode = button.dataset.modeButton; render(); }));
+    // Titelschrift sofort in der Vorschau zeigen (rund = Nunito, schlicht = Systemschrift)
+    const font = document.getElementById('heading_font');
+    if (font) font.addEventListener('change', () => box.classList.toggle('font-rounded', font.value !== 'system'));
     load();
 })();

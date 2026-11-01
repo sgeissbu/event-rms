@@ -944,17 +944,25 @@ html { scroll-padding-top: 5rem; scroll-padding-bottom: 6rem; } /* Fokus nicht u
 .theme-preview[data-mode="light"] { --surface: #FFFFFF; --surface-alt: #F6F7F9; --surface-raised: #FFFFFF; --border: #E3E6EB; --border-input: #858D9B; --text: #111827; --text-muted: #5B6472; --btn-outline-border: var(--border-input); --btn-outline-color: var(--brand-text); --warning: #8A5200; --warning-subtle: #FEF3C7; }
 .theme-preview[data-mode="dark"] { --surface: #111827; --surface-alt: #0B1220; --surface-raised: #1A2333; --border: #2A3445; --border-input: #68758A; --text: #E7EAF0; --text-muted: #9AA4B2; --btn-outline-border: var(--brand); --btn-outline-color: var(--text); --warning: #FBBF24; --warning-subtle: #36290B; }
 .theme-preview-surface { background: var(--surface-alt); color: var(--text); }
+/* Vorschau im Stil der Startseite (ab 0.12.2): Kopf links bündig mit Sticker, Info-Leiste, Bausteine */
 .theme-preview .tp-hero {
-    padding: var(--space-5) var(--space-4);
-    text-align: center;
+    padding: var(--space-5) var(--space-4) var(--space-4);
+    text-align: left;
     color: var(--hero-text);
     background:
         radial-gradient(30rem 14rem at 92% -30%, rgba(var(--hero-glow-rgb), var(--hero-glow-alpha)), transparent 62%),
         linear-gradient(135deg, var(--hero-a), var(--hero-b));
 }
-.theme-preview .tp-title { display: block; font-size: var(--fs-xl); margin-bottom: var(--space-3); }
-.theme-preview .hero-actions { margin-top: 0; }
-.theme-preview .tp-body { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); padding: var(--space-4); background: var(--surface-raised); }
+.theme-preview .tp-hero .sticker { margin-bottom: var(--space-2); font-size: var(--fs-xs); }
+.theme-preview .tp-title { display: block; font-family: var(--font-display); font-weight: 900; font-size: 1.8rem; line-height: 1.05; margin-bottom: var(--space-3); }
+.theme-preview .tp-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-2) var(--space-4); background: var(--hero-a); color: var(--hero-text); font-size: var(--fs-sm); }
+.theme-preview .tp-bar .ico { color: var(--hero-accent); }
+.theme-preview .tp-countdown b { color: var(--hero-accent); font-size: 1.1rem; margin-right: 0.2rem; }
+.theme-preview .tp-heading { display: inline-flex; align-items: center; gap: var(--space-2); font-family: var(--font-display); font-weight: 900; font-size: 1.15rem; }
+.theme-preview .tp-heading .home-badge { width: 1.9rem; height: 1.9rem; border-radius: 0.55rem; }
+.theme-preview .tp-heading .home-badge .ico { width: 1.05rem; height: 1.05rem; }
+.theme-preview .tp-no { position: static; width: 1.9rem; height: 1.9rem; font-size: 0.95rem; }
+.theme-preview .tp-body { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); padding: var(--space-4); background: var(--surface-alt); }
 .theme-preview .tp-link { color: var(--brand-text); text-decoration: underline; font-weight: 600; }
 /* Vereinsname in der Kopfzeile: eigene Farbe, sonst Markenfarbe (var-Fallback wie in .app-brand). */
 .theme-preview .tp-brand { font-weight: 700; color: var(--club-name-color, var(--brand-text)); }
