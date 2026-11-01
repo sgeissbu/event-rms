@@ -2,6 +2,11 @@
 
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen an [Semantic Versioning](https://semver.org/lang/de/).
 
+## [0.12.4] – 2026-11-01
+
+### Behoben
+- Kampfrichter-Zugang: Der Kopf hatte ohne Reiter (Login-Seite) unten keinen Abstand – Logo und Knopf «Zur Website» stiessen an den Rand
+
 ## [0.12.3] – 2026-11-01
 
 ### Geändert

@@ -667,6 +667,8 @@ pre.env-preview {
 .font-rounded .judge-event { font-family: var(--font-display); font-weight: 900; font-size: 1.1rem; }
 .judge-logo img, .judge-logo .logo-placeholder { height: 2.2rem; }
 .judge-name { font-size: var(--fs-sm); color: var(--text-muted); }
+/* Ohne Reiter (Login-Seite) braucht der Kopf auch unten Abstand */
+.judge-header > .container:only-child { padding-bottom: var(--space-3); }
 .judge-tabs { display: flex; gap: var(--space-1); margin-top: var(--space-2); }
 .judge-tabs a {
     flex: 1;
