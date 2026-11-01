@@ -16,12 +16,14 @@ $palette = [
 ];
 $c = static fn (string $hex): Color => Color::fromHex($hex);
 $lightSurfaces = ['#FFFFFF', '#F6F7F9'];
-$darkSurfaces = ['#111827', '#0B1220', '#1A2333'];
+// Dunkelmodus-Flächen sind seit 0.10 im Farbton der Hauptfarbe getönt
+$darkSurfacesFor = static fn (array $dark): array => [$dark['--surface'], $dark['--surface-alt'], $dark['--surface-raised']];
 
 return [
-    'Schrift in Vereinsfarbe ist auf allen Flächen lesbar (≥ 4.5:1), hell und dunkel' => function () use ($palette, $c, $lightSurfaces, $darkSurfaces): void {
+    'Schrift in Vereinsfarbe ist auf allen Flächen lesbar (≥ 4.5:1), hell und dunkel' => function () use ($palette, $c, $lightSurfaces, $darkSurfacesFor): void {
         foreach ($palette as $name => [$primary, $secondary]) {
             $v = Theme::variables($primary, $secondary);
+            $darkSurfaces = $darkSurfacesFor($v['dark']);
             $checks = [
                 ['hell', 'brand', $v['light']['--brand-text'], [...$lightSurfaces, $v['light']['--brand-subtle']]],
                 ['hell', 'accent', $v['light']['--accent-text'], [...$lightSurfaces, $v['light']['--accent-subtle']]],
@@ -58,7 +60,7 @@ return [
         foreach ($palette as $name => [$primary, $secondary]) {
             $v = Theme::variables($primary, $secondary)['dark'];
             foreach (['--brand', '--accent'] as $key) {
-                $ratio = $c($v[$key])->contrast($c('#111827'));
+                $ratio = $c($v[$key])->contrast($c($v['--surface']));
                 assert_true($ratio >= 3.0, sprintf('%s dunkel %s: %.2f', $name, $key, $ratio));
             }
         }
@@ -82,6 +84,35 @@ return [
             $veiled = $tint->mix(Color::rgb(...$rgb), 0.22)->mix(Color::rgb(0, 0, 0), 0.48);
             assert_true($veiled->contrast($c('#FFFFFF')) >= 4.5, sprintf('%s: %.2f', $name, $veiled->contrast($c('#FFFFFF'))));
         }
+    },
+    'Getönte Dunkel-Flächen: Text und gedämpfter Text ≥ 4.5:1, Eingabe-Rahmen ≥ 3:1 – für jede Farbe' => function () use ($palette, $c, $darkSurfacesFor): void {
+        foreach ($palette as $name => [$primary, $secondary]) {
+            $dark = Theme::variables($primary, $secondary)['dark'];
+            foreach ($darkSurfacesFor($dark) as $bg) {
+                foreach (['#E7EAF0' => 4.5, '#9AA4B2' => 4.5, $dark['--border-input'] => 3.0] as $fg => $min) {
+                    $ratio = $c($fg)->contrast($c($bg));
+                    assert_true($ratio >= $min, sprintf('%s: %s auf %s = %.2f', $name, $fg, $bg, $ratio));
+                }
+            }
+        }
+    },
+    'Hero-Akzent (Info-Leiste, Countdown, Symbole) ≥ 3:1 auf dem Hero-Grund' => function () use ($palette, $c): void {
+        foreach ($palette as $name => [$primary, $secondary]) {
+            $h = Theme::variables($primary, $secondary)['light'];
+            $ratio = $c($h['--hero-accent'])->contrast($c($h['--hero-a']));
+            assert_true($ratio >= 3.0, sprintf('%s: %.2f', $name, $ratio));
+        }
+    },
+    'Startseite: Titel unten im Foto-Hero und Menü oben bleiben auf weissem Himmel lesbar (Schleier wie in app.css)' => function () use ($palette, $c): void {
+        foreach ($palette as $name => [$primary, $secondary]) {
+            $rgb = array_map('intval', explode(',', Theme::variables($primary, $secondary)['light']['--hero-photo-tint-rgb']));
+            // Textbereich unten: mind. 30 % Farbtönung + 55 % Schwarz über dem Foto (.hero--home .hero-scrim)
+            $text = $c('#FFFFFF')->mix(Color::rgb(...$rgb), 0.30)->mix(Color::rgb(0, 0, 0), 0.55);
+            assert_true($text->contrast($c('#FFFFFF')) >= 4.5, sprintf('%s Titelbereich: %.2f', $name, $text->contrast($c('#FFFFFF'))));
+        }
+        // Menü oben: 55 % Schwarz (unabhängig von der Vereinsfarbe); Menütexte sind fett, ≥ 4.5:1 trotzdem
+        $menu = $c('#FFFFFF')->mix(Color::rgb(0, 0, 0), 0.55);
+        assert_true($menu->contrast($c('#FFFFFF')) >= 4.5, sprintf('Menü: %.2f', $menu->contrast($c('#FFFFFF'))));
     },
     'Häkchen und Schalterknopf haben die Schriftfarbe des Knopfs' => function () use ($palette): void {
         foreach ($palette as $name => [$primary, $secondary]) {

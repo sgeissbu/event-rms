@@ -16,9 +16,10 @@ final class DisciplineValidator
      * @param array<string, mixed> $input
      * @param bool $structureLocked  es gibt schon Resultate: Messart, Richtung und Teilmessungen bleiben unverändert
      * @param ?array<string, mixed> $existing  bestehende Disziplin (für die gesperrten Felder)
+     * @param list<string> $images  wählbare Fotos (Kopfbild-Fotos, Pfade unter uploads/)
      * @return array{values: array<string, mixed>, errors: array<string, string>}
      */
-    public static function validate(array $input, bool $structureLocked = false, ?array $existing = null): array
+    public static function validate(array $input, bool $structureLocked = false, ?array $existing = null, array $images = []): array
     {
         $str = static fn (string $key): string => trim(is_string($input[$key] ?? null) ? $input[$key] : '');
         $errors = [];
@@ -33,6 +34,8 @@ final class DisciplineValidator
             $errors['description'] = 'Maximal 1000 Zeichen.';
         }
         $values['description'] = $values['description'] === '' ? null : $values['description'];
+        $image = $str('image_file');
+        $values['image_file'] = in_array($image, $images, true) ? $image : null;
 
         $values['unit'] = $str('unit');
         if (mb_strlen($values['unit']) > 20) {

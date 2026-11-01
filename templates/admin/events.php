@@ -6,6 +6,7 @@
  */
 use App\Domain\EventPhase;
 use App\Domain\EventValidator;
+use App\Domain\HomeContent;
 use App\Http\Form;
 
 $f = new Form($errors, $old);
@@ -120,27 +121,71 @@ $f = new Form($errors, $old);
                     <?= $f->feedback('ends_at') ?>
                     <div class="form-text">Zwischen Beginn und Ende gilt der Anlass als «läuft» (Live-Rangliste).</div>
                 </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="badge">Sticker <span class="text-muted fw-normal">(optional)</span></label>
+                    <input class="form-control<?= $f->invalid('badge') ?>" id="badge" name="badge" maxlength="80" value="<?= $f->value('badge') ?>" placeholder="z.B. 175 Jahre STV" aria-describedby="badge_help">
+                    <?= $f->feedback('badge') ?>
+                    <div class="form-text" id="badge_help">Kleines, leicht gekipptes Schild über dem Titel – für Jubiläen oder Besonderes.</div>
+                </div>
             </div>
         </div></section>
 
         <section class="card mb-4"><div class="card-body">
-            <h2 class="h5 mb-1">Texte</h2>
+            <h2 class="h5 mb-1">Texte &amp; Startseite</h2>
             <p class="text-muted small">Leerzeile = neuer Absatz, Zeilen mit «- » = Aufzählung, <code>**fett**</code>.</p>
             <div class="mb-3">
                 <label class="form-label" for="description">Beschreibung</label>
-                <textarea class="form-control<?= $f->invalid('description') ?>" id="description" name="description" rows="4"><?= $f->value('description') ?></textarea>
+                <textarea class="form-control<?= $f->invalid('description') ?>" id="description" name="description" rows="5" aria-describedby="description_help"><?= $f->value('description') ?></textarea>
                 <?= $f->feedback('description') ?>
+                <div class="form-text" id="description_help">Erscheint unter «Worum geht's?». Der erste Absatz wird als kurzer Einstieg hervorgehoben – am besten ein einziger Satz.</div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-lg-7">
+                    <span class="form-label d-block">Kurzpunkte <span class="text-muted fw-normal">(optional, bis <?= HomeContent::MAX_KEY_POINTS ?>)</span></span>
+                    <p class="form-text mt-0">Das Wichtigste auf einen Blick – z.B. «Kind + Erwachsene/r», «5 Plauschdisziplinen». Symbol anklicken, Text darunter. Leere Zeilen erscheinen nicht.</p>
+                    <?php $points = is_array($old['key_points'] ?? null) ? array_values($old['key_points']) : []; ?>
+                    <?php for ($i = 0; $i < HomeContent::MAX_KEY_POINTS; $i++): $point = is_array($points[$i] ?? null) ? $points[$i] : []; ?>
+                        <fieldset class="key-point-row">
+                            <legend class="visually-hidden">Kurzpunkt <?= $i + 1 ?></legend>
+                            <div class="icon-choice" role="radiogroup" aria-label="Symbol für Kurzpunkt <?= $i + 1 ?>">
+                                <?php $chosen = $point['icon'] ?? array_keys(HomeContent::KEY_POINT_ICONS)[$i]; ?>
+                                <?php foreach (HomeContent::KEY_POINT_ICONS as $icon => $iconLabel): ?>
+                                    <label title="<?= e($iconLabel) ?>">
+                                        <input type="radio" name="key_points[<?= $i ?>][icon]" value="<?= e($icon) ?>"<?= $chosen === $icon ? ' checked' : '' ?>>
+                                        <?= icon($icon) ?><span class="visually-hidden"><?= e($iconLabel) ?></span>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
+                            <label class="visually-hidden" for="kp<?= $i ?>-text">Text für Kurzpunkt <?= $i + 1 ?></label>
+                            <input class="form-control<?= $f->invalid('key_points.' . ($i + 1)) ?>" id="kp<?= $i ?>-text" name="key_points[<?= $i ?>][text]" maxlength="<?= HomeContent::MAX_KEY_POINT_LENGTH ?>" value="<?= e((string) ($point['text'] ?? '')) ?>" placeholder="Kurzpunkt <?= $i + 1 ?>">
+                            <?= $f->feedback('key_points.' . ($i + 1)) ?>
+                        </fieldset>
+                    <?php endfor; ?>
+                </div>
+                <div class="col-lg-5">
+                    <?php
+                    $pickerName = 'intro_image';
+                    $pickerValue = (string) ($old['intro_image'] ?? '');
+                    $pickerLabel = 'Foto zur Beschreibung';
+                    $pickerNone = 'Zufällig';
+                    $pickerHelp = 'Steht neben «Worum geht’s?». «Zufällig» nimmt bei jedem Aufruf eines der Kopfbild-Fotos.';
+                    require dirname(__DIR__) . '/partials/photo-picker.php';
+                    ?>
+                </div>
             </div>
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label" for="schedule_text">Zeitplan</label>
-                    <textarea class="form-control<?= $f->invalid('schedule_text') ?>" id="schedule_text" name="schedule_text" rows="6" placeholder="- 13:00 Türöffnung&#10;- 13:30 Start"><?= $f->value('schedule_text') ?></textarea>
+                    <textarea class="form-control<?= $f->invalid('schedule_text') ?>" id="schedule_text" name="schedule_text" rows="6" placeholder="- 13:00 Türöffnung&#10;- **13:30 Start**" aria-describedby="schedule_help"><?= $f->value('schedule_text') ?></textarea>
                     <?= $f->feedback('schedule_text') ?>
+                    <div class="form-text" id="schedule_help">Beginnt jede Zeile mit einer Uhrzeit, erscheint der Zeitplan als Zeitleiste. <code>**fett**</code> hebt einen Punkt hervor.</div>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label" for="bring_text">Mitnehmen</label>
-                    <textarea class="form-control<?= $f->invalid('bring_text') ?>" id="bring_text" name="bring_text" rows="6" placeholder="- Turnschuhe&#10;- Trinkflasche"><?= $f->value('bring_text') ?></textarea>
+                    <textarea class="form-control<?= $f->invalid('bring_text') ?>" id="bring_text" name="bring_text" rows="6" placeholder="- Turnschuhe&#10;- Trinkflasche" aria-describedby="bring_help"><?= $f->value('bring_text') ?></textarea>
                     <?= $f->feedback('bring_text') ?>
+                    <div class="form-text" id="bring_help">Jeder «- »-Punkt bekommt ein Symbol: Kommt ein bekanntes Stichwort vor (Schuhe, Kleider/Shirt, Trinkflasche, Sonnenschutz/Hut, Znüni/Verpflegung, Rucksack/Tasche, Ausweis), passt es dazu – sonst erscheint ein Häkchen. Eine Zeile ohne «- » erscheint als Hinweis darunter.</div>
                 </div>
             </div>
         </div></section>

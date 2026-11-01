@@ -37,6 +37,7 @@ final class DisciplineRepository
             'sort' => (int) ($data['sort'] ?? 0),
             'name' => (string) $data['name'],
             'description' => $data['description'] ?? null,
+            'image_file' => $data['image_file'] ?? null,
             'unit' => (string) ($data['unit'] ?? ''),
             'input_format' => (string) ($data['input_format'] ?? 'number'),
             'decimals' => (int) ($data['decimals'] ?? 2),
@@ -60,11 +61,11 @@ final class DisciplineRepository
     public function update(int $id, int $eventId, array $data): void
     {
         $this->pdo->prepare(
-            'UPDATE disciplines SET sort = ?, name = ?, description = ?, unit = ?, input_format = ?, decimals = ?,
+            'UPDATE disciplines SET sort = ?, name = ?, description = ?, image_file = ?, unit = ?, input_format = ?, decimals = ?,
                     higher_is_better = ?, attempt_mode = ?, parts = ?, allow_negative = ?, factor_female = ?, factor_age = ?, active = ?
              WHERE id = ? AND event_id = ?'
         )->execute([
-            (int) $data['sort'], (string) $data['name'], $data['description'], (string) $data['unit'], (string) $data['input_format'],
+            (int) $data['sort'], (string) $data['name'], $data['description'], $data['image_file'] ?? null, (string) $data['unit'], (string) $data['input_format'],
             (int) $data['decimals'], (int) $data['higher_is_better'], (string) $data['attempt_mode'],
             $data['parts'] ? json_encode(array_values($data['parts']), JSON_UNESCAPED_UNICODE) : null,
             (int) $data['allow_negative'], (float) $data['factor_female'], (float) $data['factor_age'], (int) $data['active'],
@@ -96,6 +97,7 @@ final class DisciplineRepository
         foreach (['id', 'event_id', 'sort', 'decimals', 'higher_is_better', 'allow_negative', 'active'] as $key) {
             $row[$key] = (int) $row[$key];
         }
+        $row['image_file'] ??= null;
         $row['factor_female'] = (float) $row['factor_female'];
         $row['factor_age'] = (float) $row['factor_age'];
         $parts = $row['parts'] !== null ? json_decode((string) $row['parts'], true) : null;

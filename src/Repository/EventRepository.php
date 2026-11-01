@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Repository;
 
+use App\Domain\HomeContent;
 use App\Domain\Text;
 use PDO;
 
@@ -46,7 +47,7 @@ final class EventRepository
     }
 
     private const UPDATABLE = [
-        'title', 'tagline', 'location', 'description', 'schedule_text', 'bring_text', 'starts_at', 'ends_at',
+        'title', 'tagline', 'badge', 'location', 'description', 'schedule_text', 'bring_text', 'key_points', 'intro_image', 'starts_at', 'ends_at',
         'registration_enabled', 'registration_closes_at', 'ranking_visibility', 'name_display', 'team_size',
         'member_config', 'category_member', 'handicap_enabled', 'handicap_gender_member', 'handicap_age_member',
         'handicap_reference_age',
@@ -59,6 +60,9 @@ final class EventRepository
     public function update(int $id, array $values): void
     {
         $values['member_config'] = json_encode($values['member_config'], JSON_UNESCAPED_UNICODE);
+        if (array_key_exists('key_points', $values)) {
+            $values['key_points'] = self::encodeKeyPoints($values['key_points']);
+        }
         $set = [];
         $params = [];
         foreach (self::UPDATABLE as $column) {
@@ -85,10 +89,13 @@ final class EventRepository
             $newId = $this->create([
                 'title' => $title,
                 'tagline' => $source['tagline'],
+                'badge' => $source['badge'],
                 'location' => $source['location'],
                 'description' => $source['description'],
                 'schedule_text' => $source['schedule_text'],
                 'bring_text' => $source['bring_text'],
+                'key_points' => $source['key_points'],
+                'intro_image' => $source['intro_image'],
                 'starts_at' => $start->format('Y-m-d H:i:s'),
                 'ends_at' => $start->add($duration)->format('Y-m-d H:i:s'),
                 'registration_enabled' => $source['registration_enabled'],
@@ -107,9 +114,9 @@ final class EventRepository
                  SELECT ?, sort, name, gender, birth_year_from, birth_year_to FROM categories WHERE event_id = ?'
             )->execute([$newId, $sourceId]);
             $this->pdo->prepare(
-                'INSERT INTO disciplines (event_id, sort, name, description, unit, input_format, decimals, higher_is_better,
+                'INSERT INTO disciplines (event_id, sort, name, description, image_file, unit, input_format, decimals, higher_is_better,
                         attempt_mode, parts, allow_negative, factor_female, factor_age, active)
-                 SELECT ?, sort, name, description, unit, input_format, decimals, higher_is_better,
+                 SELECT ?, sort, name, description, image_file, unit, input_format, decimals, higher_is_better,
                         attempt_mode, parts, allow_negative, factor_female, factor_age, active FROM disciplines WHERE event_id = ?'
             )->execute([$newId, $sourceId]);
             $this->pdo->commit();
@@ -139,10 +146,13 @@ final class EventRepository
             'slug' => $this->uniqueSlug((string) ($data['slug'] ?? $data['title'])),
             'title' => (string) $data['title'],
             'tagline' => $data['tagline'] ?? null,
+            'badge' => $data['badge'] ?? null,
             'location' => $data['location'] ?? null,
             'description' => $data['description'] ?? null,
             'schedule_text' => $data['schedule_text'] ?? null,
             'bring_text' => $data['bring_text'] ?? null,
+            'key_points' => self::encodeKeyPoints($data['key_points'] ?? []),
+            'intro_image' => $data['intro_image'] ?? null,
             'starts_at' => (string) $data['starts_at'],
             'ends_at' => (string) $data['ends_at'],
             'registration_enabled' => (int) ($data['registration_enabled'] ?? 1),
@@ -183,6 +193,12 @@ final class EventRepository
         return $config;
     }
 
+    /** @param list<array{icon: string, text: string}> $points */
+    private static function encodeKeyPoints(array $points): ?string
+    {
+        return $points === [] ? null : json_encode(array_values($points), JSON_UNESCAPED_UNICODE);
+    }
+
     public static function generateJudgeCode(int $length = 8): string
     {
         $max = strlen(self::CODE_ALPHABET) - 1;
@@ -219,6 +235,9 @@ final class EventRepository
         }
         $row['handicap_reference_age'] = $row['handicap_reference_age'] === null ? null : (int) $row['handicap_reference_age'];
         $row['ranking_snapshot'] ??= null;
+        $row['badge'] ??= null;
+        $row['intro_image'] ??= null;
+        $row['key_points'] = HomeContent::decodeKeyPoints($row['key_points'] ?? null);
         return $row;
     }
 }

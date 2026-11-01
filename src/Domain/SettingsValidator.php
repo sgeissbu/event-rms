@@ -42,6 +42,8 @@ final class SettingsValidator
             $values[$key] = $hex ?? '';
         }
 
+        $values['heading_font'] = $str('heading_font') === 'system' ? 'system' : 'rounded';
+
         $values['mail_from'] = mb_strtolower($str('mail_from'));
         if ($values['mail_from'] !== '' && !filter_var($values['mail_from'], FILTER_VALIDATE_EMAIL)) {
             $errors['mail_from'] = 'Bitte eine gültige E-Mail-Adresse angeben.';

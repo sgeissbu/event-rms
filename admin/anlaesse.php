@@ -14,6 +14,7 @@ use App\Domain\EventPhase;
 use App\Domain\EventValidator;
 use App\Domain\MemberConfig;
 use App\Http\Admin;
+use App\Http\App;
 use App\Repository\CategoryRepository;
 use App\Repository\EventRepository;
 
@@ -50,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = (string) ($_POST['action'] ?? '');
 
     if ($action === 'save' && !$readOnly) {
-        $result = EventValidator::validate($_POST, $lockedTeamSize);
+        $result = EventValidator::validate($_POST, $lockedTeamSize, App::heroImages());
         if ($result['errors'] === []) {
             if ($mode === 'edit') {
                 $events->update((int) $target['id'], $result['values']);
@@ -96,7 +97,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if ($old === []) {
     if ($mode === 'edit') {
         $old = [
-            'title' => $target['title'], 'tagline' => $target['tagline'], 'location' => $target['location'],
+            'title' => $target['title'], 'tagline' => $target['tagline'], 'badge' => $target['badge'], 'location' => $target['location'],
+            'key_points' => $target['key_points'], 'intro_image' => $target['intro_image'],
             'description' => $target['description'], 'schedule_text' => $target['schedule_text'], 'bring_text' => $target['bring_text'],
             'starts_at' => EventValidator::toInput($target['starts_at']), 'ends_at' => EventValidator::toInput($target['ends_at']),
             'registration_enabled' => $target['registration_enabled'], 'registration_closes_at' => EventValidator::toInput($target['registration_closes_at']),
@@ -121,6 +123,7 @@ if ($old === []) {
 $vars = Admin::layoutVars($ctx, 'events', 'Anlässe') + [
     'mode' => $mode, 'target' => $target, 'errors' => $errors, 'old' => $old, 'readOnly' => $readOnly,
     'lockedTeamSize' => $lockedTeamSize, 'entryCounts' => $entryCounts, 'maxTeamSize' => EventRepository::MAX_TEAM_SIZE,
+    'photos' => App::heroImages(),
 ];
 
 if ($mode === 'list') {

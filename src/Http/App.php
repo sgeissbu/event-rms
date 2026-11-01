@@ -120,6 +120,7 @@ final class App
             'metaDescription' => PageMeta::description($event, $clubName),
             'shareImage' => $shareImage !== null ? base_url() . '/uploads/' . $shareImage : null,
             'activeNav' => $activeNav,
+            'roundedHeadings' => Settings::get('heading_font', 'rounded') !== 'system',
             'flashes' => Session::takeFlashes(),
         ];
     }

@@ -13,6 +13,7 @@ use App\Core\View;
 use App\Domain\DisciplinePreview;
 use App\Domain\DisciplineValidator;
 use App\Http\Admin;
+use App\Http\App;
 use App\Repository\DisciplineRepository;
 
 $ctx = Admin::boot();
@@ -41,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$readOnly) {
     Session::requireCsrf();
     switch ((string) ($_POST['action'] ?? '')) {
         case 'save':
-            $result = DisciplineValidator::validate($_POST, $locked, $editing);
+            $result = DisciplineValidator::validate($_POST, $locked, $editing, App::heroImages());
             $name = mb_strtolower($result['values']['name']);
             foreach ($list as $other) {
                 if (($editing === null || $other['id'] !== $editing['id']) && mb_strtolower($other['name']) === $name) {
@@ -80,4 +81,5 @@ View::render('admin/disciplines', Admin::layoutVars($ctx, 'disciplines', 'Diszip
     'old' => $old,
     'readOnly' => $readOnly,
     'preview' => $editing !== null ? DisciplinePreview::lines($editing, $event) : [],
+    'photos' => App::heroImages(),
 ], 'layout-admin');

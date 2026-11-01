@@ -3,7 +3,7 @@
  * UI-Texte (Deutsch). Event-spezifische Texte stehen in der Datenbank, nicht hier.
  */
 return [
-    'nav.home' => 'Start',
+    'nav.home' => 'Anlass', // nicht «Start» – zu nah an «Startliste»
     'nav.register' => 'Anmeldung',
     'nav.startlist' => 'Startliste',
     'nav.ranking' => 'Rangliste',
@@ -13,6 +13,9 @@ return [
 
     'footer.powered' => 'Erstellt mit {link}',
 
+    'home.intro' => 'Worum geht’s?',
+    'home.cta.title' => 'Seid ihr dabei?',
+    'home.cta.text' => 'Die Anmeldung ist offen – wir freuen uns auf euch!',
     'event.none.title' => 'Noch kein Anlass geplant',
     'event.none.text' => 'Sobald der nächste Anlass feststeht, findest du hier alle Infos und die Anmeldung.',
     'event.when' => 'Wann',

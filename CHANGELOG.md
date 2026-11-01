@@ -2,6 +2,27 @@
 
 Das Format orientiert sich an [Keep a Changelog](https://keepachangelog.com/de/1.1.0/), die Versionen an [Semantic Versioning](https://semver.org/lang/de/).
 
+## [0.10.0] – 2026-11-01
+
+### Neu
+- Startseite neu gestaltet: Fotos bzw. Diashow randlos über fast den ganzen Bildschirm, Titel und Knopf unten links; Logo und Menü liegen durchsichtig über dem Foto und werden beim Scrollen (oder beim Öffnen des Handy-Menüs) deckend. Darunter eine Info-Leiste mit Datum, Ort und Countdown bzw. Status
+- «Worum geht's?»: Der erste Absatz der Beschreibung wird als Einstieg hervorgehoben, daneben ein leicht gekipptes Foto
+- Anlass: neue optionale Felder **Sticker** (Schild über dem Titel, z.B. «175 Jahre STV»), **Kurzpunkte** (bis 4, Symbol per Klick aus 13 Symbolen) und **Foto zur Beschreibung** (Auswahl aus den Kopfbild-Fotos, sonst zufällig)
+- Disziplinen: optional ein **Foto** (Auswahl aus den Kopfbild-Fotos) – auf der Startseite als Bildkarte, ohne Foto in der Vereinsfarbe; auf dem Handy wischt man durch die Karten
+- Zeitplan als Zeitleiste, sobald jede Zeile mit einer Uhrzeit beginnt (`**fett**` hebt einen Punkt hervor); sonst bleibt es beim Fliesstext
+- «Mitnehmen» mit passenden Symbolen (Schuhe, Flasche, Sonne, Kleider …, per Stichwort); Zeilen ohne «- » erscheinen als Hinweis
+- Schluss-Aufruf «Seid ihr dabei?» mit Anmeldeknopf, solange die Anmeldung offen ist
+- «Verein & Design»: Titelschrift wählbar – rund und verspielt (Nunito, Standard) oder schlicht (Systemschrift). Nunito wird mitgeliefert, es gehen keine Daten an Google
+- Linien-Symbole aus Lucide (ISC) als SVG-Sprite (`assets/img/icons.svg`)
+
+### Geändert
+- Menüpunkt «Start» heisst neu «Anlass» (war leicht mit «Startliste» zu verwechseln)
+- Dunkelmodus: Hintergrund, Karten, Menü, Fusszeile und Rahmen sind im Farbton der Hauptfarbe getönt statt fest Navy (gleiche Helligkeit; graue Vereinsfarben bleiben neutral). Kontraste werden für jede Farbe geprüft
+- Hero-Farben: neue Variable `--hero-accent` (Zweitfarbe, wenn sie auf dem Hero-Grund ≥ 3:1 hat, sonst die Hero-Schriftfarbe)
+
+### Datenbank
+- Migration 003: `events.badge`, `events.key_points`, `events.intro_image`, `disciplines.image_file` (läuft beim ersten Aufruf nach dem Update automatisch)
+
 ## [0.9.4] – 2026-10-31
 
 ### Neu

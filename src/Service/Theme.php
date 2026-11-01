@@ -19,6 +19,7 @@ final class Theme
 
     // Flächen aus app.css – müssen mit den Tokens --surface, --surface-alt, --surface-raised übereinstimmen.
     private const LIGHT_SURFACES = ['#FFFFFF', '#F6F7F9'];
+    // Dunkelmodus-Flächen in app.css (Fallback ohne Theme). Mit Vereinsfarbe werden sie getönt, siehe darkSurfaces().
     private const DARK_SURFACES = ['#111827', '#0B1220', '#1A2333'];
     private const INK = '#111827';
 
@@ -39,7 +40,8 @@ final class Theme
         $ink = Color::fromHex(self::INK);
         $black = Color::rgb(0, 0, 0);
         $lightSurfaces = array_map([Color::class, 'fromHex'], self::LIGHT_SURFACES);
-        $darkSurfaces = array_map([Color::class, 'fromHex'], self::DARK_SURFACES);
+        $darkTint = self::darkSurfaces($primary);
+        $darkSurfaces = [$darkTint['--surface'], $darkTint['--surface-alt'], $darkTint['--surface-raised']];
         $darkBase = $darkSurfaces[0];
 
         // Hover: sehr dunkle Farben werden heller, alle anderen dunkler.
@@ -82,7 +84,7 @@ final class Theme
         $accentTextDark = $secondary->readableOnAll([...$darkSurfaces, $accentSubtleDark], self::MIN_TEXT);
         $brandContrastDark = $primaryDark->bestTextColor($ink, $white);
 
-        $darkVars = [
+        $darkVars = array_map(static fn (Color $c): string => $c->hex(), $darkTint) + [
             '--brand' => $primaryDark->hex(),
             '--brand-rgb' => $primaryDark->rgbList(),
             '--brand-hover' => $darkHover($primaryDark)->hex(),
@@ -159,6 +161,9 @@ final class Theme
             '--hero-chip-bg' => $useInk ? 'rgba(255, 255, 255, 0.45)' : 'rgba(0, 0, 0, 0.22)',
             '--hero-glow-rgb' => $secondary->rgbList(),
             '--hero-glow-alpha' => (string) max(0.0, $alpha),
+            // Akzent auf der Hero-Fläche (Info-Leiste, Countdown-Zahlen, Symbole): Vereins-Zweitfarbe, wenn sie auf
+            // --hero-a mind. 3:1 hat (grosse/fette Schrift, Grafik – WCAG 1.4.3/1.4.11), sonst die Hero-Schriftfarbe.
+            '--hero-accent' => ($secondary->contrast($base) >= 3.0 ? $secondary : $text)->hex(),
         ];
     }
 
@@ -173,6 +178,26 @@ final class Theme
         return [
             '--check-image' => "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='{$hex}' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e\")",
             '--switch-image' => "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='{$hex}'/%3e%3c/svg%3e\")",
+        ];
+    }
+
+    /**
+     * Dunkelmodus-Flächen im Farbton der Hauptfarbe: gleiche Helligkeit und Sättigung wie die neutralen
+     * Navy-Töne aus app.css, nur der Farbton wandert mit. Graue/schwarze/weisse Vereinsfarben (wenig Sättigung)
+     * ergeben entsprechend neutrales Grau. Schrift (--text, --text-muted) bleibt hell; ThemeContrastTest prüft.
+     * @return array<string, Color>
+     */
+    public static function darkSurfaces(Color $primary): array
+    {
+        [$hue, $sat] = $primary->toHsl();
+        $f = min(1.0, $sat / 0.45); // Anteil der Tönung: kräftige Farben voll, Grautöne kaum
+        $tone = static fn (float $s, float $l): Color => Color::fromHsl($hue, $s * $f, $l);
+        return [
+            '--surface' => $tone(0.39, 0.11),
+            '--surface-alt' => $tone(0.49, 0.08),
+            '--surface-raised' => $tone(0.33, 0.15),
+            '--border' => $tone(0.24, 0.22),
+            '--border-input' => $tone(0.14, 0.48),
         ];
     }
 
@@ -237,8 +262,10 @@ final class Theme
     {
         $vars = self::variables($primaryHex, $secondaryHex, $nameLight, $nameDark);
         // Der Dunkelmodus erbt alles, was er nicht überschreibt – für die Vorschau ausdrücklich zusammenführen.
+        // Neutrale Hell-Flächen wie in app.css, damit die Vorschau beim Umschalten die getönten Dunkel-Flächen zurücksetzt.
+        $lightSurfaces = ['--surface' => '#FFFFFF', '--surface-alt' => '#F6F7F9', '--surface-raised' => '#FFFFFF', '--border' => '#E3E6EB', '--border-input' => '#858D9B'];
         return [
-            'light' => $vars['light'],
+            'light' => $vars['light'] + $lightSurfaces,
             'dark' => $vars['dark'] + $vars['light'],
             'warnings' => self::warnings($primaryHex, $secondaryHex),
         ];
@@ -249,13 +276,16 @@ final class Theme
      * jeweiligen Modus (unter 4.5:1). Leere oder ungültige Eingabe ergibt keinen Hinweis –
      * leer bedeutet «automatisch berechnete Markenfarbe», und ungültig wird ohnehin abgelehnt.
      */
-    public static function nameColorWarning(?string $hex, bool $dark): ?string
+    public static function nameColorWarning(?string $hex, bool $dark, ?string $primaryHex = null): ?string
     {
         $color = $hex !== null && trim($hex) !== '' ? Color::fromHex($hex) : null;
         if ($color === null) {
             return null;
         }
-        $surfaces = array_map([Color::class, 'fromHex'], $dark ? self::DARK_SURFACES : self::LIGHT_SURFACES);
+        $primary = $primaryHex !== null ? Color::fromHex($primaryHex) : null;
+        $surfaces = $dark && $primary !== null
+            ? array_values(array_slice(self::darkSurfaces($primary), 0, 3))
+            : array_map([Color::class, 'fromHex'], $dark ? self::DARK_SURFACES : self::LIGHT_SURFACES);
         $worst = min(array_map(static fn (Color $s): float => $color->contrast($s), $surfaces));
         if ($worst >= self::MIN_TEXT) {
             return null;

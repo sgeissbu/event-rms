@@ -28,9 +28,10 @@ final class EventValidator
     /**
      * @param array<string, mixed> $input  POST-Daten; Mitglieder unter members[pos][label|gender|birth_year]
      * @param ?int $lockedTeamSize  gesetzt, wenn die Teamgrösse nicht mehr änderbar ist (es gibt Anmeldungen)
+     * @param list<string> $images  wählbare Fotos (Kopfbild-Fotos, Pfade unter uploads/) für intro_image
      * @return array{values: array<string, mixed>, errors: array<string, string>}
      */
-    public static function validate(array $input, ?int $lockedTeamSize = null): array
+    public static function validate(array $input, ?int $lockedTeamSize = null, array $images = []): array
     {
         $str = static fn (string $key): string => trim(is_string($input[$key] ?? null) ? $input[$key] : '');
         $errors = [];
@@ -40,7 +41,7 @@ final class EventValidator
         if ($values['title'] === '' || mb_strlen($values['title']) > 150) {
             $errors['title'] = 'Bitte einen Namen angeben (max. 150 Zeichen).';
         }
-        foreach (['tagline' => 255, 'location' => 255] as $key => $max) {
+        foreach (['tagline' => 255, 'location' => 255, 'badge' => 80] as $key => $max) {
             $values[$key] = $str($key);
             if (mb_strlen($values[$key]) > $max) {
                 $errors[$key] = "Maximal {$max} Zeichen.";
@@ -54,6 +55,13 @@ final class EventValidator
             }
             $values[$key] = $values[$key] === '' ? null : $values[$key];
         }
+
+        // Startseite: Kurzpunkte und Foto zur Beschreibung (beides optional)
+        $points = HomeContent::validateKeyPoints($input['key_points'] ?? []);
+        $values['key_points'] = $points['value'];
+        $errors += $points['errors'];
+        $image = $str('intro_image');
+        $values['intro_image'] = in_array($image, $images, true) ? $image : null;
 
         $start = self::parseDate($str('starts_at'));
         $end = self::parseDate($str('ends_at'));

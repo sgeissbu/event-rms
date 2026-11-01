@@ -1,7 +1,7 @@
 <?php
 /**
  * @var array $event  @var list<array> $list  @var array<int,int> $resultCounts  @var ?array $editing  @var bool $locked
- * @var array $errors  @var array $old  @var bool $readOnly  @var list<string> $preview
+ * @var array $errors  @var array $old  @var bool $readOnly  @var list<string> $preview  @var list<string> $photos
  */
 use App\Domain\ValueFormat;
 use App\Http\Form;
@@ -91,6 +91,16 @@ $num = static fn (float $v): string => rtrim(rtrim(number_format($v, 4, '.', '')
                             <label class="form-label" for="description">Beschreibung <span class="text-muted fw-normal">(erscheint auf der Startseite)</span></label>
                             <textarea class="form-control<?= $f->invalid('description') ?>" id="description" name="description" rows="2" maxlength="1000"><?= $f->value('description') ?></textarea>
                             <?= $f->feedback('description') ?>
+                        </div>
+                        <div class="col-12">
+                            <?php
+                            $pickerName = 'image_file';
+                            $pickerValue = (string) ($old['image_file'] ?? '');
+                            $pickerLabel = 'Foto';
+                            $pickerNone = 'Kein Foto';
+                            $pickerHelp = 'Erscheint als Bildkarte auf der Startseite. Ohne Foto zeigt die Karte die Vereinsfarbe.';
+                            require dirname(__DIR__) . '/partials/photo-picker.php';
+                            ?>
                         </div>
 
                         <div class="col-md-4">

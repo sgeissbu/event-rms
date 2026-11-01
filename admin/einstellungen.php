@@ -149,7 +149,7 @@ $namePreview = [
 ];
 $nameWarnings = [
     'light' => Theme::nameColorWarning($nameColor['light'], false),
-    'dark' => Theme::nameColorWarning($nameColor['dark'], true),
+    'dark' => Theme::nameColorWarning($nameColor['dark'], true, (string) Settings::get('color_primary')),
 ];
 
 View::render('admin/settings', Admin::layoutVars($ctx, 'settings', 'Verein & Design') + [

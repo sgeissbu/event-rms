@@ -142,4 +142,5 @@ php tests/run.php               # alle Tests (eigener Runner, keine Abhängigkei
 
 [MIT](LICENSE) – frei nutz- und anpassbar. Mitgeliefert: [Bootstrap 5.3](https://getbootstrap.com) (MIT), [PHPMailer 7](https://github.com/PHPMailer/PHPMailer) (LGPL-2.1),
 [qrcode-generator](https://github.com/kazuhikoarase/qrcode-generator) (MIT) und für den Ranglisten-PDF [Dompdf 3.1.6](https://github.com/dompdf/dompdf) (LGPL-2.1)
-samt den darin enthaltenen Bibliotheken PHP CSS Parser (MIT), Masterminds HTML5 (MIT), PHP Font Lib (LGPL-2.1), PHP SVG Lib (LGPL-3.0) und Composer ClassLoader (MIT) – die jeweiligen Lizenzen liegen bei den Dateien.
+samt den darin enthaltenen Bibliotheken PHP CSS Parser (MIT), Masterminds HTML5 (MIT), PHP Font Lib (LGPL-2.1), PHP SVG Lib (LGPL-3.0) und Composer ClassLoader (MIT),
+die Titelschrift [Nunito](https://github.com/googlefonts/nunito) (SIL OFL 1.1) und Symbole aus [Lucide](https://lucide.dev) (ISC) – die jeweiligen Lizenzen liegen bei den Dateien.

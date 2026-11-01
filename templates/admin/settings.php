@@ -55,6 +55,15 @@ $v = static fn (string $key): string => e($old[$key] ?? '');
         </div>
         <p class="form-text mb-3">Hauptfarbe für Kopfbereich und Buttons, Akzentfarbe für Hervorhebungen. Schriftfarben und Abstufungen werden automatisch gut lesbar berechnet – auch im Dunkelmodus.</p>
 
+        <div class="mb-3" style="max-width: 24rem">
+            <label class="form-label" for="heading_font">Titelschrift</label>
+            <select class="form-select" id="heading_font" name="heading_font" aria-describedby="heading_font_help">
+                <option value="rounded"<?= ($old['heading_font'] ?? 'rounded') !== 'system' ? ' selected' : '' ?>>Rund und verspielt (Nunito)</option>
+                <option value="system"<?= ($old['heading_font'] ?? 'rounded') === 'system' ? ' selected' : '' ?>>Schlicht (Systemschrift)</option>
+            </select>
+            <div class="form-text" id="heading_font_help">Für die Titel der öffentlichen Seiten. Die Schrift wird mitgeliefert – es werden keine Daten an Google gesendet.</div>
+        </div>
+
         <div class="theme-preview mb-4" id="theme-preview" data-url="<?= e(url('admin/theme-vorschau.php')) ?>" data-mode="light" aria-label="Vorschau der Vereinsfarben">
             <div class="theme-preview-bar">
                 <span class="small fw-semibold">Vorschau</span>

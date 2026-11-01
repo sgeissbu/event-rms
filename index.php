@@ -39,6 +39,21 @@ if ($event !== null) {
         'registrationCloses' => new DateTimeImmutable($closes),
     ]);
     $vars['disciplines'] = (new DisciplineRepository(Database::pdo()))->forEvent((int) $event['id'], true);
+    // Foto neben «Worum geht's?»: gewähltes Foto, sonst ein zufälliges (möglichst nicht das erste der Diashow)
+    $files = App::heroImages();
+    $intro = in_array($event['intro_image'] ?? '', $files, true) ? $event['intro_image'] : null;
+    if ($intro === null && $files !== []) {
+        $intro = $files[array_rand($files)];
+        if (count($files) > 1 && $images !== [] && url('uploads/' . $intro) === $images[0]) {
+            $intro = $files[(array_search($intro, $files, true) + 1) % count($files)];
+        }
+    }
+    $vars['introImage'] = $intro !== null ? asset('uploads/' . $intro) : null;
+    $vars['photoFiles'] = $files;
+    $vars['registrationOpen'] = $registrationOpen;
+    $vars['eventQuery'] = App::eventQuery($event);
+    // Kopf liegt durchsichtig über dem Foto (nur ohne Hinweisbalken «anderer Anlass» dazwischen)
+    $vars['heroOverlay'] = $images !== [] && empty($vars['otherEvent']);
     $vars['scripts'] = $slideshow ? ['assets/js/countdown.js', 'assets/js/hero-slideshow.js'] : ['assets/js/countdown.js'];
 }
 

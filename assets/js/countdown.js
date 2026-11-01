@@ -1,4 +1,4 @@
-// Countdown im Hero: zählt bis data-countdown (ISO-Zeitpunkt) und lädt beim Start neu,
+// Countdown (Info-Leiste der Startseite): zählt bis data-countdown (ISO-Zeitpunkt) und lädt beim Start neu,
 // damit der Server die Live-Ansicht rendert.
 (function () {
     'use strict';
@@ -24,10 +24,9 @@
             return;
         }
         const s = Math.floor(diff / 1000);
-        parts.days.textContent = pad(Math.floor(s / 86400));
-        parts.hours.textContent = pad(Math.floor((s % 86400) / 3600));
-        parts.minutes.textContent = pad(Math.floor((s % 3600) / 60));
-        parts.seconds.textContent = pad(s % 60);
+        const values = { days: Math.floor(s / 86400), hours: Math.floor((s % 86400) / 3600), minutes: Math.floor((s % 3600) / 60), seconds: s % 60 };
+        // Nur die vorhandenen Einheiten füllen (die Info-Leiste der Startseite zeigt keine Sekunden).
+        Object.keys(parts).forEach((unit) => { parts[unit].textContent = unit === 'days' ? String(values.days) : pad(values[unit]); });
     }
 
     const timer = setInterval(tick, 1000);

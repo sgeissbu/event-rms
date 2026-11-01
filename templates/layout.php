@@ -5,7 +5,9 @@
  * @var string $logoInitials  @var string $themeCss  @var string $activeNav  @var array $flashes
  * @var ?string $pageTitle  @var ?string $hero  (optional: fertiges Hero-HTML über dem Inhalt)
  * @var array<string, array{0:string,1:string}> $navItems  key => [URL, Label]
+ * @var bool $roundedHeadings  Titelschrift Nunito (Einstellung «Titelschrift»)  @var ?bool $heroOverlay  Kopf liegt über dem Foto (Startseite)
  */
+$bodyClass = trim((!empty($roundedHeadings) ? 'font-rounded' : '') . (!empty($heroOverlay) ? ' has-hero-overlay' : ''));
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -27,13 +29,14 @@
     <meta name="twitter:card" content="<?= !empty($shareImage) ? 'summary_large_image' : 'summary' ?>">
     <?php if (!empty($faviconHref)): ?><link rel="icon" href="<?= e($faviconHref) ?>"><?php endif; ?>
     <link rel="stylesheet" href="<?= e(asset('assets/vendor/bootstrap/bootstrap.min.css')) ?>">
+    <?php if (!empty($roundedHeadings)): ?><link rel="preload" href="<?= e(url('assets/vendor/nunito/nunito-latin.woff2')) ?>" as="font" type="font/woff2" crossorigin><?php endif; ?>
     <link rel="stylesheet" href="<?= e(asset('assets/css/app.css')) ?>">
     <style><?= $themeCss ?></style>
     <noscript><style>.navbar-collapse.collapse { display: block; } .navbar-toggler { display: none; }</style></noscript>
 </head>
-<body>
+<body<?= $bodyClass !== '' ? ' class="' . e($bodyClass) . '"' : '' ?>>
 <a class="skip-link" href="#main"><?= e(t('a11y.skip')) ?></a>
-<header class="app-header">
+<header class="app-header"<?= !empty($heroOverlay) ? ' data-hero-overlay' : '' ?>>
     <nav class="navbar navbar-expand-md">
         <div class="container">
             <a class="app-brand" href="<?= e(url('index.php')) ?>">
@@ -96,6 +99,7 @@
 </footer>
 <script src="<?= e(asset('assets/vendor/bootstrap/bootstrap.bundle.min.js')) ?>" defer></script>
 <script src="<?= e(asset('assets/js/forms.js')) ?>" defer></script>
+<?php if (!empty($heroOverlay)): ?><script src="<?= e(asset('assets/js/header-overlay.js')) ?>" defer></script><?php endif; ?>
 <?php foreach ($scripts ?? [] as $script): ?>
     <script src="<?= e(asset($script)) ?>" defer></script>
 <?php endforeach; ?>

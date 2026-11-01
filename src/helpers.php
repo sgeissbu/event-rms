@@ -97,6 +97,18 @@ function asset(string $path): string
     return url($path) . '?v=' . $v;
 }
 
+/**
+ * Linien-Symbol aus assets/img/icons.svg (Lucide). Rein dekorativ – Bedeutung steht immer im Text daneben.
+ * Name nur aus [a-z-] (kommt aus Code oder geprüften Admin-Werten).
+ */
+function icon(string $name, string $class = 'ico'): string
+{
+    $name = preg_replace('/[^a-z-]/', '', $name) ?: 'check';
+    static $sprite = null;
+    $sprite ??= asset('assets/img/icons.svg');
+    return '<svg class="' . e($class) . '" aria-hidden="true" focusable="false"><use href="' . e($sprite) . '#' . $name . '"></use></svg>';
+}
+
 function csrf_field(): string
 {
     return '<input type="hidden" name="_csrf" value="' . e(App\Core\Session::csrfToken()) . '">';
